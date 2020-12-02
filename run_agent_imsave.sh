@@ -15,8 +15,16 @@ export PYTHONPATH=$PYTHONPATH:leaderboard
 export PYTHONPATH=$PYTHONPATH:leaderboard/team_code
 export PYTHONPATH=$PYTHONPATH:scenario_runner
 #export ROUTES=$LBC_ROOT/leaderboard/data/routes_devtest/route_01.xml
-export ROUTES=$LBC_ROOT/leaderboard/data/routes_testing/route_24.xml
-export LOGDIR=$LBC_ROOT/leaderboard/data/logs/image_agent/testing
+export SPLIT=training
+export ROUTE_NUM=route_18
+export ROUTES=$LBC_ROOT/leaderboard/data/routes_${SPLIT}/${ROUTE_NUM}.xml
+export LOGDIR=$LBC_ROOT/leaderboard/data/logs/image_agent/${SPLIT}
+export SAVE_IMG_PATH=${LOGDIR}/images/${ROUTE_NUM}
+if [ ! -d $SAVE_IMG_PATH ]; then
+	mkdir -p $SAVE_IMG_PATH
+fi
+export LOGDIR=$SAVE_IMG_PATH
+echo $SAVE_IMG_PATH
 export DEBUG_CHALLENGE=0
 export HAS_DISPLAY=1
 export PORT=2000

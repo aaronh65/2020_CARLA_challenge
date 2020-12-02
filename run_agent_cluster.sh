@@ -1,12 +1,16 @@
 #!/bin/bash
 
 source /home/aaron/.bashrc
-source /home/aaron/anaconda3/etc/profile.d/conda.sh
 conda activate leaderboard
 
 # Python env variables so the subdirectories can find each other
+export CUDA_VISIBLE_DEVICES=$1
+export PORT=$2
+export ROUTES=$3
+export LOGDIR=$4
+export TM_PORT=$5
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/aaron/anaconda3/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/aaronhua/anaconda3/lib
 export CARLA_ROOT=/home/aaron/workspace/carla/CARLA_0.9.10.1
 export LBC_ROOT=/home/aaron/workspace/carla/2020_CARLA_challenge
 export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
@@ -14,21 +18,14 @@ export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.10-py3.
 export PYTHONPATH=$PYTHONPATH:leaderboard
 export PYTHONPATH=$PYTHONPATH:leaderboard/team_code
 export PYTHONPATH=$PYTHONPATH:scenario_runner
-#export ROUTES=$LBC_ROOT/leaderboard/data/routes_devtest/route_01.xml
-export ROUTES=$LBC_ROOT/leaderboard/data/routes_testing/route_24.xml
-export LOGDIR=$LBC_ROOT/leaderboard/data/logs/image_agent/testing
+export HAS_DISPLAY=0
 export DEBUG_CHALLENGE=0
-export HAS_DISPLAY=1
-export PORT=2000
 
 # LBC agent config
-export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/image_agent.py
-export TEAM_CONFIG=$LBC_ROOT/leaderboard/data/image_model.ckpt
-#export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/auto_pilot.py
-#export TEAM_CONFIG=$LBC_ROOT/leaderboard/data/
+export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/${6}.py
+export TEAM_CONFIG=$LBC_ROOT/leaderboard/data/$7
 
 # leaderboard config
-
 
 if [ -d "$TEAM_CONFIG" ]; then
     CHECKPOINT_ENDPOINT="$LOGDIR/$(basename $ROUTES .xml).txt"
@@ -44,6 +41,7 @@ python leaderboard/leaderboard/leaderboard_evaluator.py \
 --routes=${ROUTES} \
 --checkpoint=${CHECKPOINT_ENDPOINT} \
 --port=${PORT} \
+--trafficManagerPort=${TM_PORT} \
 --debug=${DEBUG_CHALLENGE}
 
 echo "Done. See $CHECKPOINT_ENDPOINT for detailed results."
