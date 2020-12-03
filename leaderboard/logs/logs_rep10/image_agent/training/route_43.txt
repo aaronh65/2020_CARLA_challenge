@@ -1,0 +1,381 @@
+{
+    "_checkpoint": {
+        "global_record": {
+            "index": -1,
+            "infractions": {
+                "collisions_layout": 0.0,
+                "collisions_pedestrian": 0.0,
+                "collisions_vehicle": 0.048542730592243205,
+                "outside_route_lanes": 0.06934675798891886,
+                "red_light": 0.06241208219002697,
+                "route_dev": 0.0,
+                "route_timeout": 0.0,
+                "stop_infraction": 0.0,
+                "vehicle_blocked": 0.0
+            },
+            "meta": {},
+            "route_id": -1,
+            "scores": {
+                "score_composed": 53.67631064640132,
+                "score_penalty": 0.5367631064640133,
+                "score_route": 100.0
+            },
+            "status": "Completed"
+        },
+        "progress": [
+            10,
+            10
+        ],
+        "records": [
+            {
+                "index": 0,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 22.941 meters (1.52% of the completed route)"
+                    ],
+                    "red_light": [
+                        "Agent ran a red light 5908 at (x=-17.11, y=-6.29, z=0.05)"
+                    ],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 330.55000492557883,
+                    "duration_system": 2488.7940731048584,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 68.9334587232963,
+                    "score_penalty": 0.6893345872329629,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            },
+            {
+                "index": 1,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 22.941 meters (1.52% of the completed route)"
+                    ],
+                    "red_light": [],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 399.30000595003366,
+                    "duration_system": 3187.893750667572,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 98.476369604709,
+                    "score_penalty": 0.98476369604709,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            },
+            {
+                "index": 2,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [
+                        "Agent collided against object with type=vehicle.carlamotors.carlacola and id=6465 at (x=-24.635, y=-20.795, z=0.034)"
+                    ],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 26.037 meters (1.73% of the completed route)"
+                    ],
+                    "red_light": [
+                        "Agent ran a red light 6436 at (x=-17.11, y=-6.29, z=0.05)"
+                    ],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 334.80000498890877,
+                    "duration_system": 2538.122181892395,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 41.273694820613194,
+                    "score_penalty": 0.41273694820613194,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            },
+            {
+                "index": 3,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [
+                        "Agent collided against object with type=vehicle.carlamotors.carlacola and id=6729 at (x=-17.495, y=-22.844, z=0.034)"
+                    ],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 22.941 meters (1.52% of the completed route)"
+                    ],
+                    "red_light": [
+                        "Agent ran a red light 6700 at (x=-17.11, y=-6.29, z=0.05)"
+                    ],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 327.05000487342477,
+                    "duration_system": 2525.9151709079742,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 41.36007523397778,
+                    "score_penalty": 0.4136007523397778,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            },
+            {
+                "index": 4,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 26.037 meters (1.73% of the completed route)"
+                    ],
+                    "red_light": [
+                        "Agent ran a red light 6964 at (x=-17.11, y=-6.29, z=0.05)"
+                    ],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 325.40000484883785,
+                    "duration_system": 2464.306165933609,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 68.78949136768865,
+                    "score_penalty": 0.6878949136768866,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            },
+            {
+                "index": 5,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 20.073 meters (1.33% of the completed route)"
+                    ],
+                    "red_light": [
+                        "Agent ran a red light 7228 at (x=-17.11, y=-6.29, z=0.05)"
+                    ],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 328.3500048927963,
+                    "duration_system": 2516.9999318122864,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 69.06677635309507,
+                    "score_penalty": 0.6906677635309507,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            },
+            {
+                "index": 6,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [
+                        "Agent collided against object with type=vehicle.carlamotors.carlacola and id=7521 at (x=-19.991, y=-22.231, z=0.034)"
+                    ],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 21.985 meters (1.46% of the completed route)"
+                    ],
+                    "red_light": [
+                        "Agent ran a red light 7492 at (x=-17.11, y=-6.29, z=0.05)"
+                    ],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 328.6500048972666,
+                    "duration_system": 2518.2719237804413,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 41.386738660178395,
+                    "score_penalty": 0.41386738660178396,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            },
+            {
+                "index": 7,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [
+                        "Agent collided against object with type=vehicle.carlamotors.carlacola and id=7785 at (x=-24.607, y=-20.803, z=0.034)"
+                    ],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 27.948 meters (1.86% of the completed route)"
+                    ],
+                    "red_light": [
+                        "Agent ran a red light 7756 at (x=-17.11, y=-6.29, z=0.05)"
+                    ],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 333.6000049710274,
+                    "duration_system": 2510.290764570236,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 41.220390748211116,
+                    "score_penalty": 0.41220390748211116,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            },
+            {
+                "index": 8,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [
+                        "Agent collided against object with type=vehicle.lincoln.mkz2017 and id=8140 at (x=-26.146, y=-21.659, z=0.033)",
+                        "Agent collided against object with type=vehicle.carlamotors.carlacola and id=8049 at (x=-29.146, y=-21.426, z=0.011)"
+                    ],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 22.941 meters (1.52% of the completed route)"
+                    ],
+                    "red_light": [
+                        "Agent ran a red light 8020 at (x=-17.11, y=-6.29, z=0.05)"
+                    ],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 327.250004876405,
+                    "duration_system": 2522.3956999778748,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 24.816045140386663,
+                    "score_penalty": 0.24816045140386664,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            },
+            {
+                "index": 9,
+                "infractions": {
+                    "collisions_layout": [],
+                    "collisions_pedestrian": [],
+                    "collisions_vehicle": [
+                        "Agent collided against object with type=vehicle.carlamotors.carlacola and id=8313 at (x=-17.67, y=-22.801, z=0.034)"
+                    ],
+                    "outside_route_lanes": [
+                        "Agent went outside its route lanes for about 20.073 meters (1.33% of the completed route)"
+                    ],
+                    "red_light": [
+                        "Agent ran a red light 8284 at (x=-17.11, y=-6.29, z=0.05)"
+                    ],
+                    "route_dev": [],
+                    "route_timeout": [],
+                    "stop_infraction": [],
+                    "vehicle_blocked": []
+                },
+                "meta": {
+                    "duration_game": 328.2000048905611,
+                    "duration_system": 2518.401023864746,
+                    "route_length": 1442.0284797737672
+                },
+                "route_id": "RouteScenario_43",
+                "scores": {
+                    "score_composed": 41.44006581185704,
+                    "score_penalty": 0.4144006581185704,
+                    "score_route": 100.0
+                },
+                "status": "Completed"
+            }
+        ]
+    },
+    "eligible": true,
+    "entry_status": "Finished",
+    "labels": [
+        "Avg. driving score",
+        "Avg. route completion",
+        "Avg. infraction penalty",
+        "Collisions with pedestrians",
+        "Collisions with vehicles",
+        "Collisions with layout",
+        "Red lights infractions",
+        "Stop sign infractions",
+        "Off-road infractions",
+        "Route deviations",
+        "Route timeouts",
+        "Agent blocked"
+    ],
+    "sensors": [
+        "carla_camera",
+        "carla_camera",
+        "carla_camera",
+        "carla_imu",
+        "carla_gnss",
+        "carla_speedometer"
+    ],
+    "values": [
+        "53.676",
+        "100.000",
+        "0.537",
+        "0.000",
+        "0.049",
+        "0.000",
+        "0.062",
+        "0.000",
+        "0.069",
+        "0.000",
+        "0.000",
+        "0.000"
+    ]
+}
