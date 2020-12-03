@@ -181,12 +181,10 @@ class ImageAgent(BaseAgent):
 
         if DEBUG or SAVE_IMAGES:
             _waypoint_img = self._command_planner.debug.img
-            #pos = self._get_position(tick_data)
-            #points_map = self.converter.cam_to_map(points_cam).numpy()
-            #for y, x in points_world:
-            #    x = int(257/2+x*5.5)
-            #    y = int(257/2+y*5.5)
-            #    ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2),(255,255,255))
+            for y, x in points_world:
+                x = int(257/2+x*5.5)
+                y = int(257/2+y*5.5)
+                ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2),(255,255,255))
             debug_display(
                     tick_data, target_cam.squeeze(), points.cpu().squeeze(),
                     steer, throttle, brake, desired_speed,
