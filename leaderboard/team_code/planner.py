@@ -30,10 +30,10 @@ class Plotter(object):
         if not DEBUG:
             return
 
-        import cv2
-
-        cv2.imshow(self.title, cv2.cvtColor(np.array(self.img), cv2.COLOR_BGR2RGB))
-        cv2.waitKey(1)
+        #import cv2
+        #print(f'display title {self.title}')
+        #cv2.imshow(self.title, cv2.cvtColor(np.array(self.img), cv2.COLOR_BGR2RGB))
+        #cv2.waitKey(1)
 
 
 class RoutePlanner(object):

@@ -23,6 +23,7 @@ export ROUTES=
 export LOGDIR=
 export HAS_DISPLAY=1
 export DEBUG_CHALLENGE=0 # THIS MUST BE 0 if you're running image agent
+export SAVE_PROJ_PATH=
 
 # LBC agent config
 export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/${6}.py

@@ -1,0 +1,666 @@
+ERROR: failed to destroy actor 8352 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8364 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8378 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8399 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8401 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8427 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8432 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8437 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8451 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8453 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 8462 : unable to destroy actor: not found 
+/home/aaronhua/anaconda3/envs/lb/lib/python3.7/site-packages/torch/nn/functional.py:2506: UserWarning: Default upsampling behavior when mode=bilinear is changed to align_corners=False since 0.4.0. Please specify align_corners=True if the old behavior is desired. See the documentation of nn.Upsample for details.
+  "See the documentation of nn.Upsample for details.".format(mode))
+running agent: /home/aaronhua/2020_CARLA_challenge/leaderboard/team_code/image_agent.py
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 0) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 0) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 10:24:45 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 12:33:36 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 7730.87s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 962.25s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.124               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 17.55 % │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 9.51 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 6 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [91mFAILURE[0m │ 1 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 1) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 1) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 12:34:12 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 13:59:07 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 5094.6s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 638.05s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.125               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 4.57 %  │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 5.96 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 1 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 2) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 2) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 13:59:46 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 14:58:18 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 3512.04s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 421.0s              │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.12                │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 4.57 %  │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 5.96 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 1 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 3) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 3) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 14:58:56 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 15:55:16 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 3380.52s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 401.45s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.119               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 4.57 %  │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 5.96 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 4) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 4) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 15:55:53 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 17:09:08 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 4395.09s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 552.85s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.126               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 4.84 %  │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 11.25 % │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 1 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 5) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 5) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 17:09:40 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 17:56:24 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 2803.52s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 401.55s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.143               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 4.61 %  │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 6.89 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 6) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 6) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 17:56:56 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 18:41:52 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 2696.32s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 341.1s              │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.127               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 17.41 % │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 23.58 % │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 3 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [91mFAILURE[0m │ 1 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 7) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 7) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 18:42:26 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 19:45:15 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 3768.27s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 552.05s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.146               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 4.84 %  │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 11.25 % │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 1 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 1 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 8) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 8) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 19:45:42 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 20:24:51 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 2349.21s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 402.3s              │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.171               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 4.43 %  │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 3.09 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_13 (repetition 9) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.777176, y=-67.988762, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.801483, y=-68.988464, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.825806, y=-69.988167, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.850113, y=-70.987869, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.874435, y=-71.987579, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.898743, y=-72.987282, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.923065, y=-73.986984, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.947372, y=-74.986694, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+Skipping scenario 'Scenario3' due to setup error: Error: Unable to spawn vehicle walker.pedestrian.0020 at Transform(Location(x=252.971680, y=-75.986389, z=0.600000), Rotation(pitch=0.000000, yaw=541.393188, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_13 (repetition 9) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-28 20:25:19 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-28 20:56:07 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 1847.44s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 402.3s              │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.218               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 4.48 %  │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 4.06 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+[1m> Registering the global statistics[0m
+Done. See leaderboard/data/logs_rep10/image_agent/training/route_13.txt for detailed results.

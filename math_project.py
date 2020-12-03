@@ -56,7 +56,6 @@ try:
     
     # launch CARLA servers
     for gpu in gpus:
-
         # get open world port, trafficmanager port
         wp, tp = port_map[gpu]
         env = os.environ.copy()
@@ -91,10 +90,6 @@ try:
                 if proc.poll() is not None: # check if server is done
                     open_gpus[si] = True
                     routes_done[ri] = True
-            continue
-
-        if False not in routes_done:
-            time.sleep(10)
             continue
 
         # else run new process

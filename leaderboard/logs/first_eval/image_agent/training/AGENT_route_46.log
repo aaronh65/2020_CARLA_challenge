@@ -1,0 +1,598 @@
+ERROR: failed to destroy actor 857 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 911 : unable to destroy actor: not found 
+ERROR: failed to destroy actor 915 : unable to destroy actor: not found 
+/home/aaronhua/anaconda3/envs/lb/lib/python3.7/site-packages/torch/nn/functional.py:2506: UserWarning: Default upsampling behavior when mode=bilinear is changed to align_corners=False since 0.4.0. Please specify align_corners=True if the old behavior is desired. See the documentation of nn.Upsample for details.
+  "See the documentation of nn.Upsample for details.".format(mode))
+running agent: /home/aaronhua/2020_CARLA_challenge/leaderboard/team_code/image_agent.py
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 0) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 0) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-26 17:29:43 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-26 18:19:29 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 2986.06s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 418.4s              │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.14                │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 30.36 % │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 6.66 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 3 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 1) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 1) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-26 18:19:55 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-26 19:15:29 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 3334.21s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 437.85s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.131               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 30.36 % │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 6.17 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 3 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 2) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 2) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-26 19:15:57 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-26 21:09:06 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 6788.76s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 1017.4s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.15                │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [92mSUCCESS[0m │ 100 %   │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 1.34 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 4 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 2 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 3) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 3) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-26 21:09:34 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-26 22:48:09 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 5915.65s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 834.85s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.141               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [92mSUCCESS[0m │ 100 %   │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 1.13 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 8 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 3 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 4) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 4) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-26 22:48:36 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-26 23:57:35 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 4139.51s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 720.95s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.174               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [92mSUCCESS[0m │ 100 %   │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 1.04 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 8 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 5 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 5) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 5) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-26 23:57:58 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-27 00:34:14 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 2176.0s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 425.1s              │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.195               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 30.36 % │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 6.66 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 4 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 6) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 6) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-27 00:34:37 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-27 01:11:56 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 2238.99s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 435.85s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.195               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 30.36 % │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 6.44 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 3 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 1 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 7) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 7) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-27 01:12:19 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-27 01:35:33 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 1393.77s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 271.35s             │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.195               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 13.6 %  │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [92mSUCCESS[0m │ 0 %     │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 3 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 8) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 8) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-27 01:35:56 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-27 02:00:30 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 1474.18s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 285.6s              │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.194               │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [91mFAILURE[0m │ 13.45 % │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [92mSUCCESS[0m │ 0 %     │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 3 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [91mFAILURE[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+loading and running scenario
+
+[1m========= Preparing RouteScenario_46 (repetition 9) =========
+> Setting up the agent[0m
+<All keys matched successfully>
+[1m> Loading the world[0m
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=338.281616, y=55.811829, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=339.281616, y=55.811344, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=340.281616, y=55.810856, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=341.281616, y=55.810371, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=342.281616, y=55.809883, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=343.281616, y=55.809395, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+Base transform is blocking objects  Transform(Location(x=344.281616, y=55.808910, z=0.600000), Rotation(pitch=0.000000, yaw=269.972107, roll=0.000000))
+[1m> Running the route[0m
+[1m> Stopping the route[0m
+
+[1m========= Results of RouteScenario_46 (repetition 9) ------ [91mFAILURE[0m [1m=========[0m
+
+╒═════════════════════════════════╤═════════════════════╕
+│ Start Time                      │ 2020-11-27 02:00:53 │
+├─────────────────────────────────┼─────────────────────┤
+│ End Time                        │ 2020-11-27 03:15:04 │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (System Time)          │ 4451.19s            │
+├─────────────────────────────────┼─────────────────────┤
+│ Duration (Game Time)            │ 891.4s              │
+├─────────────────────────────────┼─────────────────────┤
+│ Ratio (System Time / Game Time) │ 0.2                 │
+╘═════════════════════════════════╧═════════════════════╛
+
+╒═══════════════════════╤═════════╤═════════╕
+│ Criterion             │ Result  │ Value   │
+├───────────────────────┼─────────┼─────────┤
+│ RouteCompletionTest   │ [92mSUCCESS[0m │ 100 %   │
+├───────────────────────┼─────────┼─────────┤
+│ OutsideRouteLanesTest │ [91mFAILURE[0m │ 1.37 %  │
+├───────────────────────┼─────────┼─────────┤
+│ CollisionTest         │ [91mFAILURE[0m │ 5 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningRedLightTest   │ [91mFAILURE[0m │ 3 times │
+├───────────────────────┼─────────┼─────────┤
+│ RunningStopTest       │ [92mSUCCESS[0m │ 0 times │
+├───────────────────────┼─────────┼─────────┤
+│ InRouteTest           │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ AgentBlockedTest      │ [92mSUCCESS[0m │         │
+├───────────────────────┼─────────┼─────────┤
+│ Timeout               │ [92mSUCCESS[0m │         │
+╘═══════════════════════╧═════════╧═════════╛
+
+[1m> Registering the route statistics[0m
+[1m> Registering the global statistics[0m
+Done. See leaderboard/data/logs_rep10/image_agent/training/route_46.txt for detailed results.

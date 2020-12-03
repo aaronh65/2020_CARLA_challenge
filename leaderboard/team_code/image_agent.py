@@ -16,13 +16,13 @@ from team_code.pid_controller import PIDController
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
 SAVE_IMG_PATH = os.environ.get('SAVE_IMG_PATH', 0)
-print(SAVE_IMG_PATH)
+SAVE_PROJ_PATH = os.environ.get('SAVE_PROJ_PATH', 0)
 
 def get_entry_point():
     return 'ImageAgent'
 
 
-def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_speed, step):
+def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_speed, step, _waypoint_img):
     _rgb = Image.fromarray(tick_data['rgb'])
     _draw_rgb = ImageDraw.Draw(_rgb)
     _draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 255, 255))
@@ -43,6 +43,7 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
 
     _display_img = cv2.cvtColor(np.array(_combined), cv2.COLOR_BGR2RGB)
     cv2.imshow('map', _display_img)
+    cv2.imshow('waypoints', cv2.cvtColor(np.array(_waypoint_img), cv2.COLOR_BGR2RGB))
     if step % 10 == 0 and SAVE_IMG_PATH:
         cv2.imwrite(os.path.join(SAVE_IMG_PATH, f'{step:06d}.png'), _display_img)
     cv2.waitKey(1)
@@ -144,7 +145,11 @@ class ImageAgent(BaseAgent):
         points_cam[..., 0] = (points_cam[..., 0] + 1) / 2 * img.shape[-1]
         points_cam[..., 1] = (points_cam[..., 1] + 1) / 2 * img.shape[-2]
         points_cam = points_cam.squeeze()
+
         points_world = self.converter.cam_to_world(points_cam).numpy()
+
+        # for math project
+        self.save_poly_data(tick_data, points_world)
 
         aim = (points_world[1] + points_world[0]) / 2.0
         angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
@@ -169,10 +174,20 @@ class ImageAgent(BaseAgent):
         control.brake = float(brake)
 
         if DEBUG:
+            _waypoint_img = self._command_planner.debug.img
             debug_display(
                     tick_data, target_cam.squeeze(), points.cpu().squeeze(),
                     steer, throttle, brake, desired_speed,
-                    self.step)
+                    self.step, _waypoint_img)
 
         return control
 
+    def save_poly_data(self, tick_data, points_world):
+        pos = self._get_position(tick_data)
+        data = {
+                'points': points_world,
+                'pos': pos
+                }
+        print(f'points_world\n{points_world}')
+        print(f'pos\n{pos}')
+        print(f'data\n{data}')

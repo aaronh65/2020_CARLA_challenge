@@ -1,8 +1,7 @@
 #!/bin/bash
-
-source /home/aaron/.bashrc
+#source /home/aaron/.bashrc
 source /home/aaron/anaconda3/etc/profile.d/conda.sh
-conda activate leaderboard
+conda activate lb
 
 # Python env variables so the subdirectories can find each other
 
@@ -14,6 +13,7 @@ export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.10-py3.
 export PYTHONPATH=$PYTHONPATH:leaderboard
 export PYTHONPATH=$PYTHONPATH:leaderboard/team_code
 export PYTHONPATH=$PYTHONPATH:scenario_runner
+
 #export ROUTES=$LBC_ROOT/leaderboard/data/routes_devtest/route_01.xml
 export ROUTES=$LBC_ROOT/leaderboard/data/routes_testing/route_24.xml
 export LOGDIR=$LBC_ROOT/leaderboard/data/logs/image_agent/testing
