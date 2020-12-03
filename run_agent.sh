@@ -34,9 +34,9 @@ export TEAM_CONFIG=$LBC_ROOT/leaderboard/config/${CONFIG}
 
 # logging
 if [ -d "$TEAM_CONFIG" ]; then
-    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTES .xml).txt"
+    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTE .xml).txt"
 else
-    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTES .xml).txt"
+    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTE .xml).txt"
 fi
 
 python leaderboard/leaderboard/leaderboard_evaluator.py \

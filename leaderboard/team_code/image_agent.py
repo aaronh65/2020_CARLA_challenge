@@ -17,9 +17,7 @@ from team_code.pid_controller import PIDController
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
 LOGDIR = os.environ.get('LOGDIR', 0)
 SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
-if SAVE_IMAGES:
-    SAVE_IMG_PATH = f'{LOGDIR}/images'
-    print(SAVE_IMG_PATH)
+SAVE_IMG_PATH = f'{LOGDIR}/images' if SAVE_IMAGES else None
 
 def get_entry_point():
     return 'ImageAgent'
