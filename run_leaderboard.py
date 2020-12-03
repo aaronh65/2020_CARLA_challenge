@@ -22,7 +22,7 @@ elif args.agent == 'image_agent':
 if args.local:
     prefix = '/home/aaron/workspace/carla'
 else:
-    prefix = '/home/aaronhua/'
+    prefix = '/home/aaronhua'
 
 
 def get_open_port():
@@ -48,21 +48,15 @@ try:
         log_dir = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
     else:
         log_dir = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
+    if not args.local:
+        log_dir = f'/ssd0/aaronhua/{log_dir}'
     mkdir_if_not_exists(f'{log_dir}/logs')
 
     route_prefix = f'leaderboard/data/routes_{args.split}'
-    routes = [f'{route_prefix}/{route}' for route in os.listdir(route_prefix)]
+    routes = [f'{route_prefix}/{route}' for route in sorted(os.listdir(route_prefix)) if route.endswith('.xml')]
+
     if args.debug and args.local:
-        routes = routes[:1]
-
-    if args.save_images:
-        for route in routes:
-            name = route.split('/')[-1].split('.')[0]
-            mkdir_if_not_exists(f'{log_dir}/images/{name}')
-
-
-    if args.save_images:
-        mkdir_if_not_exists(f'{log_dir}/images')
+        routes = routes[24:25]
     
     # launch CARLA servers
     gpus=list(range(args.gpus))
@@ -82,7 +76,7 @@ try:
         print(f'running {cmd}')
 
     base_timeout = 3
-    timeout = min(args.gpus*base_timeout, 10)
+    timeout = max(args.gpus*base_timeout, 10)
     print(f'Opened {len(gpus)} CARLA servers, warming up for {timeout} seconds')
     time.sleep(timeout)
     
@@ -113,9 +107,20 @@ try:
         wp, tp = port_map[gpu]
         route = routes[ri].split('/')[-1].split('.')[0]
         
+        save_images_path = "junk"
+        if args.save_images:
+            save_images_path = f'{log_dir}/images/{route}'
+            mkdir_if_not_exists(save_images_path)
+
         # directly log from command
-        cmd = f'bash {prefix}/2020_CARLA_challenge/run_agent_cluster.sh {gpu} {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {int(args.save_images)} {prefix} &> {log_dir}/logs/AGENT_{route}.log'
-        lbc_procs.append(subprocess.Popen(cmd, shell=True))
+        env = os.environ.copy()
+        env["LOCAL"] = "1" if args.local else "0"
+        env["SAVE_IMAGES"] = "1" if args.save_images else "0"
+        env["SAVE_IMAGES_PATH"] = save_images_path
+        env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
+        #cmd = f'bash {prefix}/2020_CARLA_challenge/run_agent_cluster.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {log_dir}/logs/AGENT_{route}.log'
+        cmd = f'bash {prefix}/2020_CARLA_challenge/run_agent_cluster.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix}'
+        lbc_procs.append(subprocess.Popen(cmd, env=env, shell=True))
 
         print(f'running {cmd}')
         open_gpus[gpu] = (lbc_procs[-1], ri)

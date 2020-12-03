@@ -15,12 +15,10 @@ from team_code.pid_controller import PIDController
 
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
-LOGDIR = os.environ.get('LOGDIR', 0)
+#LOGDIR = os.environ.get('LOGDIR', 0)
 SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
-ROUTES = os.environ.get('ROUTES', 0)
-routename = ROUTES.split('/')[-1].split('.')[0]
-SAVE_IMG_PATH = f'{LOGDIR}/images/{routename}' if SAVE_IMAGES else None
-print(SAVE_IMG_PATH)
+SAVE_IMAGES_PATH = os.environ.get('SAVE_IMAGES_PATH', 0)
+print(f'SAVE_IMAGES is {SAVE_IMAGES}\npath is {SAVE_IMAGES_PATH}')
 
 def get_entry_point():
     return 'ImageAgent'
@@ -46,11 +44,13 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
     _draw.text((5, 90), 'Desired: %.3f' % desired_speed)
 
     _display_img = cv2.cvtColor(np.array(_combined), cv2.COLOR_BGR2RGB)
-    cv2.imshow('map', _display_img)
-    cv2.imshow('waypoints', cv2.cvtColor(np.array(_waypoint_img), cv2.COLOR_BGR2RGB))
-    if step % 10 == 0 and SAVE_IMG_PATH:
-        cv2.imwrite(os.path.join(SAVE_IMG_PATH, f'{step:06d}.png'), _display_img)
-    cv2.waitKey(1)
+    if step % 10 == 0 and SAVE_IMAGES:
+        save_path = os.path.join(SAVE_IMAGES_PATH, f'{step:06d}.png')
+        cv2.imwrite(save_path, _display_img)
+    if DEBUG:
+        cv2.imshow('map', _display_img)
+        cv2.imshow('waypoints', cv2.cvtColor(np.array(_waypoint_img), cv2.COLOR_BGR2RGB))
+        cv2.waitKey(1)
 
 
 class ImageAgent(BaseAgent):
@@ -177,7 +177,7 @@ class ImageAgent(BaseAgent):
         control.throttle = throttle
         control.brake = float(brake)
 
-        if DEBUG:
+        if DEBUG or SAVE_IMAGES:
             _waypoint_img = self._command_planner.debug.img
             debug_display(
                     tick_data, target_cam.squeeze(), points.cpu().squeeze(),

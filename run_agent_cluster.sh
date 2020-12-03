@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # running on my local machine vs CMU cluster
-export PREFIX=${10}
+export PREFIX=$8
 source ~/anaconda3/etc/profile.d/conda.sh
 conda activate lb
 
-
 # Python env variables so the subdirectories can find each other
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/aaronhua/anaconda3/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/anaconda3/lib
 export CARLA_ROOT=$PREFIX/CARLA_0.9.10.1
 export LBC_ROOT=$PREFIX/2020_CARLA_challenge
 export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
@@ -20,15 +19,13 @@ export HAS_DISPLAY=0
 
 
 # leaderboard and agent config
-export CUDA_VISIBLE_DEVICES=$1
-export PORT=$2
-export ROUTES=$3
-export LOGDIR=$4
-export TM_PORT=$5
-export AGENT=$6
-export CONFIG=$7
-export REPETITIONS=$8
-export SAVE_IMAGES=$9
+export PORT=$1
+export ROUTES=$2
+export LOGDIR=$3
+export TM_PORT=$4
+export AGENT=$5
+export CONFIG=$6
+export REPETITIONS=$7
 export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/${AGENT}.py
 export TEAM_CONFIG=$LBC_ROOT/leaderboard/config/${CONFIG}
 
