@@ -15,10 +15,9 @@ from team_code.pid_controller import PIDController
 
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
-#LOGDIR = os.environ.get('LOGDIR', 0)
 SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
 SAVE_IMAGES_PATH = os.environ.get('SAVE_IMAGES_PATH', 0)
-print(f'SAVE_IMAGES is {SAVE_IMAGES}\npath is {SAVE_IMAGES_PATH}')
+DIM=(1371,257)
 
 def get_entry_point():
     return 'ImageAgent'
@@ -43,13 +42,16 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
     _draw.text((5, 70), 'Speed: %.3f' % tick_data['speed'])
     _draw.text((5, 90), 'Desired: %.3f' % desired_speed)
 
-    _display_img = cv2.cvtColor(np.array(_combined), cv2.COLOR_BGR2RGB)
+
+    _rgb_img = cv2.resize(np.array(_combined), DIM, interpolation=cv2.INTER_AREA)
+    _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
+    _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
     if step % 10 == 0 and SAVE_IMAGES:
         save_path = os.path.join(SAVE_IMAGES_PATH, f'{step:06d}.png')
-        cv2.imwrite(save_path, _display_img)
+        cv2.imwrite(save_path, _save_img)
     if DEBUG:
-        cv2.imshow('map', _display_img)
-        cv2.imshow('waypoints', cv2.cvtColor(np.array(_waypoint_img), cv2.COLOR_BGR2RGB))
+        cv2.imshow('debug', _save_img)
+        cv2.imshow('debug', _save_img)
         cv2.waitKey(1)
 
 
@@ -179,6 +181,12 @@ class ImageAgent(BaseAgent):
 
         if DEBUG or SAVE_IMAGES:
             _waypoint_img = self._command_planner.debug.img
+            #pos = self._get_position(tick_data)
+            #points_map = self.converter.cam_to_map(points_cam).numpy()
+            #for y, x in points_world:
+            #    x = int(257/2+x*5.5)
+            #    y = int(257/2+y*5.5)
+            #    ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2),(255,255,255))
             debug_display(
                     tick_data, target_cam.squeeze(), points.cpu().squeeze(),
                     steer, throttle, brake, desired_speed,
