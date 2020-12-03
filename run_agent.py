@@ -24,7 +24,7 @@ def mkdir_if_not_exists(_dir):
         os.makedirs(_dir)
 
 # log dir
-date_str = datetime.now().strftime("%m%d%Y_%H%M")
+date_str = datetime.now().strftime("%Y%m%d_%H%M")
 if args.debug:
     log_dir = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
 else:

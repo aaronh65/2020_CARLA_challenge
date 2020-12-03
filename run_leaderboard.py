@@ -43,7 +43,7 @@ carla_procs = list()
 lbc_procs = list()
 
 try:
-    date_str = datetime.now().strftime("%m%d%Y_%H%M")
+    date_str = datetime.now().strftime("%Y%m%d_%H%M")
     if args.debug:
         log_dir = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
     else:
@@ -118,8 +118,8 @@ try:
         env["SAVE_IMAGES"] = "1" if args.save_images else "0"
         env["SAVE_IMAGES_PATH"] = save_images_path
         env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
-        #cmd = f'bash {prefix}/2020_CARLA_challenge/run_agent_cluster.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {log_dir}/logs/AGENT_{route}.log'
-        cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix}'
+        cmd = f'bash {prefix}/2020_CARLA_challenge/run_agent_cluster.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {log_dir}/logs/AGENT_{route}.log'
+        #cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix}'
         lbc_procs.append(subprocess.Popen(cmd, env=env, shell=True))
 
         print(f'running {cmd}')
