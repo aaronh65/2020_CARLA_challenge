@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # running on my local machine vs CMU cluster
-#export NAME=aaron
-export NAME=aaronhua
+export NAME=aaron
+#export NAME=aaronhua
 source /home/$NAME/anaconda3/etc/profile.d/conda.sh
 conda activate lb
 
@@ -29,14 +29,15 @@ export TM_PORT=$5
 export AGENT=$6
 export CONFIG=$7
 export REPETITIONS=$8
+export SAVE_IMAGES=$9
 export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/${AGENT}.py
 export TEAM_CONFIG=$LBC_ROOT/leaderboard/config/${CONFIG}
 
 # logging
 if [ -d "$TEAM_CONFIG" ]; then
-    CHECKPOINT_ENDPOINT="$LOGDIR/$(basename $ROUTES .xml).txt"
+    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTES .xml).txt"
 else
-    CHECKPOINT_ENDPOINT="$LOGDIR/$(basename $ROUTES .xml).txt"
+    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTES .xml).txt"
 fi
 
 python leaderboard/leaderboard/leaderboard_evaluator.py \

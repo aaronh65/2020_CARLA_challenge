@@ -1,25 +1,21 @@
-import os
+import os, sys, time
 import subprocess
-import multiprocessing as mp
-import sys
-import time
 import argparse
-import itertools
 import traceback
-import datetime
+from datetime import datetime
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--routes', type=str, default='debug', choices=['devtest','testing','training','debug'])
+parser.add_argument('--split', type=str, default='testing', choices=['devtest','testing','training','debug'])
 parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot'])
 parser.add_argument('--gpus', type=int, default=1)
 parser.add_argument('--repetitions', type=int, default=1)
-parser.add_argument
+parser.add_argument('--save_images', action='store_true')
 args = parser.parse_args()
 
 if args.agent == 'auto_pilot':
     config = 'none'
 elif args.agent == 'image_agent':
-    config = 'lbc.ckpt'
+    config = 'image_model.ckpt'
 
 
 def get_open_port():
@@ -42,10 +38,13 @@ lbc_procs = list()
 try:
     gpus=list(range(args.gpus))
     port_map = {gpu: (get_open_port(), get_open_port()) for gpu in gpus}
-
-    ckpt_dir = f'leaderboard/logs/{args.agent}'
-    log_dir = f'{ckpt_dir}/logs_rep{args.repetitions}/{args.agent}/{args.routes}'
-    mkdir_if_not_exists(log_dir)
+    date_str = datetime.now().strftime("%m%d%Y_%H%M")
+    #log_dir = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
+    log_dir = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
+    print(log_dir)
+    #mkdir_if_not_exists(f'{log_dir}/logs')
+    if args.save_images:
+        mkdir_if_not_exists(f'{log_dir}/images')
     
     # launch CARLA servers
     for gpu in gpus:
@@ -57,10 +56,10 @@ try:
         env["DISPLAY"] = ""
         
         # directly log from command
-        cmd = f'bash /home/aaronhua/CARLA_0.9.10.1/CarlaUE4.sh --world-port={wp} &> {log_dir}/CARLA_G{gpu}.log'
-        carla_procs.append(subprocess.Popen(cmd, env=env, shell=True))
+        cmd = f'bash /home/aaronhua/CARLA_0.9.10.1/CarlaUE4.sh --world-port={wp} &> {log_dir}/logs/CARLA_G{gpu}.log'
+        #carla_procs.append(subprocess.Popen(cmd, env=env, shell=True))
 
-        print(cmd)
+        print(f'running {cmd}')
 
     base_timeout = 3
     timeout = min(args.gpus*base_timeout, 10)
@@ -69,7 +68,7 @@ try:
     
     # False if gpu[index] not in use by LBC
     open_gpus = [True] * len(gpus)
-    route_prefix = f'leaderboard/data/routes_{args.routes}'
+    route_prefix = f'leaderboard/data/routes_{args.split}'
     routes = [f'{route_prefix}/{route}' for route in os.listdir(route_prefix)]
     routes_done = [False] * len(routes)
 
@@ -97,11 +96,11 @@ try:
         route = routes[ri].split('/')[-1].split('.')[0]
         
         # directly log from command
-        cmd = f'bash /home/aaronhua/2020_CARLA_challenge/run_agent_cluster.sh {gpu} {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} &> {log_dir}/AGENT_{route}.log'
+        cmd = f'bash /home/aaronhua/2020_CARLA_challenge/run_agent_cluster.sh {gpu} {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {int(args.save_images)} &> {log_dir}/logs/AGENT_{route}.log'
         #cmd = f'bash /home/aaronhua/2020_CARLA_challenge/run_agent_cluster.sh {gpu} {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config}'
-        lbc_procs.append(subprocess.Popen(cmd, shell=True))
+        #lbc_procs.append(subprocess.Popen(cmd, shell=True))
 
-        print(f'{cmd}')
+        print(f'running {cmd}')
         open_gpus[gpu] = (lbc_procs[-1], ri)
         routes_done[ri] = 'running'
 
