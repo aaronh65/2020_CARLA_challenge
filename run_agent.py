@@ -31,12 +31,17 @@ else:
     log_dir = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
 mkdir_if_not_exists(f'{log_dir}/logs')
 
+save_images_path = "junk"
 if args.save_images:
-    mkdir_if_not_exists(f'{log_dir}/images/route_{routenum}')
+    save_images_path = f'{log_dir}/images/route_{routenum}'
+    mkdir_if_not_exists(save_images_path)
 
 # route path
 route = f'leaderboard/data/routes_{args.split}/route_{routenum}.xml'
 
-cmd = f'CUDA_VISIBLE_DEVICES=0 bash run_agent.sh {args.agent} {route} {log_dir} {config} {int(args.save_images)}'
+cmd = f'bash run_agent.sh {args.agent} {route} {log_dir} {config}'
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["SAVE_IMAGES"] = "1" if args.save_images else "0"
+os.environ["SAVE_IMAGES_PATH"] = save_images_path
 print(f'running {cmd}')
 os.system(cmd)

@@ -2,7 +2,6 @@
 
 # running on my local machine vs CMU cluster
 export NAME=aaron
-#export NAME=aaronhua
 source /home/$NAME/anaconda3/etc/profile.d/conda.sh
 conda activate lb
 
@@ -25,9 +24,8 @@ export AGENT=$1
 export ROUTES=$2
 export LOGDIR=$3
 export CONFIG=$4
-export SAVE_IMAGES=$5
 export PORT=2000
-#export ROUTES=$LBC_ROOT/leaderboard/data/routes_${SPLIT}/route_${ROUTENUM}.xml
+
 export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/${AGENT}.py
 export TEAM_CONFIG=$LBC_ROOT/leaderboard/config/${CONFIG}
 
