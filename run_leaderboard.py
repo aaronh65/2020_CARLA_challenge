@@ -6,12 +6,14 @@ import time
 import argparse
 import itertools
 import traceback
+import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--routes', type=str, default='debug', choices=['devtest','testing','training','debug'])
 parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot'])
 parser.add_argument('--gpus', type=int, default=1)
 parser.add_argument('--repetitions', type=int, default=1)
+parser.add_argument
 args = parser.parse_args()
 
 if args.agent == 'auto_pilot':
@@ -29,10 +31,6 @@ def get_open_port():
     s.close()
     return port
 
-def run(cmd):
-    print(cmd)
-    os.system(cmd)
-
 def mkdir_if_not_exists(_dir):
     if not os.path.exists(_dir):
         print(f"Creating a directory at {_dir}")
@@ -42,15 +40,10 @@ carla_procs = list()
 lbc_procs = list()
 
 try:
-    #gpus=[0,1,2,3,4,5,6,7]
-    #gpus=[0,1,2,3,4]
-    #gpus=[5,6,7]
     gpus=list(range(args.gpus))
-    #gpus=[0,1]
-    #gpus=[0]
     port_map = {gpu: (get_open_port(), get_open_port()) for gpu in gpus}
 
-    ckpt_dir = 'leaderboard/data'
+    ckpt_dir = f'leaderboard/logs/{args.agent}'
     log_dir = f'{ckpt_dir}/logs_rep{args.repetitions}/{args.agent}/{args.routes}'
     mkdir_if_not_exists(log_dir)
     
