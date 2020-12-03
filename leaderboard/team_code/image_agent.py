@@ -23,7 +23,7 @@ def get_entry_point():
     return 'ImageAgent'
 
 
-def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_speed, step, _waypoint_img):
+def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_speed, step, _waypoint_img, rep_number):
     _rgb = Image.fromarray(tick_data['rgb'])
     _draw_rgb = ImageDraw.Draw(_rgb)
     _draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 255, 255))
@@ -47,7 +47,7 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
     _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
     _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
     if step % 10 == 0 and SAVE_IMAGES:
-        save_path = os.path.join(SAVE_IMAGES_PATH, f'{step:06d}.png')
+        save_path = os.path.join(SAVE_IMAGES_PATH, f'repetition_{rep_number:02d}', f'{step:06d}.png')
         cv2.imwrite(save_path, _save_img)
     if DEBUG:
         cv2.imshow('debug', _save_img)
@@ -69,6 +69,8 @@ class ImageAgent(BaseAgent):
 
         self._turn_controller = PIDController(K_P=1.25, K_I=0.75, K_D=0.3, n=40)
         self._speed_controller = PIDController(K_P=5.0, K_I=0.5, K_D=1.0, n=40)
+
+        self.rep_number = 0
 
     def tick(self, input_data):
         result = super().tick(input_data)
@@ -181,14 +183,14 @@ class ImageAgent(BaseAgent):
 
         if DEBUG or SAVE_IMAGES:
             _waypoint_img = self._command_planner.debug.img
-            for y, x in points_world:
-                x = int(257/2+x*5.5)
-                y = int(257/2+y*5.5)
-                ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2),(255,255,255))
+            #for y, x in points_world:
+            #    x = int(257/2+x*5.5)
+            #    y = int(257/2+y*5.5)
+            #    ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2),(255,255,255))
             debug_display(
                     tick_data, target_cam.squeeze(), points.cpu().squeeze(),
                     steer, throttle, brake, desired_speed,
-                    self.step, _waypoint_img)
+                    self.step, _waypoint_img, self.rep_number)
 
         return control
 
