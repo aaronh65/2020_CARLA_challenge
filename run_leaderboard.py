@@ -119,7 +119,7 @@ try:
         env["SAVE_IMAGES_PATH"] = save_images_path
         env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
         #cmd = f'bash {prefix}/2020_CARLA_challenge/run_agent_cluster.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {log_dir}/logs/AGENT_{route}.log'
-        cmd = f'bash {prefix}/2020_CARLA_challenge/run_agent_cluster.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix}'
+        cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix}'
         lbc_procs.append(subprocess.Popen(cmd, env=env, shell=True))
 
         print(f'running {cmd}')
