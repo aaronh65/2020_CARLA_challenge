@@ -22,7 +22,7 @@ export HAS_DISPLAY=1
 
 # leaderboard and agent config
 export AGENT=$1
-export ROUTE=$2
+export ROUTES=$2
 export LOGDIR=$3
 export CONFIG=$4
 export SAVE_IMAGES=$5
@@ -34,9 +34,9 @@ export TEAM_CONFIG=$LBC_ROOT/leaderboard/config/${CONFIG}
 
 # logging
 if [ -d "$TEAM_CONFIG" ]; then
-    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTE .xml).txt"
+    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTES .xml).txt"
 else
-    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTE .xml).txt"
+    CHECKPOINT_ENDPOINT="$LOGDIR/logs/$(basename $ROUTES .xml).txt"
 fi
 
 python leaderboard/leaderboard/leaderboard_evaluator.py \
@@ -44,7 +44,7 @@ python leaderboard/leaderboard/leaderboard_evaluator.py \
 --scenarios=leaderboard/data/all_towns_traffic_scenarios_public.json  \
 --agent=${TEAM_AGENT} \
 --agent-config=${TEAM_CONFIG} \
---routes=${ROUTE} \
+--routes=${ROUTES} \
 --checkpoint=${CHECKPOINT_ENDPOINT} \
 --port=${PORT} \
 --debug=${DEBUG_CHALLENGE}

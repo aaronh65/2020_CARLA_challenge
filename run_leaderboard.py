@@ -10,6 +10,7 @@ parser.add_argument('--agent', type=str, default='image_agent', choices=['image_
 parser.add_argument('--gpus', type=int, default=1)
 parser.add_argument('--repetitions', type=int, default=1)
 parser.add_argument('--save_images', action='store_true')
+parser.add_argument('--debug', action='store_true')
 args = parser.parse_args()
 
 if args.agent == 'auto_pilot':
@@ -36,17 +37,19 @@ carla_procs = list()
 lbc_procs = list()
 
 try:
-    gpus=list(range(args.gpus))
-    port_map = {gpu: (get_open_port(), get_open_port()) for gpu in gpus}
     date_str = datetime.now().strftime("%m%d%Y_%H%M")
-    #log_dir = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
-    log_dir = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
+    if args.debug:
+        log_dir = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
+    else:
+        log_dir = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
     print(log_dir)
     #mkdir_if_not_exists(f'{log_dir}/logs')
     if args.save_images:
         mkdir_if_not_exists(f'{log_dir}/images')
     
     # launch CARLA servers
+    gpus=list(range(args.gpus))
+    port_map = {gpu: (get_open_port(), get_open_port()) for gpu in gpus}
     for gpu in gpus:
 
         # get open world port, trafficmanager port
