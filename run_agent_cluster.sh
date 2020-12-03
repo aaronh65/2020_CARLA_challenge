@@ -1,16 +1,13 @@
 #!/bin/bash
 
-source /home/aaronhua/.bashrc
+# running on my local machine vs CMU cluster
+#export NAME=aaron
+export NAME=aaronhua
+source /home/$NAME/anaconda3/etc/profile.d/conda.sh
 conda activate lb
 
-# Python env variables so the subdirectories can find each other
-export CUDA_VISIBLE_DEVICES=$1
-export PORT=$2
-export ROUTES=$3
-export LOGDIR=$4
-export TM_PORT=$5
-export REPETITIONS=$8
 
+# Python env variables so the subdirectories can find each other
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/aaronhua/anaconda3/lib
 export CARLA_ROOT=/home/aaronhua/CARLA_0.9.10.1
 export LBC_ROOT=/home/aaronhua/2020_CARLA_challenge
@@ -19,16 +16,23 @@ export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.10-py3.
 export PYTHONPATH=$PYTHONPATH:leaderboard
 export PYTHONPATH=$PYTHONPATH:leaderboard/team_code
 export PYTHONPATH=$PYTHONPATH:scenario_runner
+export DEBUG_CHALLENGE=0 # DO NOT MODIFY
 export HAS_DISPLAY=0
-export DEBUG_CHALLENGE=0
-
-# LBC agent config
-export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/${6}.py
-export TEAM_CONFIG=$LBC_ROOT/leaderboard/data/$7
-
-# leaderboard config
 
 
+# leaderboard and agent config
+export CUDA_VISIBLE_DEVICES=$1
+export PORT=$2
+export ROUTES=$3
+export LOGDIR=$4
+export TM_PORT=$5
+export AGENT=$6
+export CONFIG=$7
+export REPETITIONS=$8
+export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/${AGENT}.py
+export TEAM_CONFIG=$LBC_ROOT/leaderboard/data/${CONFIG}
+
+# logging
 if [ -d "$TEAM_CONFIG" ]; then
     CHECKPOINT_ENDPOINT="$LOGDIR/$(basename $ROUTES .xml).txt"
 else
