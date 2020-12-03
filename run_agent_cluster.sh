@@ -1,16 +1,15 @@
 #!/bin/bash
 
 # running on my local machine vs CMU cluster
-export NAME=aaron
-#export NAME=aaronhua
-source /home/$NAME/anaconda3/etc/profile.d/conda.sh
+export PREFIX=${10}
+source ~/anaconda3/etc/profile.d/conda.sh
 conda activate lb
 
 
 # Python env variables so the subdirectories can find each other
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/aaronhua/anaconda3/lib
-export CARLA_ROOT=/home/$NAME/CARLA_0.9.10.1
-export LBC_ROOT=/home/$NAME/2020_CARLA_challenge
+export CARLA_ROOT=$PREFIX/CARLA_0.9.10.1
+export LBC_ROOT=$PREFIX/2020_CARLA_challenge
 export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
 export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.10-py3.7-linux-x86_64.egg
 export PYTHONPATH=$PYTHONPATH:leaderboard

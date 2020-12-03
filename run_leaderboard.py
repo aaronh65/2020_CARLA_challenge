@@ -11,12 +11,18 @@ parser.add_argument('--gpus', type=int, default=1)
 parser.add_argument('--repetitions', type=int, default=1)
 parser.add_argument('--save_images', action='store_true')
 parser.add_argument('--debug', action='store_true')
+parser.add_argument('--local', action='store_true')
 args = parser.parse_args()
 
 if args.agent == 'auto_pilot':
     config = 'none'
 elif args.agent == 'image_agent':
     config = 'image_model.ckpt'
+
+if args.local:
+    prefix = '/home/aaron/workspace/carla'
+else:
+    prefix = '/home/aaronhua/'
 
 
 def get_open_port():
@@ -42,8 +48,19 @@ try:
         log_dir = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
     else:
         log_dir = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
-    print(log_dir)
-    #mkdir_if_not_exists(f'{log_dir}/logs')
+    mkdir_if_not_exists(f'{log_dir}/logs')
+
+    route_prefix = f'leaderboard/data/routes_{args.split}'
+    routes = [f'{route_prefix}/{route}' for route in os.listdir(route_prefix)]
+    if args.debug and args.local:
+        routes = routes[:1]
+
+    if args.save_images:
+        for route in routes:
+            name = route.split('/')[-1].split('.')[0]
+            mkdir_if_not_exists(f'{log_dir}/images/{name}')
+
+
     if args.save_images:
         mkdir_if_not_exists(f'{log_dir}/images')
     
@@ -58,9 +75,9 @@ try:
         env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
         env["DISPLAY"] = ""
         
-        # directly log from command
-        cmd = f'bash /home/aaronhua/CARLA_0.9.10.1/CarlaUE4.sh --world-port={wp} &> {log_dir}/logs/CARLA_G{gpu}.log'
-        #carla_procs.append(subprocess.Popen(cmd, env=env, shell=True))
+        # CARLA command
+        cmd = f'bash {prefix}/CARLA_0.9.10.1/CarlaUE4.sh --world-port={wp} -opengl &> {log_dir}/logs/CARLA_G{gpu}.log'
+        carla_procs.append(subprocess.Popen(cmd, env=env, shell=True))
 
         print(f'running {cmd}')
 
@@ -71,8 +88,6 @@ try:
     
     # False if gpu[index] not in use by LBC
     open_gpus = [True] * len(gpus)
-    route_prefix = f'leaderboard/data/routes_{args.split}'
-    routes = [f'{route_prefix}/{route}' for route in os.listdir(route_prefix)]
     routes_done = [False] * len(routes)
 
     # main testing loop
@@ -99,9 +114,8 @@ try:
         route = routes[ri].split('/')[-1].split('.')[0]
         
         # directly log from command
-        cmd = f'bash /home/aaronhua/2020_CARLA_challenge/run_agent_cluster.sh {gpu} {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {int(args.save_images)} &> {log_dir}/logs/AGENT_{route}.log'
-        #cmd = f'bash /home/aaronhua/2020_CARLA_challenge/run_agent_cluster.sh {gpu} {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config}'
-        #lbc_procs.append(subprocess.Popen(cmd, shell=True))
+        cmd = f'bash {prefix}/2020_CARLA_challenge/run_agent_cluster.sh {gpu} {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {int(args.save_images)} {prefix} &> {log_dir}/logs/AGENT_{route}.log'
+        lbc_procs.append(subprocess.Popen(cmd, shell=True))
 
         print(f'running {cmd}')
         open_gpus[gpu] = (lbc_procs[-1], ri)
