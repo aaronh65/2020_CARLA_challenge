@@ -15,8 +15,11 @@ from team_code.pid_controller import PIDController
 
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
-SAVE_IMG_PATH = os.environ.get('SAVE_IMG_PATH', 0)
-SAVE_PROJ_PATH = os.environ.get('SAVE_PROJ_PATH', 0)
+LOGDIR = os.environ.get('LOGDIR', 0)
+SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
+if SAVE_IMAGES:
+    SAVE_IMG_PATH = f'{LOGDIR}/images'
+    print(SAVE_IMG_PATH)
 
 def get_entry_point():
     return 'ImageAgent'
@@ -149,7 +152,7 @@ class ImageAgent(BaseAgent):
         points_world = self.converter.cam_to_world(points_cam).numpy()
 
         # for math project
-        self.save_poly_data(tick_data, points_world)
+        #self.save_poly_data(tick_data, points_world)
 
         aim = (points_world[1] + points_world[0]) / 2.0
         angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
