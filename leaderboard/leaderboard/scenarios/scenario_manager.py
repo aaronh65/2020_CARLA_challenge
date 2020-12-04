@@ -110,10 +110,6 @@ class ScenarioManager(object):
         self.other_actors = scenario.other_actors
         self.repetition_number = rep_number
 
-
-        # for image saving over multiple repetitions
-        self._agent.rep_number = rep_number
-
         # To print the scenario tree uncomment the next line
         # py_trees.display.render_dot_tree(self.scenario_tree)
 
