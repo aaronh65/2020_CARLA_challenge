@@ -82,14 +82,22 @@ class ImageAgent(BaseAgent):
             [np.cos(theta), -np.sin(theta)],
             [np.sin(theta),  np.cos(theta)],
             ])
-
+        self.R = R
         gps = self._get_position(result)
-        far_node, _ = self._command_planner.run_step(gps)
-        target = R.T.dot(far_node - gps)
-        target *= 5.5
-        target += [128, 256]
-        target = np.clip(target, 0, 256)
 
+        # oriented in world frame
+        far_node, _ = self._command_planner.run_step(gps)
+        
+        # far_node originally in coordinate system with ego pos at origin
+        # rotate to align with vehicle body frame
+        target = R.T.dot(far_node - gps)
+        target *= 5.5 # GPS to pixel
+        #print('target')
+        #print(target)
+        target += [128, 256] # move to center of image?
+        target = np.clip(target, 0, 256)
+        print('target at tick')
+        print(target)
         result['target'] = target
 
         return result
@@ -182,10 +190,33 @@ class ImageAgent(BaseAgent):
 
         if DEBUG or SAVE_IMAGES:
             _waypoint_img = self._command_planner.debug.img
+            target_plot = self.converter.cam_to_world(target_cam).cpu().numpy()[0]
+            points_plot = np.vstack([points_world, target_plot]).astype(int)
+            points_plot = points_plot*5.5
+            points_plot -= points_world[0]
+            points_plot = self.R.dot(points_plot.T)
+            points_plot[1] = -points_plot[1]
+            points_plot += 257/2
+            points_plot = points_plot.astype(int)
+            for x, y in points_plot.T[:-1]:
+                ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (255,255,255))
+            print(points_plot)
+            x, y = points_plot.T[-1]
+            ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (255,0,255))
             #for y, x in points_world:
             #    x = int(257/2+x*5.5)
             #    y = int(257/2+y*5.5)
             #    ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2),(255,255,255))
+            #target_plot = target_cam.cpu().numpy()[0] - [128,256]
+            #print('target after subtraction')
+            #print(target_plot)
+            #target_plot = self.R.dot(target_plot)
+            #target_plot = -target_plot
+            #target_plot += 257/2
+            #print('target after rotation and addition')
+            #print(target_plot)
+            #print()
+            #x, y = target_plot.astype(int)
             debug_display(
                     tick_data, target_cam.squeeze(), points.cpu().squeeze(),
                     steer, throttle, brake, desired_speed,
