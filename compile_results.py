@@ -3,19 +3,9 @@ import json
 import argparse
 import numpy as np
 
-splits = ['training', 'testing']
+splits = ['training', 'testing', 'devtest', 'debug']
 infraction_types = ['collisions_pedestrian', 'collisions_vehicle', 'collisions_layout', 'red_light', 'stop_infraction', 'route_dev', 'route_timeout', 'vehicle_blocked', 'outside_route_lanes']
 penalties = ['.5x', '.6x', '.65x', '.7x', '.8x', 'STOP', 'STOP', 'STOP', '']
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--repetitions', type=int, default=10)
-    parser.add_argument('--agent', type=str, default='image_agent')
-    parser.add_argument('--split', type=str, default='testing', choices=['devtest','testing','training','debug'])
-    parser.add_argument('--log_path', type=str, default='leaderboard/data')
-    parser.add_argument('--plot', action='store_true')
-    args = parser.parse_args()
-    return args
 
 def get_metrics(metrics, metric_type, routes):
         return [metrics[route][metric_type] for route in routes]
@@ -26,42 +16,47 @@ def plot_metrics(args, metrics, routes):
     colors = sns.color_palette("Paired")
     import matplotlib.pyplot as plt
 
-    # time to plot
     fig = plt.gcf()
     fig.set_size_inches(12,8)
-    save_path_base = os.path.join(args.log_path, f'logs_rep{args.repetitions}', args.agent, f'{args.split}_plots')
-    if not os.path.exists(save_path_base):
-        os.makedirs(save_path_base)
 
 
     # infraction metrics
-    W = 3
     plot_labels = [infraction.replace('_', '\n') for infraction in infraction_types]
     plot_labels = [f'{label}\n{penalty}' for label, penalty in zip(plot_labels, penalties)]
+
+    # bars have width 3 and we double x_plot for space in between bars
+    W = 3
     x_plot = np.arange(len(plot_labels))*2*W
     for route in routes:
 
+        # retrieve aggregated metrics in a list
         means = [metrics[route][f'{infraction} mean'] for infraction in infraction_types]
         stds = [metrics[route][f'{infraction} std'] for infraction in infraction_types]
         maxs = [metrics[route][f'{infraction} max'] for infraction in infraction_types]
         mins = [metrics[route][f'{infraction} min'] for infraction in infraction_types]
 
+        # plot means as bars, include errorbars and max/mins
         plt.bar(x_plot, means, alpha=0.75, width=W)
         plt.errorbar(x_plot, means, yerr=stds, fmt="ok", capsize=3, alpha=0.75, lw=1, ms=0)
         plt.scatter(x_plot, maxs, s=5, edgecolors='black', alpha=0.5)
         plt.scatter(x_plot, mins, s=5, edgecolors='black', alpha=0.75)
+
+        # resize and label x/y axes, title
         plt.xticks(x_plot, plot_labels, fontsize=8)
         plt.yticks(np.arange(max(maxs) + 1))
         plt.ylim(-0.5, max(maxs) + 0.5)
         plt.title(f'{route} average infractions')
         plt.xlabel('infraction type')
         plt.ylabel('# of infractions')
-        save_path = os.path.join(save_path_base, f'{route}_infractions.png')
+
+        # write the two main score metrics as text
         driving_score = metrics[route]['driving score mean']
         rcompletion_score = metrics[route]['route completion mean']
         plt.text(2*W*6, max(maxs)+0.5, 'route completion\ndriving score')
         plt.text(2*W*7.75, max(maxs)+0.5, f'{rcompletion_score:.2f}\n{driving_score:.2f}')
+
         plt.tight_layout()
+        save_path = os.path.join(args.plot_dir, f'{route}_infractions.png')
         plt.savefig(save_path, dpi=100)
         plt.clf()
 
@@ -98,7 +93,7 @@ def plot_metrics(args, metrics, routes):
         plt.ylabel('score')
         plt.title(f'avg driving/route scores')
         plt.ylim(-5,105)
-        save_path = os.path.join(save_path_base, f'overall_score_metrics_{i}.png')
+        save_path = os.path.join(args.plot_dir, f'overall_score_metrics_{i}.png')
         plt.tight_layout()
         plt.savefig(save_path, dpi=100)
         plt.clf()
@@ -106,13 +101,10 @@ def plot_metrics(args, metrics, routes):
 
 def main(args):
 
-    log_path = os.path.join(args.log_path, f'logs_rep{args.repetitions}', args.agent, args.split)
-    log_fnames = sorted([os.path.join(log_path, fname) for fname in os.listdir(log_path) if fname.endswith('txt')])
-
     metrics = {}
     routes = []
 
-    for fname in log_fnames:
+    for fname in args.log_fnames:
         with open(fname) as f:
             log = json.load(f)
         route = fname.split('/')[-1].split('.')[0]
@@ -148,7 +140,50 @@ def main(args):
     print(f'On the {args.split} routes over {args.repetitions} repetitions:')
     print(f'avg driving score \t = {overall_dscore_mean:.2f}')
     print(f'avg route completion \t = {overall_rcscore_mean:.2f}')
-        
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    # example target_dir: 
+    # (compute-1-24) /ssd1/aaronhua/leaderboard/results/image_agent/20201206_2103/testing
+    # (compute-1-29) /ssd0/aaronhua/leaderboard/results/image_agent/debug/20201206_2017/devtest
+    parser.add_argument('--target_dir', type=str, required=True)
+    parser.add_argument('--plot', action='store_true')
+    args = parser.parse_args()
+
+    # augment args with metadata from target_dir
+    target_tokens = args.target_dir.split('/')
+    if 'debug' in target_tokens:
+        insert_strs = ('agent', 'debug', 'date_str', 'split')
+    else:
+        insert_strs = ('agent', 'date_str', 'split')
+    start_token = -len(insert_strs)
+    args_dict = vars(args)
+    for string, token in zip(insert_strs, target_tokens[start_token:]):
+        if string == 'debug':
+            args_dict[string] = True
+        else:
+            args_dict[string] = token
+
+    # get log directory and check for number of repetitions
+    log_dir = os.path.join(args.target_dir, 'logs')
+    assert len(os.listdir(log_dir)) > 0, 'ERROR: no logs in log directory'
+    log_fnames = [os.path.join(log_dir, fname) for fname in os.listdir(log_dir) if fname.endswith('.txt')]
+    args_dict['log_fnames'] = sorted(log_fnames)
+    with open(log_fnames[0]) as f:
+        log = json.load(f)
+    args_dict['repetitions'] = len(log['_checkpoint']['records'])
+
+    # construct plot directory
+    args_dict['plot_dir'] = os.path.join(args.target_dir, 'plots')
+    if not os.path.exists(args.plot_dir):
+        os.makedirs(args.plot_dir)
+
+    for key, val in vars(args).items():
+        print(f'{key}: {val}')
+
+    return args
+
 if __name__ == '__main__':
     args = parse_args()
     main(args)
