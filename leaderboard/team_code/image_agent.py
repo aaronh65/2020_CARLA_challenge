@@ -41,6 +41,11 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
     _draw.text((5, 50), 'Brake: %s' % brake)
     _draw.text((5, 70), 'Speed: %.3f' % tick_data['speed'])
     _draw.text((5, 90), 'Desired: %.3f' % desired_speed)
+    cur_command = tick_data['cur_command']
+    _draw.text((5, 110), f'Current: {cur_command}')
+    next_command = tick_data['next_command']
+    _draw.text((5, 130), f'Next: {next_command}')
+
 
 
     _rgb_img = cv2.resize(np.array(_combined), DIM, interpolation=cv2.INTER_AREA)
@@ -83,10 +88,18 @@ class ImageAgent(BaseAgent):
             [np.cos(theta), -np.sin(theta)],
             [np.sin(theta),  np.cos(theta)],
             ])
+        result['rotation'] = R
         gps = self._get_position(result)
 
         # oriented in world frame
-        far_node, _ = self._command_planner.run_step(gps)
+        #far_node, _ = self._command_planner.run_step(gps)
+        current_waypoint, next_waypoint = self._command_planner.run_step(gps)
+        cur_node, cur_command = current_waypoint
+        far_node, far_command = next_waypoint
+        result['cur_node'] = cur_node
+        result['cur_command'] = str(cur_command).split('.')[1]
+        result['next_node'] = far_node
+        result['next_command'] = str(far_command).split('.')[1]
         
         target = R.T.dot(far_node - gps) # map/world frame to ego frame
         target *= 5.5 # from converter.PIXELS_PER_WORLD
@@ -96,7 +109,7 @@ class ImageAgent(BaseAgent):
 
 
         # keep track of rotation to make debug plot in map view
-        self.R = R
+        #self.R = R
         return result
 
     @torch.no_grad()
@@ -191,7 +204,9 @@ class ImageAgent(BaseAgent):
 
             # center at origin, rotate
             points_plot = points_map - [128, 256]
-            points_plot = self.R.dot(points_plot.T).T
+            R = tick_data['rotation']
+            #points_plot = self.R.dot(points_plot.T).T
+            points_plot = R.dot(points_plot.T).T
             points_plot *= -1 # why is this required?
             points_plot += 256/2 # recenter origin in middle of plot
             for x, y in points_plot:
