@@ -11,6 +11,7 @@ parser.add_argument('--gpus', type=int, default=1)
 parser.add_argument('--repetitions', type=int, default=1)
 parser.add_argument('--save_images', action='store_true')
 parser.add_argument('--debug', action='store_true')
+parser.add_argument('--ssd', type=int, default=0, choices=[0,1])
 parser.add_argument('--local', action='store_true')
 args = parser.parse_args()
 
@@ -49,7 +50,7 @@ try:
     else:
         log_dir = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
     if not args.local:
-        log_dir = f'/ssd0/aaronhua/{log_dir}'
+        log_dir = f'/ssd{args.ssd}/aaronhua/{log_dir}'
     mkdir_if_not_exists(f'{log_dir}/logs')
 
     route_prefix = f'leaderboard/data/routes_{args.split}'
