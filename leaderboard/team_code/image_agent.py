@@ -36,15 +36,17 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
 
     _combined = Image.fromarray(np.hstack([tick_data['rgb_left'], _rgb, tick_data['rgb_right']]))
     _draw = ImageDraw.Draw(_combined)
-    _draw.text((5, 10), 'Steer: %.3f' % steer)
-    _draw.text((5, 30), 'Throttle: %.3f' % throttle)
-    _draw.text((5, 50), 'Brake: %s' % brake)
-    _draw.text((5, 70), 'Speed: %.3f' % tick_data['speed'])
-    _draw.text((5, 90), 'Desired: %.3f' % desired_speed)
+    #text_color = (220, 220, 220)
+    text_color = (70, 130, 180)
+    _draw.text((5, 10), 'Steer: %.3f' % steer, text_color)
+    _draw.text((5, 30), 'Throttle: %.3f' % throttle, text_color)
+    _draw.text((5, 50), 'Brake: %s' % brake, text_color)
+    _draw.text((5, 70), 'Speed: %.3f' % tick_data['speed'], text_color)
+    _draw.text((5, 90), 'Desired: %.3f' % desired_speed, text_color)
     cur_command = tick_data['cur_command']
-    _draw.text((5, 110), f'Current: {cur_command}')
+    _draw.text((5, 110), f'Current: {cur_command}', text_color)
     next_command = tick_data['next_command']
-    _draw.text((5, 130), f'Next: {next_command}')
+    _draw.text((5, 130), f'Next: {next_command}', text_color)
 
 
 
