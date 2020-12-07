@@ -51,14 +51,14 @@ class RoutePlanner(object):
         self.route.clear()
 
         for pos, cmd in global_plan:
-            if gps:
+            if gps: # from lat/lon to ???
                 pos = np.array([pos['lat'], pos['lon']])
                 pos -= self.mean
                 pos *= self.scale
             else:
                 pos = np.array([pos.location.x, pos.location.y])
                 pos -= self.mean
-
+            print(f'cmd = {cmd}\npos = {pos}')
             self.route.append((pos, cmd))
 
     def run_step(self, gps):
@@ -71,22 +71,32 @@ class RoutePlanner(object):
         farthest_in_range = -np.inf
         cumulative_distance = 0.0
 
+        # search for next waypoint within max range of 25.0 (units?)
         for i in range(1, len(self.route)):
+
+            # break if we've searched far enough along route
             if cumulative_distance > self.max_distance:
                 break
 
+            # measures along route distance
             cumulative_distance += np.linalg.norm(self.route[i][0] - self.route[i-1][0])
+            # measure distance from waypoint i to current location
             distance = np.linalg.norm(self.route[i][0] - gps)
 
+            # if waypoint is within min distance of current location
+            # and it's the farthest one from current location
+            # then select
             if distance <= self.min_distance and distance > farthest_in_range:
                 farthest_in_range = distance
                 to_pop = i
 
+            # red if we're far, green if command is ???
             r = 255 * int(distance > self.min_distance)
             g = 255 * int(self.route[i][1].value == 4)
             b = 255
             self.debug.dot(gps, self.route[i][0], (r, g, b))
 
+        # discard the 
         for _ in range(to_pop):
             if len(self.route) > 2:
                 self.route.popleft()

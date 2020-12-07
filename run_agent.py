@@ -6,7 +6,7 @@ from datetime import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--split', type=str, default='devtest', choices=['devtest','testing','training','debug'])
-parser.add_argument('--route', type=int, default=0)
+parser.add_argument('--route', type=int, default=3)
 parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot'])
 parser.add_argument('--save_images', action='store_true')
 parser.add_argument('--debug', action='store_true')
