@@ -58,7 +58,7 @@ class RoutePlanner(object):
             else:
                 pos = np.array([pos.location.x, pos.location.y])
                 pos -= self.mean
-            print(f'cmd = {cmd}\npos = {pos}')
+            #print(f'cmd = {cmd}\npos = {pos}')
             self.route.append((pos, cmd))
 
     def run_step(self, gps):
@@ -103,7 +103,7 @@ class RoutePlanner(object):
 
         self.debug.dot(gps, self.route[0][0], (0, 255, 0))
         self.debug.dot(gps, self.route[1][0], (255, 0, 0))
-        self.debug.dot(gps, gps, (0, 0, 255))
+        self.debug.dot(gps, gps, (255, 255, 255))
         self.debug.show()
 
         return self.route[1]

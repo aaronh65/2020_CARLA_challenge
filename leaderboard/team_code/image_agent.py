@@ -26,7 +26,7 @@ def get_entry_point():
 def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_speed, step, _waypoint_img):
     _rgb = Image.fromarray(tick_data['rgb'])
     _draw_rgb = ImageDraw.Draw(_rgb)
-    _draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 255, 255))
+    _draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 0, 0))
 
     for x, y in out:
         x = (x + 1) / 2 * 256
@@ -83,24 +83,20 @@ class ImageAgent(BaseAgent):
             [np.cos(theta), -np.sin(theta)],
             [np.sin(theta),  np.cos(theta)],
             ])
-        self.R = R
         gps = self._get_position(result)
 
         # oriented in world frame
         far_node, _ = self._command_planner.run_step(gps)
         
-        # far_node originally in coordinate system with ego pos at origin
-        # rotate to align with vehicle body frame
-        target = R.T.dot(far_node - gps)
-        target *= 5.5 # GPS to pixel
-        #print('target')
-        #print(target)
-        target += [128, 256] # move to center of image?
+        target = R.T.dot(far_node - gps) # map/world frame to ego frame
+        target *= 5.5 # from converter.PIXELS_PER_WORLD
+        target += [128, 256] # ego origin in map frame
         target = np.clip(target, 0, 256)
-        #print('target at tick')
-        #print(target)
         result['target'] = target
 
+
+        # keep track of rotation to make debug plot in map view
+        self.R = R
         return result
 
     @torch.no_grad()
@@ -192,12 +188,12 @@ class ImageAgent(BaseAgent):
         if DEBUG or SAVE_IMAGES:
             _waypoint_img = self._command_planner.debug.img
             points_map = self.converter.cam_to_map(points_cam).numpy()
-            offset = np.array([128, 256])
-            points_plot = points_map - offset
+
+            # center at origin, rotate
+            points_plot = points_map - [128, 256]
             points_plot = self.R.dot(points_plot.T).T
-            #points_plot = points_plot + offset
-            points_plot *= -1
-            points_plot += 256/2
+            points_plot *= -1 # why is this required?
+            points_plot += 256/2 # recenter origin in middle of plot
             for x, y in points_plot:
                 ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (0,0,255))
             debug_display(
