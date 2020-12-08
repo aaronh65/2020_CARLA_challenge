@@ -19,12 +19,13 @@ def plot_metrics(args, metrics, routes):
     fig = plt.gcf()
     fig.set_size_inches(12,8)
 
-
-    # infraction metrics
+    # infraction metrics - one plot per route
     plot_labels = [infraction.replace('_', '\n') for infraction in infraction_types]
     plot_labels = [f'{label}\n{penalty}' for label, penalty in zip(plot_labels, penalties)]
 
-    # bars have width 3 and we double x_plot for space in between bars
+    # on the bar plot, each infraction type occupes 2 "widths"
+    # first width is for the bar showing # of infraction occurences for that type
+    # second width is for spacing between infraction types
     W = 3
     x_plot = np.arange(len(plot_labels))*2*W
     for route in routes:
@@ -45,9 +46,9 @@ def plot_metrics(args, metrics, routes):
         plt.xticks(x_plot, plot_labels, fontsize=8)
         plt.yticks(np.arange(max(maxs) + 1))
         plt.ylim(-0.5, max(maxs) + 0.5)
-        plt.title(f'{route} average infractions')
+        plt.title(f'{args.split}/{route} average infractions')
         plt.xlabel('infraction type')
-        plt.ylabel('# of infractions')
+        plt.ylabel('average # of infractions')
 
         # write the two main score metrics as text
         driving_score = metrics[route]['driving score mean']
@@ -60,41 +61,52 @@ def plot_metrics(args, metrics, routes):
         plt.savefig(save_path, dpi=100)
         plt.clf()
 
-    # driving and route completion metrics
+    # driving and route completion metrics - one/two plots for the entire split
     if args.split == 'training':
         split_idx = len(routes)//2
         routes_iter = [routes[:split_idx], routes[split_idx:]]
-    elif args.split == 'testing':
+    else:
         routes_iter = [routes]
 
     for i, routes in enumerate(routes_iter):
-        X = np.arange(len(routes))*W
+
+        # on the bar plot, each route occupies 3 "widths"
+        # first width is route completion bar
+        # second width is driving score bar
+        # third width is for spacing between routes
+        X = np.arange(len(routes))*3*W
         
         plots = []
         plot_labels = ['route completion', 'driving score']
         for j, t in enumerate(plot_labels):
-            color = colors[2*j]
-            x_plot = 3*X+j*W
+            color = colors[2*j] # arbitrarily chosen seaborn colors
+            x_plot = 3*X+j*W # j is an offset for the plot label
+
+            # retrieve aggregated metrics for each route
             means = get_metrics(metrics, f'{t} mean', routes)
             stds = get_metrics(metrics, f'{t} std', routes)
-            barplot = plt.bar(x_plot, means, color=color, width=W, alpha=0.75)
-            plt.errorbar(x_plot, means, yerr=stds, fmt="ok", capsize=3, alpha=0.75, color=color, lw=1, ms=0)
             maxs = get_metrics(metrics, f'{t} max', routes)
             mins = get_metrics(metrics, f'{t} min', routes)
+
+            # plot
+            barplot = plt.bar(x_plot, means, color=color, width=W, alpha=0.75)
+            plt.errorbar(x_plot, means, yerr=stds, fmt="ok", capsize=3, alpha=0.75, color=color, lw=1, ms=0)
             plt.scatter(x_plot, maxs, color=color, s=5, edgecolors='black', alpha=0.5)
             plt.scatter(x_plot, mins, color=color, s=5, edgecolors='black', alpha=0.75)
-            plots.append(barplot)
+            plots.append(barplot) # used for making the legend
 
         plt.legend(plots, plot_labels)
 
+        # place the route number label right in between and below the two bars
         numbers = [route[-2:] for route in routes]
-        plt.xticks(3*X+W/2, numbers, fontsize=12)
+        plt.xticks(3*X+W/2, numbers, fontsize=12) 
         plt.xlabel('route #')
-        plt.ylabel('score')
-        plt.title(f'avg driving/route scores')
+        plt.ylabel('average score')
+        plt.title(f'average driving/route scores on {args.split} routes')
         plt.ylim(-5,105)
-        save_path = os.path.join(args.plot_dir, f'overall_score_metrics_{i}.png')
+
         plt.tight_layout()
+        save_path = os.path.join(args.plot_dir, f'overall_score_metrics_{i}.png')
         plt.savefig(save_path, dpi=100)
         plt.clf()
 
