@@ -73,13 +73,13 @@ def plot_metrics(args, metrics, routes):
         # first width is route completion bar
         # second width is driving score bar
         # third width is for spacing between routes
-        X = np.arange(len(routes))*W
+        X = np.arange(len(routes))*3*W
         
         plots = []
         plot_labels = ['route completion', 'driving score']
         for j, t in enumerate(plot_labels):
             color = colors[2*j] # arbitrarily chosen seaborn colors
-            x_plot = 3*X+j*W # j is an offset for the plot label
+            x_plot = X+j*W # j is an offset for the plot label
 
             # retrieve aggregated metrics for each route
             means = get_metrics(metrics, f'{t} mean', routes)
@@ -98,7 +98,7 @@ def plot_metrics(args, metrics, routes):
 
         # place the route number label right in between and below the two bars
         numbers = [route[-2:] for route in routes]
-        plt.xticks(3*X+W/2, numbers, fontsize=12) 
+        plt.xticks(X+W/2, numbers, fontsize=12) 
         plt.xlabel('route #')
         plt.ylabel('average score')
         plt.title(f'average driving/route scores on {args.split} routes')
