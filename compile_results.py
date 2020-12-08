@@ -3,7 +3,6 @@ import json
 import argparse
 import numpy as np
 
-splits = ['training', 'testing', 'devtest', 'debug']
 infraction_types = ['collisions_pedestrian', 'collisions_vehicle', 'collisions_layout', 'red_light', 'stop_infraction', 'route_dev', 'route_timeout', 'vehicle_blocked', 'outside_route_lanes']
 penalties = ['.5x', '.6x', '.65x', '.7x', '.8x', 'STOP', 'STOP', 'STOP', '']
 
@@ -74,7 +73,7 @@ def plot_metrics(args, metrics, routes):
         # first width is route completion bar
         # second width is driving score bar
         # third width is for spacing between routes
-        X = np.arange(len(routes))*3*W
+        X = np.arange(len(routes))*W
         
         plots = []
         plot_labels = ['route completion', 'driving score']
