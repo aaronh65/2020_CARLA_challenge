@@ -54,8 +54,9 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
     _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
     _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
     if step % 10 == 0 and SAVE_IMAGES:
+        frame_number = step // 10 + 1
         rep_number = int(os.environ.get('REP',0))
-        save_path = os.path.join(SAVE_IMAGES_PATH, f'repetition_{rep_number:02d}', f'{step:06d}.png')
+        save_path = os.path.join(SAVE_IMAGES_PATH, f'repetition_{rep_number:02d}', f'{frame_number:06d}.png')
         cv2.imwrite(save_path, _save_img)
     if DEBUG:
         cv2.imshow('debug', _save_img)

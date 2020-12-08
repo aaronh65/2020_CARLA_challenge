@@ -24,6 +24,7 @@ export AGENT=$1
 export ROUTES=$2
 export LOGDIR=$3
 export CONFIG=$4
+export REPETITIONS=$5
 export PORT=2000
 
 export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/${AGENT}.py
@@ -45,7 +46,8 @@ python leaderboard/leaderboard/leaderboard_evaluator.py \
 --routes=${ROUTES} \
 --checkpoint=${CHECKPOINT_ENDPOINT} \
 --port=${PORT} \
---debug=${DEBUG_CHALLENGE}
+--debug=${DEBUG_CHALLENGE} \
+--repetitions=${REPETITIONS}
 
 echo "Done. See $CHECKPOINT_ENDPOINT for detailed results."
 

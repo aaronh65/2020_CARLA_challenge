@@ -9,13 +9,7 @@ def main(args):
         input_dirs = [dir_name for dir_name in input_dirs if 'bkup' not in dir_name and 'mp4' not in dir_name]
         print(input_dirs)
         for input_dir in input_dirs:
-
-            # convert filenames to be consecutive for ffmpeg
-            for i, fname in enumerate(sorted(os.listdir(input_dir))):
-                out_name = os.path.join(input_dir, f'{i+1:06d}.png')
-                in_name = os.path.join(input_dir, fname)
-                os.rename(in_name, out_name)
-
+            
             # get save_path
             tokens = input_dir.split('/')
             route, repetition = tokens[-2:]
@@ -23,6 +17,8 @@ def main(args):
             if not os.path.exists(route_video_dir):
                 os.makedirs(route_video_dir)
             save_path = os.path.join(route_video_dir, f'{repetition}.mp4')
+
+            # make video
             cmd = f'ffmpeg -r 2 -s 1627x256 -f image2 -i {input_dir}/%06d.png -pix_fmt yuv420p -vf \"pad=ceil(iw/2)*2:ceil(ih/2)*2\" {save_path}'
             os.system(cmd)
 

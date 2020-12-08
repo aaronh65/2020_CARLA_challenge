@@ -106,4 +106,5 @@ class RoutePlanner(object):
         self.debug.dot(gps, gps, (255, 255, 255))
         self.debug.show()
 
+        #return self.route
         return self.route[0], self.route[1]
