@@ -22,8 +22,11 @@ DIM=(1371,256)
 def get_entry_point():
     return 'ImageAgent'
 
-
 def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_speed, step, _waypoint_img):
+
+    # make BEV image
+    _waypoint_img = self._command_planner.debug.img
+
     _rgb = Image.fromarray(tick_data['rgb'])
     _draw_rgb = ImageDraw.Draw(_rgb)
     _draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 0, 0))
@@ -36,7 +39,8 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
 
     _combined = Image.fromarray(np.hstack([tick_data['rgb_left'], _rgb, tick_data['rgb_right']]))
     _draw = ImageDraw.Draw(_combined)
-    #text_color = (220, 220, 220)
+
+    # draw debug text
     text_color = (153, 51, 255)
     _draw.text((5, 10), 'Steer: %.3f' % steer, text_color)
     _draw.text((5, 30), 'Throttle: %.3f' % throttle, text_color)
@@ -48,9 +52,8 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
     next_command = tick_data['next_command']
     _draw.text((5, 130), f'Next: {next_command}', text_color)
 
-
-
     _rgb_img = cv2.resize(np.array(_combined), DIM, interpolation=cv2.INTER_AREA)
+
     _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
     _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
     if step % 10 == 0 and SAVE_IMAGES:
@@ -61,6 +64,8 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
     if DEBUG:
         cv2.imshow('debug', _save_img)
         cv2.waitKey(1)
+
+
 
 
 class ImageAgent(BaseAgent):
@@ -91,28 +96,40 @@ class ImageAgent(BaseAgent):
             [np.cos(theta), -np.sin(theta)],
             [np.sin(theta),  np.cos(theta)],
             ])
-        result['rotation'] = R
+        result['R'] = R
         gps = self._get_position(result)
 
         # oriented in world frame
         #far_node, _ = self._command_planner.run_step(gps)
-        current_waypoint, next_waypoint = self._command_planner.run_step(gps)
-        cur_node, cur_command = current_waypoint
-        far_node, far_command = next_waypoint
-        result['cur_node'] = cur_node
-        result['cur_command'] = str(cur_command).split('.')[1]
-        result['next_node'] = far_node
-        result['next_command'] = str(far_command).split('.')[1]
-        
-        target = R.T.dot(far_node - gps) # map/world frame to ego frame
-        target *= 5.5 # from converter.PIXELS_PER_WORLD
-        target += [128, 256] # ego origin in map frame
-        target = np.clip(target, 0, 256)
-        result['target'] = target
+        #current_waypoint, next_waypoint = self._command_planner.run_step(gps)
+        #cur_node, cur_command = current_waypoint
+        #far_node, far_command = next_waypoint
+        #result['cur_node'] = cur_node
+        #result['cur_command'] = str(cur_command).split('.')[1]
+        #result['next_node'] = far_node
+        #result['next_command'] = str(far_command).split('.')[1]
+        #target = R.T.dot(far_node - gps) # map/world frame to ego frame
+        #target *= 5.5 # from converter.PIXELS_PER_WORLD
+        #target += [128, 256] # ego origin in map frame
+        #target = np.clip(target, 0, 256)
+        #result['target'] = target
 
+        # transform route waypoints to overhead map view
+        route = self._command_planner.run_step(gps)
+        nodes = np.array([node for node, _ in route]) # (N,2)
+        nodes = nodes - gps
+        nodes = R.T.dot(nodes.T) # (2,2) x (2,N) = (2,N)
+        nodes = nodes.T * 5.5 # (N,2)
+        nodes += [128,256]
+        nodes = np.clip(nodes, 0, 256)
+        commands = [command for _, command in route]
 
-        # keep track of rotation to make debug plot in map view
-        #self.R = R
+        # populate results
+        result['num_waypoints'] = len(route)
+        result['route_map'] = nodes
+        result['commands'] = commands
+        result['target'] = nodes[1]
+
         return result
 
     @torch.no_grad()
@@ -203,24 +220,78 @@ class ImageAgent(BaseAgent):
         #print(timestamp) # GAMETIME
 
         if DEBUG or SAVE_IMAGES:
-            _waypoint_img = self._command_planner.debug.img
-            points_map = self.converter.cam_to_map(points_cam).numpy()
 
-            # center at origin, rotate
-            points_plot = points_map - [128, 256]
-            R = tick_data['rotation']
-            #points_plot = self.R.dot(points_plot.T).T
-            points_plot = R.dot(points_plot.T).T
-            points_plot *= -1 # why is this required?
-            points_plot += 256/2 # recenter origin in middle of plot
-            for x, y in points_plot:
-                ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (0,0,255))
-            debug_display(
-                    tick_data, target_cam.squeeze(), points.cpu().squeeze(),
-                    steer, throttle, brake, desired_speed,
-                    self.step, _waypoint_img)
+            # transform image model cam points to overhead BEV image (spectator frame?)
+            #tick_data['points'] = points.cpu().squeeze()
+            tick_data['points_cam'] = points_cam
+            tick_data['points_map'] = self.converter.cam_to_map(points_cam).numpy()
+                        
+            #debug_display(
+            #        tick_data, target_cam.squeeze(), points.cpu().squeeze(),
+            #        steer, throttle, brake, desired_speed,
+            #        self.step, _waypoint_img)
+            self.debug_display(
+                    tick_data, target_cam.squeeze(), 
+                    steer, throttle, brake, desired_speed)
+            
 
         return control
+
+    def debug_display(self, tick_data, target_cam, steer, throttle, brake, desired_speed):
+
+        # make BEV image
+        points_plot = tick_data['points_map'] - [128, 256] # center at origin, rotate
+        points_plot = tick_data['R'].dot(points_plot.T).T
+        points_plot = points_plot * -1 # why is this required?
+        points_plot = points_plot + 256/2 # recenter origin in middle of plot
+        _waypoint_img = self._command_planner.debug.img
+        for x, y in points_plot:
+            ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (0,0,255))
+
+        # draw center RGB image
+        _rgb = Image.fromarray(tick_data['rgb'])
+        _draw_rgb = ImageDraw.Draw(_rgb)
+        for x, y in tick_data['points_cam']: # image model waypoints
+            _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (0, 0, 255))
+
+        route_map = np.array(tick_data['route_map'])
+        route_map = route_map[1:3].squeeze()
+        route_cam = self.converter.map_to_cam(torch.Tensor(route_map)).numpy()
+        for i, (x, y) in enumerate(route_cam):
+            color = [255, 0, 0]
+            if i == 1:
+                color[2] = 255
+            _draw_rgb.ellipse((x-2, y-2, x+2, y+2), tuple(color))
+
+        #_draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 0, 0))
+
+
+        _combined = Image.fromarray(np.hstack([tick_data['rgb_left'], _rgb, tick_data['rgb_right']]))
+        _draw = ImageDraw.Draw(_combined)
+
+        # draw debug text
+        text_color = (153, 51, 255)
+        _draw.text((5, 10), 'Steer: %.3f' % steer, text_color)
+        _draw.text((5, 30), 'Throttle: %.3f' % throttle, text_color)
+        _draw.text((5, 50), 'Brake: %s' % brake, text_color)
+        _draw.text((5, 70), 'Speed: %.3f' % tick_data['speed'], text_color)
+        _draw.text((5, 90), 'Desired: %.3f' % desired_speed, text_color)
+        cur_command, next_command = tick_data['commands'][:2]
+        _draw.text((5, 110), f'Current: {cur_command}', text_color)
+        _draw.text((5, 130), f'Next: {next_command}', text_color)
+
+        _rgb_img = cv2.resize(np.array(_combined), DIM, interpolation=cv2.INTER_AREA)
+        _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
+        _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
+        if self.step % 10 == 0 and SAVE_IMAGES:
+            frame_number = self.step // 10 + 1
+            rep_number = int(os.environ.get('REP',0))
+            save_path = os.path.join(SAVE_IMAGES_PATH, f'repetition_{rep_number:02d}', f'{frame_number:06d}.png')
+            cv2.imwrite(save_path, _save_img)
+        if DEBUG:
+            cv2.imshow('debug', _save_img)
+            cv2.waitKey(1)
+ 
 
     def save_poly_data(self, tick_data, points_world):
         pos = self._get_position(tick_data)

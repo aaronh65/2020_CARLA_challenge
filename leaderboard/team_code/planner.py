@@ -92,7 +92,8 @@ class RoutePlanner(object):
 
             # red if we're far, green if command is ???
             r = 255 * int(distance > self.min_distance)
-            g = 255 * int(self.route[i][1].value == 4)
+            #g = 255 * int(self.route[i][1].value == 4)
+            g = 0
             b = 255
             self.debug.dot(gps, self.route[i][0], (r, g, b))
 
@@ -106,5 +107,5 @@ class RoutePlanner(object):
         self.debug.dot(gps, gps, (255, 255, 255))
         self.debug.show()
 
-        #return self.route
-        return self.route[0], self.route[1]
+        return self.route
+        #return self.route[0], self.route[1]
