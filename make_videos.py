@@ -5,9 +5,8 @@ def main(args):
     routes = os.listdir(args.image_dir)
     for route in routes:
         route_image_dir = os.path.join(args.image_dir, route)
-        input_dirs = [os.path.join(route_image_dir, dir_name) for dir_name in os.listdir(route_image_dir)]
+        input_dirs = [os.path.join(route_image_dir, dir_name) for dir_name in sorted(os.listdir(route_image_dir))]
         input_dirs = [dir_name for dir_name in input_dirs if 'bkup' not in dir_name and 'mp4' not in dir_name]
-        print(input_dirs)
         for input_dir in input_dirs:
             
             # get save_path
