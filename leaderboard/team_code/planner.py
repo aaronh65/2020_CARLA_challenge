@@ -90,20 +90,22 @@ class RoutePlanner(object):
                 farthest_in_range = distance
                 to_pop = i
 
-            # red if we're far, green if command is ???
-            r = 255 * int(distance > self.min_distance)
-            #g = 255 * int(self.route[i][1].value == 4)
-            g = 0
-            b = 255
-            self.debug.dot(gps, self.route[i][0], (r, g, b))
+            ## red if we're far, green if command is ???
+            #r = 255 * int(distance > self.min_distance)
+            ##g = 255 * int(self.route[i][1].value == 4)
+            #g = 0
+            #b = 255
+            #self.debug.dot(gps, self.route[i][0], (r, g, b))
 
         # discard the 
         for _ in range(to_pop):
             if len(self.route) > 2:
                 self.route.popleft()
-
+        
         self.debug.dot(gps, self.route[0][0], (0, 255, 0))
         self.debug.dot(gps, self.route[1][0], (255, 0, 0))
+        for i in range(2, min(5, len(self.route))):
+            self.debug.dot(gps, self.route[i][0], (255,0,255))
         self.debug.dot(gps, gps, (255, 255, 255))
         self.debug.show()
 
