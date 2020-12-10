@@ -83,7 +83,7 @@ class StatisticsManager(object):
     It gathers data at runtime via the scenario evaluation criteria.
     """
 
-    def __init__(self):
+    def __init__(self): 
         self._master_scenario = None
         self._registry_route_records = []
 
@@ -98,7 +98,7 @@ class StatisticsManager(object):
 
     def set_route(self, route_id, index):
 
-        self._master_scenario = None
+        self._master_scenario = None # BasicScenario.Scenario
         route_record = RouteRecord()
         route_record.route_id = route_id
         route_record.index = index
@@ -130,6 +130,7 @@ class StatisticsManager(object):
         target_reached = False
         score_penalty = 1.0
         score_route = 0.0
+        infraction_list = [] # each elem is (time, TrafficEventType)
 
         route_record.meta['duration_system'] = duration_time_system
         route_record.meta['duration_game'] = duration_time_game
@@ -144,25 +145,34 @@ class StatisticsManager(object):
                 if node.list_traffic_events:
                     # analyze all traffic events
                     for event in node.list_traffic_events:
+                        if event.get_dict():
+                            event_dict = event.get_dict()
                         if event.get_type() == TrafficEventType.COLLISION_STATIC:
+                            print('checking traffic event collisions')
                             score_penalty *= PENALTY_COLLISION_STATIC
                             route_record.infractions['collisions_layout'].append(event.get_message())
+                            infraction_list.append((event_dict['time'], event.get_type()))
 
                         elif event.get_type() == TrafficEventType.COLLISION_PEDESTRIAN:
                             score_penalty *= PENALTY_COLLISION_PEDESTRIAN
                             route_record.infractions['collisions_pedestrian'].append(event.get_message())
+                            infraction_list.append((event_dict['time'], event.get_type()))
 
                         elif event.get_type() == TrafficEventType.COLLISION_VEHICLE:
                             score_penalty *= PENALTY_COLLISION_VEHICLE
                             route_record.infractions['collisions_vehicle'].append(event.get_message())
+                            infraction_list.append((event_dict['time'], event.get_type()))
+
 
                         elif event.get_type() == TrafficEventType.OUTSIDE_ROUTE_LANES_INFRACTION:
                             score_penalty *= (1 - event.get_dict()['percentage'] / 100)
                             route_record.infractions['outside_route_lanes'].append(event.get_message())
 
                         elif event.get_type() == TrafficEventType.TRAFFIC_LIGHT_INFRACTION:
+                            print('ran red light')
                             score_penalty *= PENALTY_TRAFFIC_LIGHT
                             route_record.infractions['red_light'].append(event.get_message())
+                            infraction_list.append((event_dict['time'], event.get_type()))
 
                         elif event.get_type() == TrafficEventType.ROUTE_DEVIATION:
                             route_record.infractions['route_dev'].append(event.get_message())
@@ -171,6 +181,7 @@ class StatisticsManager(object):
                         elif event.get_type() == TrafficEventType.STOP_INFRACTION:
                             score_penalty *= PENALTY_STOP
                             route_record.infractions['stop_infraction'].append(event.get_message())
+                            infraction_list.append((event_dict['time'], event.get_type()))
 
                         elif event.get_type() == TrafficEventType.VEHICLE_BLOCKED:
                             route_record.infractions['vehicle_blocked'].append(event.get_message())
@@ -183,8 +194,14 @@ class StatisticsManager(object):
                             if not target_reached:
                                 if event.get_dict():
                                     score_route = event.get_dict()['route_completed']
+                                    score_route_list = event.get_dict()['route_completed_list']
+                                    print(score_route_list)
                                 else:
                                     score_route = 0
+
+        # plot per-route performance
+        infraction_list = sorted(infraction_list, key=lambda x:x[0])
+        print(infraction_list)
 
         # update route scores
         route_record.scores['score_route'] = score_route
