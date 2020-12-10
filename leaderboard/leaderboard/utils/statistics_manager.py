@@ -148,9 +148,9 @@ class StatisticsManager(object):
         fig.set_size_inches(12,8)
 
         # compute driving scores
-        inf_time_mult = deque([(time, penalty_dict[itype]) for time, itype in infraction_list])
-        print(inf_time_mult)
-        inf_time_mult = sorted(inf_time_mult, key=lambda x:x[0])
+        infraction_list = sorted(infraction_list, key=lambda x: x[0])
+        print(infraction_list)
+        inf_time_mult = deque(infraction_list)
         print(inf_time_mult)
         score_penalty = [1.0] * len(score_route_list)
         for i in range(1, len(score_penalty)):
