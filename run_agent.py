@@ -39,7 +39,6 @@ save_images_path = f'{log_dir}/images/{route}'
 for rep_number in range(args.repetitions):
     if args.save_images:
         mkdir_if_not_exists(f'{save_images_path}/repetition_{rep_number:02d}')
-    #mkdir_if_not_exists(f'{save_perf_path}/repetition_{rep_number:02d}')
     
 # route path
 route_path = f'leaderboard/data/routes_{args.split}/{route}.xml'

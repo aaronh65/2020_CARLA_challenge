@@ -185,6 +185,7 @@ class RouteScenario(BasicScenario):
         self.config = config
         self.route = None
         self.sampled_scenarios_definitions = None
+        self.route_var_name_class_lookup = {}
 
         self._update_route(world, config, debug_mode>0)
 
@@ -392,6 +393,7 @@ class RouteScenario(BasicScenario):
                                                                           ego_vehicle.get_transform(),
                                                                           'hero')]
             route_var_name = "ScenarioRouteNumber{}".format(scenario_number)
+            self.route_var_name_class_lookup[route_var_name] = scenario_class.__name__
             scenario_configuration.route_var_name = route_var_name
             try:
                 scenario_instance = scenario_class(world, [ego_vehicle], scenario_configuration,

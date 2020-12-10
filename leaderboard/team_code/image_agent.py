@@ -37,7 +37,7 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
     _combined = Image.fromarray(np.hstack([tick_data['rgb_left'], _rgb, tick_data['rgb_right']]))
     _draw = ImageDraw.Draw(_combined)
     #text_color = (220, 220, 220)
-    text_color = (70, 130, 180)
+    text_color = (153, 51, 255)
     _draw.text((5, 10), 'Steer: %.3f' % steer, text_color)
     _draw.text((5, 30), 'Throttle: %.3f' % throttle, text_color)
     _draw.text((5, 50), 'Brake: %s' % brake, text_color)

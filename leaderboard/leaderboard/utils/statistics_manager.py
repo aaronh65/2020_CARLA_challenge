@@ -177,10 +177,10 @@ class StatisticsManager(object):
         # plot scenario trigger times
         scenarios = self._route_scenario.scenario_triggerer._triggered_scenarios
         times = self._route_scenario.scenario_triggerer._triggered_scenarios_times
-        for time, scen in zip(times, scenarios):
+        lookup = self._route_scenario.route_var_name_class_lookup
+        for time, route_var_name in zip(times, scenarios):
             plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='purple')
-            scen = scen.replace('RouteNumber', '')
-            name = NUMBER_CLASS_TRANSLATION[scen].__name__
+            name = lookup[route_var_name]
             plt.text(time+0.2, 0, name)
             
         x_plot = np.arange(len(score_composed_plot)) * 0.5
@@ -195,6 +195,7 @@ class StatisticsManager(object):
         rep_number = int(os.environ.get('REP',0))
         save_path = f'{save_perf_path}/repetition_{rep_number:02d}.png'
         plt.savefig(save_path)
+        plt.clf()
 
     def compute_route_statistics(self, config, duration_time_system=-1, duration_time_game=-1, failure="", checkpoint=None):
         """
