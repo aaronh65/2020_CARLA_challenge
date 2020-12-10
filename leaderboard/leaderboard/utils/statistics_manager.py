@@ -12,15 +12,19 @@ This module contains a statistics manager for the CARLA AD leaderboard
 from __future__ import print_function
 
 from dictor import dictor
+from collections import deque
 import math
 import sys
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+colors = sns.color_palette("Paired")
+
 
 from srunner.scenariomanager.traffic_events import TrafficEventType
 from py_trees.blackboard import Blackboard
-
+from leaderboard.scenarios.route_scenario import NUMBER_CLASS_TRANSLATION
 from leaderboard.utils.checkpoint_tools import fetch_dict, save_dict, create_default_json_msg
-import matplotlib.pyplot as plt
-import numpy as np
 
 PENALTY_COLLISION_PEDESTRIAN = 0.50
 PENALTY_COLLISION_VEHICLE = 0.60
@@ -28,12 +32,20 @@ PENALTY_COLLISION_STATIC = 0.65
 PENALTY_TRAFFIC_LIGHT = 0.70
 PENALTY_STOP = 0.80
 
-infraction_penalty_dict = {
+penalty_dict = {
         TrafficEventType.COLLISION_PEDESTRIAN  : PENALTY_COLLISION_PEDESTRIAN,
         TrafficEventType.COLLISION_VEHICLE  : PENALTY_COLLISION_VEHICLE,
         TrafficEventType.COLLISION_STATIC  : PENALTY_COLLISION_STATIC,
         TrafficEventType.TRAFFIC_LIGHT_INFRACTION  : PENALTY_TRAFFIC_LIGHT,
         TrafficEventType.STOP_INFRACTION  : PENALTY_STOP
+        }
+
+string_dict = {
+        TrafficEventType.COLLISION_PEDESTRIAN  : f'hit ped ({PENALTY_COLLISION_PEDESTRIAN}x)',
+        TrafficEventType.COLLISION_VEHICLE  : f'hit vehicle ({PENALTY_COLLISION_VEHICLE}x)',
+        TrafficEventType.COLLISION_STATIC  : f'hit static ({PENALTY_COLLISION_STATIC}x)',
+        TrafficEventType.TRAFFIC_LIGHT_INFRACTION  : f'ran light ({PENALTY_TRAFFIC_LIGHT}x)',
+        TrafficEventType.STOP_INFRACTION  : f'ran stop ({PENALTY_STOP}x)',
         }
 
 
@@ -95,7 +107,7 @@ class StatisticsManager(object):
     """
 
     def __init__(self): 
-        #self._master_scenario = None
+        self._master_scenario = None
         self._registry_route_records = []
 
     def resume(self, endpoint):
@@ -123,10 +135,58 @@ class StatisticsManager(object):
 
     def set_scenario(self, scenario):
         """
-        Sets the scenario from which the statistics willb e taken
+        Sets the scenario from which the statistics will be taken
         """
         self._route_scenario = scenario
         self._master_scenario = scenario.scenario
+
+
+    def plot_performance(self, score_route_list, infraction_list, tol=1e-4):
+        
+        fig = plt.gcf()
+        fig.set_size_inches(12,8)
+
+        inf_time_mult = deque([(time, penalty_dict[itype]) for time, itype in infraction_list])
+        score_penalty = [1.0] * len(score_route_list)
+        for i in range(1, len(score_penalty)):
+            if len(inf_time_mult) == 0:
+                score_penalty[i] = score_penalty[i-1]
+                continue
+            t = i*0.05
+            inf_time, penalty = inf_time_mult[0]
+            if abs(t - inf_time) < tol or t - inf_time >= 0.05:
+                score_penalty[i] = score_penalty[i-1]*penalty
+                inf_time_mult.popleft()
+            
+        # 20 Hz
+        score_composed_list = np.multiply(score_penalty, score_route_list)
+
+        # 2 Hz
+        score_composed_plot = score_composed_list[::10]
+        score_route_plot = score_route_list[::10]
+        x_plot = np.arange(len(score_composed_plot)) * 0.5
+        #print(self._route_scenario.scenario_triggerer._triggered_scenarios)
+        y_max = np.amax(score_route_plot)
+        for time, itype in infraction_list:
+            plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='red')
+            plt.text(time+0.2, y_max, string_dict[itype])
+
+        scenarios = self._route_scenario.scenario_triggerer._triggered_scenarios
+        times = self._route_scenario.scenario_triggerer._triggered_scenarios_times
+        for time, scen in zip(times, scenarios):
+            #print(time, scen)
+            plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='yellowgreen')
+            scen = scen.replace('RouteNumber', '')
+            name = NUMBER_CLASS_TRANSLATION[scen].__name__
+            #plt.text(time+0.2, y_max, name)
+            plt.text(time+0.2, 0, name)
+            
+        plt.plot(x_plot, score_route_plot, label='route completion', color=colors[0])
+        plt.plot(x_plot, score_composed_plot, label='driving score', color=colors[2])
+        plt.xlabel('Game time (s)')
+        plt.ylabel('Score (%)')
+        plt.legend()
+        plt.savefig('test.png')
 
     def compute_route_statistics(self, config, duration_time_system=-1, duration_time_game=-1, failure=""):
         """
@@ -206,11 +266,9 @@ class StatisticsManager(object):
                                 if event.get_dict():
                                     score_route = event.get_dict()['route_completed']
                                     score_route_list = event.get_dict()['route_completed_list']
-                                    print(score_route_list)
                                 else:
                                     score_route = 0
 
-        print(self._route_scenario.scenario_triggerer._triggered_scenarios)
         
         # update route scores
         route_record.scores['score_route'] = score_route
@@ -218,31 +276,8 @@ class StatisticsManager(object):
         route_record.scores['score_composed'] = max(score_route*score_penalty, 0.0)
 
         # plot per-route performance
-        infraction_list = sorted(infraction_list, key=lambda x:x[0])
-        ptr = 0
-        penalty_mult = 1.0
-        score_composed_list = score_route_list[:] # makes a copy
-        tol = 1e-3
-        for i, score_route in enumerate(score_route_list):
-            # GameTime is i*0.05
-            # an infraction's penalty applies only if it came before a timestamp
-            if ptr >= len(infraction_list):
-                score_composed_list[i] = penalty_mult*score_route
-                continue
-            current_time = i*0.05
-            infraction = infraction_list[ptr]
-            infraction_time = infraction[0]
-            if abs(current_time - infraction_time) < tol:
-                print(infraction)
-                penalty_mult *= infraction_penalty_dict[infraction[1]]
-                ptr += 1
-            score_composed_list[i] = score_route*penalty_mult
-            
-        x_plot = np.arange(len(score_composed_list))
-        plt.plot(x_plot, score_composed_list, label='score_composed')
-        plt.plot(x_plot, score_route_list, label='score_route')
-        plt.savefig('test.png')
-
+        self.plot_performance(score_route_list, infraction_list)
+        
         # update status
         if target_reached:
             route_record.status = 'Completed'
