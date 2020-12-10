@@ -18,12 +18,22 @@ import sys
 from srunner.scenariomanager.traffic_events import TrafficEventType
 
 from leaderboard.utils.checkpoint_tools import fetch_dict, save_dict, create_default_json_msg
+import matplotlib.pyplot as plt
+import numpy as np
 
 PENALTY_COLLISION_PEDESTRIAN = 0.50
 PENALTY_COLLISION_VEHICLE = 0.60
 PENALTY_COLLISION_STATIC = 0.65
 PENALTY_TRAFFIC_LIGHT = 0.70
 PENALTY_STOP = 0.80
+
+infraction_penalty_dict = {
+        TrafficEventType.COLLISION_PEDESTRIAN  : PENALTY_COLLISION_PEDESTRIAN,
+        TrafficEventType.COLLISION_VEHICLE  : PENALTY_COLLISION_VEHICLE,
+        TrafficEventType.COLLISION_STATIC  : PENALTY_COLLISION_STATIC,
+        TrafficEventType.TRAFFIC_LIGHT_INFRACTION  : PENALTY_TRAFFIC_LIGHT,
+        TrafficEventType.STOP_INFRACTION  : PENALTY_STOP
+        }
 
 
 class RouteRecord():
@@ -148,7 +158,6 @@ class StatisticsManager(object):
                         if event.get_dict():
                             event_dict = event.get_dict()
                         if event.get_type() == TrafficEventType.COLLISION_STATIC:
-                            print('checking traffic event collisions')
                             score_penalty *= PENALTY_COLLISION_STATIC
                             route_record.infractions['collisions_layout'].append(event.get_message())
                             infraction_list.append((event_dict['time'], event.get_type()))
@@ -169,7 +178,6 @@ class StatisticsManager(object):
                             route_record.infractions['outside_route_lanes'].append(event.get_message())
 
                         elif event.get_type() == TrafficEventType.TRAFFIC_LIGHT_INFRACTION:
-                            print('ran red light')
                             score_penalty *= PENALTY_TRAFFIC_LIGHT
                             route_record.infractions['red_light'].append(event.get_message())
                             infraction_list.append((event_dict['time'], event.get_type()))
@@ -199,14 +207,37 @@ class StatisticsManager(object):
                                 else:
                                     score_route = 0
 
-        # plot per-route performance
-        infraction_list = sorted(infraction_list, key=lambda x:x[0])
-        print(infraction_list)
-
+        
         # update route scores
         route_record.scores['score_route'] = score_route
         route_record.scores['score_penalty'] = score_penalty
         route_record.scores['score_composed'] = max(score_route*score_penalty, 0.0)
+
+        # plot per-route performance
+        infraction_list = sorted(infraction_list, key=lambda x:x[0])
+        ptr = 0
+        penalty_mult = 1.0
+        score_composed_list = score_route_list[:] # makes a copy
+        tol = 1e-3
+        for i, score_route in enumerate(score_route_list):
+            # GameTime is i*0.05
+            # an infraction's penalty applies only if it came before a timestamp
+            if ptr >= len(infraction_list):
+                score_composed_list[i] = penalty_mult*score_route
+                continue
+            current_time = i*0.05
+            infraction = infraction_list[ptr]
+            infraction_time = infraction[0]
+            if abs(current_time - infraction_time) < tol:
+                print(infraction)
+                penalty_mult *= infraction_penalty_dict[infraction[1]]
+                ptr += 1
+            score_composed_list[i] = score_route*penalty_mult
+            
+        x_plot = np.arange(len(score_composed_list))
+        plt.plot(x_plot, score_composed_list, label='score_composed')
+        plt.plot(x_plot, score_route_list, label='score_route')
+        plt.savefig('test.png')
 
         # update status
         if target_reached:
