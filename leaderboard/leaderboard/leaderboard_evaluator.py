@@ -309,7 +309,8 @@ class LeaderboardEvaluator(object):
             self._load_and_wait_for_world(args, config.town, config.ego_vehicles)
             self._prepare_ego_vehicles(config.ego_vehicles, False)
             scenario = RouteScenario(world=self.world, config=config, debug_mode=args.debug)
-            self.statistics_manager.set_scenario(scenario.scenario)
+            #self.statistics_manager.set_scenario(scenario.scenario)
+            self.statistics_manager.set_scenario(scenario)
 
             # Night mode
             if config.weather.sun_altitude_angle < 0.0:

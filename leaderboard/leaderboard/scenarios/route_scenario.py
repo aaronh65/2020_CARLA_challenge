@@ -518,6 +518,7 @@ class RouteScenario(BasicScenario):
         )
 
         subbehavior.add_child(scenario_triggerer)  # make ScenarioTriggerer the first thing to be checked
+        self.scenario_triggerer = scenario_triggerer
         subbehavior.add_children(scenario_behaviors)
         subbehavior.add_child(Idle())  # The behaviours cannot make the route scenario stop
         behavior.add_child(subbehavior)

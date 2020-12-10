@@ -16,6 +16,7 @@ import math
 import sys
 
 from srunner.scenariomanager.traffic_events import TrafficEventType
+from py_trees.blackboard import Blackboard
 
 from leaderboard.utils.checkpoint_tools import fetch_dict, save_dict, create_default_json_msg
 import matplotlib.pyplot as plt
@@ -94,7 +95,7 @@ class StatisticsManager(object):
     """
 
     def __init__(self): 
-        self._master_scenario = None
+        #self._master_scenario = None
         self._registry_route_records = []
 
     def resume(self, endpoint):
@@ -109,6 +110,7 @@ class StatisticsManager(object):
     def set_route(self, route_id, index):
 
         self._master_scenario = None # BasicScenario.Scenario
+        self._route_scenario = None
         route_record = RouteRecord()
         route_record.route_id = route_id
         route_record.index = index
@@ -123,7 +125,8 @@ class StatisticsManager(object):
         """
         Sets the scenario from which the statistics willb e taken
         """
-        self._master_scenario = scenario
+        self._route_scenario = scenario
+        self._master_scenario = scenario.scenario
 
     def compute_route_statistics(self, config, duration_time_system=-1, duration_time_game=-1, failure=""):
         """
@@ -207,6 +210,7 @@ class StatisticsManager(object):
                                 else:
                                     score_route = 0
 
+        print(self._route_scenario.scenario_triggerer._triggered_scenarios)
         
         # update route scores
         route_record.scores['score_route'] = score_route

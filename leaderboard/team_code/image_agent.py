@@ -200,7 +200,7 @@ class ImageAgent(BaseAgent):
         control.steer = steer
         control.throttle = throttle
         control.brake = float(brake)
-        print(timestamp)
+        #print(timestamp) # GAMETIME
 
         if DEBUG or SAVE_IMAGES:
             _waypoint_img = self._command_planner.debug.img
