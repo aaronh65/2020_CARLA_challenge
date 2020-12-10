@@ -18,6 +18,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import os
 colors = sns.color_palette("Paired")
 
 
@@ -141,54 +142,61 @@ class StatisticsManager(object):
         self._master_scenario = scenario.scenario
 
 
-    def plot_performance(self, score_route_list, infraction_list, tol=1e-4):
+    def plot_performance(self, score_route_list, infraction_list, checkpoint, tol=1e-4):
         
         fig = plt.gcf()
         fig.set_size_inches(12,8)
 
+        # compute driving scores
         inf_time_mult = deque([(time, penalty_dict[itype]) for time, itype in infraction_list])
         score_penalty = [1.0] * len(score_route_list)
         for i in range(1, len(score_penalty)):
+
+            # no more infractions
             if len(inf_time_mult) == 0:
                 score_penalty[i] = score_penalty[i-1]
                 continue
+
+            # check for active infraction
             t = i*0.05
             inf_time, penalty = inf_time_mult[0]
             if abs(t - inf_time) < tol or t - inf_time >= 0.05:
                 score_penalty[i] = score_penalty[i-1]*penalty
                 inf_time_mult.popleft()
-            
-        # 20 Hz
-        score_composed_list = np.multiply(score_penalty, score_route_list)
 
-        # 2 Hz
-        score_composed_plot = score_composed_list[::10]
+        score_composed_list = np.multiply(score_penalty, score_route_list) # 20 Hz
+        score_composed_plot = score_composed_list[::10] # 2 Hz
         score_route_plot = score_route_list[::10]
-        x_plot = np.arange(len(score_composed_plot)) * 0.5
-        #print(self._route_scenario.scenario_triggerer._triggered_scenarios)
+
+        # plot infraction times
         y_max = np.amax(score_route_plot)
         for time, itype in infraction_list:
             plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='red')
             plt.text(time+0.2, y_max, string_dict[itype])
 
+        # plot scenario trigger times
         scenarios = self._route_scenario.scenario_triggerer._triggered_scenarios
         times = self._route_scenario.scenario_triggerer._triggered_scenarios_times
         for time, scen in zip(times, scenarios):
-            #print(time, scen)
-            plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='yellowgreen')
+            plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='purple')
             scen = scen.replace('RouteNumber', '')
             name = NUMBER_CLASS_TRANSLATION[scen].__name__
-            #plt.text(time+0.2, y_max, name)
             plt.text(time+0.2, 0, name)
             
+        x_plot = np.arange(len(score_composed_plot)) * 0.5
         plt.plot(x_plot, score_route_plot, label='route completion', color=colors[0])
         plt.plot(x_plot, score_composed_plot, label='driving score', color=colors[2])
         plt.xlabel('Game time (s)')
         plt.ylabel('Score (%)')
         plt.legend()
-        plt.savefig('test.png')
 
-    def compute_route_statistics(self, config, duration_time_system=-1, duration_time_game=-1, failure=""):
+        # retrieve paths and plot
+        save_perf_path = os.environ.get('SAVE_PERF_PATH', 0)
+        rep_number = int(os.environ.get('REP',0))
+        save_path = f'{save_perf_path}/repetition_{rep_number:02d}.png'
+        plt.savefig(save_path)
+
+    def compute_route_statistics(self, config, duration_time_system=-1, duration_time_game=-1, failure="", checkpoint=None):
         """
         Compute the current statistics by evaluating all relevant scenario criteria
         """
@@ -276,7 +284,8 @@ class StatisticsManager(object):
         route_record.scores['score_composed'] = max(score_route*score_penalty, 0.0)
 
         # plot per-route performance
-        self.plot_performance(score_route_list, infraction_list)
+        if len(score_route_list) > 0:
+            self.plot_performance(score_route_list, infraction_list, checkpoint)
         
         # update status
         if target_reached:

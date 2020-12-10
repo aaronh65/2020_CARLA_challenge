@@ -12,7 +12,7 @@ parser.add_argument('--save_images', action='store_true')
 parser.add_argument('--repetitions', type=int, default=1)
 parser.add_argument('--debug', action='store_true')
 args = parser.parse_args()
-routenum = f'{args.route:02d}'
+route = f'route_{args.route:02d}'
 
 if args.agent == 'auto_pilot':
     config = 'none'
@@ -32,19 +32,22 @@ else:
     log_dir = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
 mkdir_if_not_exists(f'{log_dir}/logs')
 
-save_images_path = "junk"
-if args.save_images:
-    save_images_path = f'{log_dir}/images/route_{routenum}'
-    mkdir_if_not_exists(save_images_path)
-    for rep_number in range(args.repetitions):
+
+save_perf_path = f'{log_dir}/plots/{route}'
+mkdir_if_not_exists(save_perf_path)
+save_images_path = f'{log_dir}/images/{route}'
+for rep_number in range(args.repetitions):
+    if args.save_images:
         mkdir_if_not_exists(f'{save_images_path}/repetition_{rep_number:02d}')
-
+    #mkdir_if_not_exists(f'{save_perf_path}/repetition_{rep_number:02d}')
+    
 # route path
-route = f'leaderboard/data/routes_{args.split}/route_{routenum}.xml'
+route_path = f'leaderboard/data/routes_{args.split}/{route}.xml'
 
-cmd = f'bash run_agent.sh {args.agent} {route} {log_dir} {config} {args.repetitions}'
+cmd = f'bash run_agent.sh {args.agent} {route_path} {log_dir} {config} {args.repetitions}'
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 os.environ["SAVE_IMAGES"] = "1" if args.save_images else "0"
 os.environ["SAVE_IMAGES_PATH"] = save_images_path
+os.environ["SAVE_PERF_PATH"] = save_perf_path
 print(f'running {cmd}')
 os.system(cmd)

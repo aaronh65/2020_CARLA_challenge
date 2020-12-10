@@ -235,7 +235,8 @@ class LeaderboardEvaluator(object):
             config,
             self.manager.scenario_duration_system,
             self.manager.scenario_duration_game,
-            crash_message
+            crash_message,
+            checkpoint
         )
 
         print("\033[1m> Registering the route statistics\033[0m")

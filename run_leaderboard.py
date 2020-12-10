@@ -108,17 +108,20 @@ try:
         wp, tp = port_map[gpu]
         route = routes[ri].split('/')[-1].split('.')[0]
         
-        save_images_path = "junk"
-        if args.save_images:
-            save_images_path = f'{log_dir}/images/{route}'
-            for rep_number in range(args.repetitions):
+        save_perf_path = f'{log_dir}/plots/{route}'
+        mkdir_if_not_exists(save_perf_path)
+        save_images_path = f'{log_dir}/images/{route}'
+        for rep_number in range(args.repetitions):
+            if args.save_images:
                 mkdir_if_not_exists(f'{save_images_path}/repetition_{rep_number:02d}')
 
         # directly log from command
         env = os.environ.copy()
         env["LOCAL"] = "1" if args.local else "0"
+
         env["SAVE_IMAGES"] = "1" if args.save_images else "0"
         env["SAVE_IMAGES_PATH"] = save_images_path
+        env["SAVE_PERF_PATH"] = save_perf_path
         env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
         cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {log_dir}/logs/AGENT_{route}.log'
         #cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix}'
