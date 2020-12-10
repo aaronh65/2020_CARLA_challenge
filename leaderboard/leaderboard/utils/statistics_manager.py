@@ -150,7 +150,7 @@ class StatisticsManager(object):
         # compute driving scores
         infraction_list = sorted(infraction_list, key=lambda x: x[0])
         print(infraction_list)
-        inf_time_mult = deque(infraction_list)
+        inf_time_mult = deque([(time, penalty_dict[itype]) for time, itype in infraction_list])
         print(inf_time_mult)
         score_penalty = [1.0] * len(score_route_list)
         for i in range(1, len(score_penalty)):
