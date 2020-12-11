@@ -91,14 +91,17 @@ try:
         # if all servers busy, wait for a bit
         if True not in open_gpus: 
             time.sleep(5)
-            # check each server index, (process, routes index)
-            for si, (proc, ri)in enumerate(open_gpus):
-                if proc.poll() is not None: # check if server is done
-                    open_gpus[si] = True
-                    routes_done[ri] = True
-            continue
+
+        # check each server index, (process, routes index)
+        for si, (proc, ri)in enumerate(open_gpus):
+            if proc.poll() is not None: # check if server is done
+                open_gpus[si] = True
+                routes_done[ri] = True
+                print('finished route {ri:02d}\n', routes_done)
+
 
         if False not in routes_done:
+            print('False not in routes done\n', routes_done)
             time.sleep(10)
             continue
 
@@ -118,7 +121,6 @@ try:
         # directly log from command
         env = os.environ.copy()
         env["LOCAL"] = "1" if args.local else "0"
-
         env["SAVE_IMAGES"] = "1" if args.save_images else "0"
         env["SAVE_IMAGES_PATH"] = save_images_path
         env["SAVE_PERF_PATH"] = save_perf_path
@@ -132,11 +134,17 @@ try:
         routes_done[ri] = 'running'
 
 except KeyboardInterrupt:
-    pass
+    for i in range(len(carla_procs)):
+        carla_procs[i].kill()
+    for i in range(len(lbc_procs)):
+        lbc_procs[i].kill()
 
 except Exception as e:
     traceback.print_exc()
-    pass
+    for i in range(len(carla_procs)):
+        carla_procs[i].kill()
+    for i in range(len(lbc_procs)):
+        lbc_procs[i].kill()
 
 for i in range(len(carla_procs)):
     carla_procs[i].kill()

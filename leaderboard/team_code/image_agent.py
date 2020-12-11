@@ -223,7 +223,7 @@ class ImageAgent(BaseAgent):
 
             # transform image model cam points to overhead BEV image (spectator frame?)
             #tick_data['points'] = points.cpu().squeeze()
-            tick_data['points_cam'] = points_cam
+            tick_data['points_cam'] = points.cpu().squeeze()
             tick_data['points_map'] = self.converter.cam_to_map(points_cam).numpy()
                         
             #debug_display(
@@ -252,6 +252,8 @@ class ImageAgent(BaseAgent):
         _rgb = Image.fromarray(tick_data['rgb'])
         _draw_rgb = ImageDraw.Draw(_rgb)
         for x, y in tick_data['points_cam']: # image model waypoints
+            x = (x + 1)/2 * 256
+            y = (y + 1)/2 * 144
             _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (0, 0, 255))
 
         route_map = np.array(tick_data['route_map'])

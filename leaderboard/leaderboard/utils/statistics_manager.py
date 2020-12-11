@@ -147,44 +147,46 @@ class StatisticsManager(object):
         fig = plt.gcf()
         fig.set_size_inches(12,8)
 
-        # compute driving scores
+        
+        # compute penalties
         infraction_list = sorted(infraction_list, key=lambda x: x[0])
-        print(infraction_list)
         inf_time_mult = deque([(time, penalty_dict[itype]) for time, itype in infraction_list])
-        print(inf_time_mult)
         score_penalty = [1.0] * len(score_route_list)
         for i in range(1, len(score_penalty)):
 
-            # no more infractions
+            score_penalty[i] = score_penalty[i-1]
             if len(inf_time_mult) == 0:
-                score_penalty[i] = score_penalty[i-1]
                 continue
 
-            # check for active infraction
-            t = i*0.05
+            # check for active infraction and apply penalty if so
             inf_time, penalty = inf_time_mult[0]
-            if abs(t - inf_time) < tol or t - inf_time >= 0.05:
+            if abs(i*0.05 - inf_time) < tol or i*0.05 - inf_time >= 0.05:
                 score_penalty[i] = score_penalty[i-1]*penalty
                 inf_time_mult.popleft()
 
+        # compute driving scores and reduce to 2 Hz
         score_composed_list = np.multiply(score_penalty, score_route_list) # 20 Hz
         score_composed_plot = score_composed_list[::10] # 2 Hz
         score_route_plot = score_route_list[::10]
 
         # plot infraction times
         y_max = np.amax(score_route_plot)
-        for time, itype in infraction_list:
+        increment = y_max/30
+        repeat = 4
+        for i, (time, itype) in enumerate(infraction_list):
+            offset = increment*(i%repeat)
             plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='red')
-            plt.text(time+0.2, y_max, string_dict[itype])
+            plt.text(time+0.2, y_max-offset, string_dict[itype])
 
         # plot scenario trigger times
         scenarios = self._route_scenario.scenario_triggerer._triggered_scenarios
         times = self._route_scenario.scenario_triggerer._triggered_scenarios_times
         lookup = self._route_scenario.route_var_name_class_lookup
-        for time, route_var_name in zip(times, scenarios):
+        for i, (time, route_var_name) in enumerate(zip(times, scenarios)):
+            offset = increment*(i%repeat)
             plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='purple')
             name = lookup[route_var_name]
-            plt.text(time+0.2, 0, name)
+            plt.text(time+0.2, offset, name)
             
         x_plot = np.arange(len(score_composed_plot)) * 0.5
         plt.plot(x_plot, score_route_plot, label='route completion', color=colors[0])
