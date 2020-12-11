@@ -172,7 +172,7 @@ class StatisticsManager(object):
         # plot infraction times
         y_max = np.amax(score_route_plot)
         increment = y_max/30
-        repeat = 4
+        repeat = 6
         for i, (time, itype) in enumerate(infraction_list):
             offset = increment*(i%repeat)
             plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='red')
