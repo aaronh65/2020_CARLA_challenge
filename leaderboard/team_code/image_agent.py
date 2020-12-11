@@ -29,6 +29,7 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
 
     _rgb = Image.fromarray(tick_data['rgb'])
     _draw_rgb = ImageDraw.Draw(_rgb)
+    print('IMAGE SIZE', _draw_rgb.size)
     _draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 0, 0))
 
     for x, y in out:
@@ -261,7 +262,7 @@ class ImageAgent(BaseAgent):
         route_cam = self.converter.map_to_cam(torch.Tensor(route_map)).numpy()
         for i, (x, y) in enumerate(route_cam):
             if i == 0:
-                if y >= 139: # bottom of frame (behind us)
+                if y >= 139 or x <= 2 or x >= 254: # bottom of frame (behind us)
                     continue
                 color = (0, 255, 0)
             elif i == 1:

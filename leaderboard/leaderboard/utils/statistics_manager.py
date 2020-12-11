@@ -188,17 +188,28 @@ class StatisticsManager(object):
             name = lookup[route_var_name]
             plt.text(time+0.2, offset, name)
             
+        # plot scores
         x_plot = np.arange(len(score_composed_plot)) * 0.5
         plt.plot(x_plot, score_route_plot, label='route completion', color=colors[0])
         plt.plot(x_plot, score_composed_plot, label='driving score', color=colors[2])
-        plt.xlabel('Game time (s)')
-        plt.ylabel('Score (%)')
-        plt.legend()
 
-        # retrieve paths and plot
+        # labels and ticks
+        plt.xlabel('Game time')
+        plt.ylabel('Score (%)')
+        xt = plt.xticks()[0][1:-1]
+        mins = np.array([tick // 60 for tick in xt]).astype(int)
+        secs = np.array([tick % 60 for tick in xt]).astype(int)
+        tlabels = [f'{min:02d}:{sec:02d}' for min, sec in zip(mins, secs)]
+        plt.xticks(xt, tlabels)
+
         save_perf_path = os.environ.get('SAVE_PERF_PATH', 0)
-        rep_number = int(os.environ.get('REP',0))
+        route_name = save_perf_path.split('/')[-1]
+        rep_number = int(os.environ.get('REP', 0))
         save_path = f'{save_perf_path}/repetition_{rep_number:02d}.png'
+        title = f'Performance on {route_name}'
+        title = title.replace('_', ' ')
+        title = title.replace('route', 'Route')
+        plt.title(title)
         plt.savefig(save_path)
         plt.clf()
 
@@ -248,7 +259,6 @@ class StatisticsManager(object):
                             score_penalty *= PENALTY_COLLISION_VEHICLE
                             route_record.infractions['collisions_vehicle'].append(event.get_message())
                             infraction_list.append((event_dict['time'], event.get_type()))
-
 
                         elif event.get_type() == TrafficEventType.OUTSIDE_ROUTE_LANES_INFRACTION:
                             score_penalty *= (1 - event.get_dict()['percentage'] / 100)
