@@ -47,7 +47,6 @@ def mkdir_if_not_exists(_dir):
         os.makedirs(_dir)
 
 carla_procs = list()
-lbc_procs = list()
 
 try:
     date_str = datetime.now().strftime("%Y%m%d_%H%M")
@@ -146,7 +145,7 @@ except Exception as e:
     traceback.print_exc()
     pass
 
-for proc in carla_procs + lbc_procs:
+for proc in carla_procs + gpus_procs:
     kill(proc.pid)
 #for i in range(len(carla_procs)):
 #    kill(carla_procs[i].pid)
