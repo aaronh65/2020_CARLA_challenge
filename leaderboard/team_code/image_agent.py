@@ -35,7 +35,7 @@ def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_sp
         x = (x + 1) / 2 * 256
         y = (y + 1) / 2 * 144
 
-        _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (0, 0, 255))
+        _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (127, 255, 212))
 
     _combined = Image.fromarray(np.hstack([tick_data['rgb_left'], _rgb, tick_data['rgb_right']]))
     _draw = ImageDraw.Draw(_combined)
@@ -246,7 +246,7 @@ class ImageAgent(BaseAgent):
         points_plot = points_plot + 256/2 # recenter origin in middle of plot
         _waypoint_img = self._command_planner.debug.img
         for x, y in points_plot:
-            ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (0,0,255))
+            ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (0, 191, 255))
 
         # draw center RGB image
         _rgb = Image.fromarray(tick_data['rgb'])
@@ -254,16 +254,23 @@ class ImageAgent(BaseAgent):
         for x, y in tick_data['points_cam']: # image model waypoints
             x = (x + 1)/2 * 256
             y = (y + 1)/2 * 144
-            _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (0, 0, 255))
+            _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (0, 191, 255))
 
         route_map = np.array(tick_data['route_map'])
-        route_map = route_map[1:3].squeeze()
+        route_map = route_map[:3].squeeze()
         route_cam = self.converter.map_to_cam(torch.Tensor(route_map)).numpy()
         for i, (x, y) in enumerate(route_cam):
-            color = [255, 0, 0]
-            if i == 1:
-                color[2] = 255
-            _draw_rgb.ellipse((x-2, y-2, x+2, y+2), tuple(color))
+            if i == 0:
+                if y >= 139: # bottom of frame (behind us)
+                    continue
+                color = (0, 255, 0)
+            elif i == 1:
+                color = (255, 0, 0)
+            elif i == 2:
+                color = (139, 0, 139)
+            else:
+                continue
+            _draw_rgb.ellipse((x-2, y-2, x+2, y+2), color)
 
         #_draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 0, 0))
 
@@ -272,7 +279,9 @@ class ImageAgent(BaseAgent):
         _draw = ImageDraw.Draw(_combined)
 
         # draw debug text
-        text_color = (153, 51, 255)
+        #text_color = (255, 215, 0)
+        #text_color = (47, 79, 79)
+        text_color = (139, 0, 139)
         _draw.text((5, 10), 'Steer: %.3f' % steer, text_color)
         _draw.text((5, 30), 'Throttle: %.3f' % throttle, text_color)
         _draw.text((5, 50), 'Brake: %s' % brake, text_color)

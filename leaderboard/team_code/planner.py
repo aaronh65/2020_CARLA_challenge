@@ -105,7 +105,7 @@ class RoutePlanner(object):
         self.debug.dot(gps, self.route[0][0], (0, 255, 0))
         self.debug.dot(gps, self.route[1][0], (255, 0, 0))
         for i in range(2, min(5, len(self.route))):
-            self.debug.dot(gps, self.route[i][0], (255,0,255))
+            self.debug.dot(gps, self.route[i][0], (139,0,139))
         self.debug.dot(gps, gps, (255, 255, 255))
         self.debug.show()
 
