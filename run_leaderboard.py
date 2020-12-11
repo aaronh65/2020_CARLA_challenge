@@ -2,6 +2,7 @@ import os, sys, time
 import subprocess
 import argparse
 import traceback
+import psutil
 from datetime import datetime
 
 parser = argparse.ArgumentParser()
@@ -25,6 +26,11 @@ if args.local:
 else:
     prefix = '/home/aaronhua'
 
+def kill(proc_pid):
+    process = psutil.Process(proc_pid)
+    for proc in process.children(recursive=True):
+        proc.kill()
+    process.kill()
 
 def get_open_port():
     import socket
@@ -82,34 +88,32 @@ try:
     time.sleep(timeout)
     
     # False if gpu[index] not in use by LBC
-    open_gpus = [True] * len(gpus)
+    gpus_free = [True] * len(gpus)
+    gpus_procs = [None] * len(gpus)
+    gpus_routes = [-1] * len(gpus)
     routes_done = [False] * len(routes)
 
     # main testing loop
     while False in routes_done or 'running' in routes_done:
 
-        # if all servers busy, wait for a bit
-        if True not in open_gpus: 
-            time.sleep(5)
+        # check for finished Leaderboard runs
+        for i, (free, proc, route_idx) in enumerate(zip(gpus_free, gpus_procs, gpus_routes)):
+            if proc and proc.poll() is not None: # check if server is done
+                gpus_free[i] = True
+                gpus_procs[i] = None
+                gpus_routes[i] = -1
+                routes_done[route_idx] = True
 
-        # check each server index, (process, routes index)
-        for si, (proc, ri)in enumerate(open_gpus):
-            if proc.poll() is not None: # check if server is done
-                open_gpus[si] = True
-                routes_done[ri] = True
-                print('finished route {ri:02d}\n', routes_done)
-
-
-        if False not in routes_done:
-            print('False not in routes done\n', routes_done)
+        # wait and continue if we need to
+        if True not in gpus_free or False not in routes_done:
             time.sleep(10)
             continue
-
+        
         # else run new process
-        ri = routes_done.index(False)
-        gpu = open_gpus.index(True)
+        route_idx = routes_done.index(False)
+        gpu = gpus_free.index(True)
         wp, tp = port_map[gpu]
-        route = routes[ri].split('/')[-1].split('.')[0]
+        route = routes[route_idx].split('/')[-1].split('.')[0]
         
         save_perf_path = f'{log_dir}/plots/{route}'
         mkdir_if_not_exists(save_perf_path)
@@ -118,35 +122,34 @@ try:
             if args.save_images:
                 mkdir_if_not_exists(f'{save_images_path}/repetition_{rep_number:02d}')
 
-        # directly log from command
+        # setup env
         env = os.environ.copy()
         env["LOCAL"] = "1" if args.local else "0"
         env["SAVE_IMAGES"] = "1" if args.save_images else "0"
         env["SAVE_IMAGES_PATH"] = save_images_path
         env["SAVE_PERF_PATH"] = save_perf_path
         env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
-        cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {log_dir}/logs/AGENT_{route}.log'
-        #cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[ri]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix}'
-        lbc_procs.append(subprocess.Popen(cmd, env=env, shell=True))
 
+        # run command
+        cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[route_idx]} {log_dir} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {log_dir}/logs/AGENT_{route}.log'
+        lbc_procs.append(subprocess.Popen(cmd, env=env, shell=True))
+        gpus_free[gpu] = False
+        gpus_procs[gpu] = lbc_procs[-1]
+        gpus_routes[gpu] = route_idx
+        routes_done[route_idx] = 'running'
         print(f'running {cmd}')
-        open_gpus[gpu] = (lbc_procs[-1], ri)
-        routes_done[ri] = 'running'
 
 except KeyboardInterrupt:
-    for i in range(len(carla_procs)):
-        carla_procs[i].kill()
-    for i in range(len(lbc_procs)):
-        lbc_procs[i].kill()
+    pass
 
 except Exception as e:
     traceback.print_exc()
-    for i in range(len(carla_procs)):
-        carla_procs[i].kill()
-    for i in range(len(lbc_procs)):
-        lbc_procs[i].kill()
+    pass
 
-for i in range(len(carla_procs)):
-    carla_procs[i].kill()
-for i in range(len(lbc_procs)):
-    lbc_procs[i].kill()
+for proc in carla_procs + lbc_procs:
+    kill(proc.pid)
+#for i in range(len(carla_procs)):
+#    kill(carla_procs[i].pid)
+#for i in range(len(lbc_procs)):
+#    kill(lbc_procs[i].pid)
+    #lbc_procs[i].kill()
