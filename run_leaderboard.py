@@ -87,6 +87,7 @@ try:
     time.sleep(timeout)
     
     # False if gpu[index] not in use by LBC
+    lbc_procs = []
     gpus_free = [True] * len(gpus)
     gpus_procs = [None] * len(gpus)
     gpus_routes = [-1] * len(gpus)
@@ -139,16 +140,16 @@ try:
         print(f'running {cmd}')
 
 except KeyboardInterrupt:
-    pass
+    print('detected keyboard interrupt')
 
 except Exception as e:
     traceback.print_exc()
-    pass
 
-for proc in carla_procs + gpus_procs:
-    kill(proc.pid)
-#for i in range(len(carla_procs)):
-#    kill(carla_procs[i].pid)
-#for i in range(len(lbc_procs)):
-#    kill(lbc_procs[i].pid)
-    #lbc_procs[i].kill()
+print('shutting down processes...')
+for proc in carla_procs + lbc_procs:
+    try:
+        kill(proc.pid)
+    except OSError as e:
+        print(e)
+        continue
+print('done')
