@@ -16,6 +16,7 @@ from collections import deque
 import math
 import sys
 import matplotlib.pyplot as plt
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import numpy as np
 import seaborn as sns
 import os
@@ -146,7 +147,7 @@ class StatisticsManager(object):
         
         fig = plt.gcf()
         fig.set_size_inches(12,8)
-
+        ax = plt.gca()
         
         # compute penalties
         infraction_list = sorted(infraction_list, key=lambda x: x[0])
@@ -169,14 +170,22 @@ class StatisticsManager(object):
         score_composed_plot = score_composed_list[::10] # 2 Hz
         score_route_plot = score_route_list[::10]
 
+        # plot scores
+        x_plot = np.arange(len(score_composed_plot)) * 0.5 # 2 Hz
+        plt.plot(x_plot, score_route_plot, label='route completion', color=colors[0])
+        plt.plot(x_plot, score_composed_plot, label='driving score', color=colors[2])
+
+        # useful for plotting
+        xmin, xmax = plt.xlim()
+        ymin, ymax = plt.ylim()
+        increment = ymax/30
+        repeat = 8
+
         # plot infraction times
-        y_max = np.amax(score_route_plot)
-        increment = y_max/30
-        repeat = 6
         for i, (time, itype) in enumerate(infraction_list):
-            offset = increment*(i%repeat)
-            plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='red')
-            plt.text(time+0.2, y_max-offset, string_dict[itype])
+            offset = increment*(i%repeat + 1) # extra 1 so text shows up below the top of the plot
+            plt.vlines(time, ymin, ymax, linestyles='dashed', alpha=0.5, color='red')
+            plt.text(time+0.2, ymax-offset, string_dict[itype])
 
         # plot scenario trigger times
         scenarios = self._route_scenario.scenario_triggerer._triggered_scenarios
@@ -184,32 +193,31 @@ class StatisticsManager(object):
         lookup = self._route_scenario.route_var_name_class_lookup
         for i, (time, route_var_name) in enumerate(zip(times, scenarios)):
             offset = increment*(i%repeat)
-            plt.vlines(time, 0, y_max, linestyles='dashed', alpha=0.5, color='purple')
-            name = lookup[route_var_name]
-            plt.text(time+0.2, offset, name)
-            
-        # plot scores
-        x_plot = np.arange(len(score_composed_plot)) * 0.5
-        plt.plot(x_plot, score_route_plot, label='route completion', color=colors[0])
-        plt.plot(x_plot, score_composed_plot, label='driving score', color=colors[2])
-
-        # labels and ticks
+            plt.vlines(time, ymin, ymax, linestyles='dashed', alpha=0.5, color='purple')
+            plt.text(time+0.2, ymin+offset+ymax/60, lookup[route_var_name])
+        
+        # label axes and format ticks
         plt.xlabel('Game time')
         plt.ylabel('Score (%)')
-        xt = plt.xticks()[0][1:-1]
-        mins = np.array([tick // 60 for tick in xt]).astype(int)
-        secs = np.array([tick % 60 for tick in xt]).astype(int)
-        tlabels = [f'{min:02d}:{sec:02d}' for min, sec in zip(mins, secs)]
-        plt.xticks(xt, tlabels)
-
+        def format_ticks(value, tick_number):
+            minute = int(value/60)
+            return f'{minute:02d}:00'
+        ax.xaxis.set_major_locator(MultipleLocator(60))
+        ax.xaxis.set_major_formatter(plt.FuncFormatter(format_ticks))
+        ax.xaxis.set_minor_locator(MultipleLocator(15))
+        ax.tick_params(which='both', direction='in')
+        ax.set_xlim([xmin, xmax])
+        ax.set_ylim([ymin, ymax])
+        
+        # finish up and save
         save_perf_path = os.environ.get('SAVE_PERF_PATH', 0)
         route_name = save_perf_path.split('/')[-1]
         rep_number = int(os.environ.get('REP', 0))
         save_path = f'{save_perf_path}/repetition_{rep_number:02d}.png'
-        title = f'Performance on {route_name}'
+        title = f'{route_name}: repetition {rep_number:02d}'
         title = title.replace('_', ' ')
-        title = title.replace('route', 'Route')
         plt.title(title)
+        plt.legend(frameon=False, loc='lower right')
         plt.savefig(save_path)
         plt.clf()
 
