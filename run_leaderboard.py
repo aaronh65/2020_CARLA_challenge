@@ -132,16 +132,16 @@ try:
         # math project
         if args.math:
             os.environ["MATH"] = "1" if args.math else "0"
-            mkdir_if_not_exists(f'{save_path_base}/math')
-            mkdir_if_not_exists(f'{save_path_base}/math/{route_name}')
+            for rep_number in range(args.repetitions):
+                mkdir_if_not_exists(f'{save_path_base}/math/{route_name}/repetition_{rep_number:02d}')
 
         # setup env
         env = os.environ.copy()
-        env["LOCAL"] = "1" if args.local else "0"
-        env["SAVE_IMAGES"] = "1" if args.save_images else "0"
-        env["SAVE_PATH_BASE"] = save_path_base
-        env["ROUTE_NAME"] = route
         env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
+        env["LOCAL"] = "1" if args.local else "0"
+        env["SAVE_PATH_BASE"] = save_path_base
+        env["ROUTE_NAME"] = route_name
+        env["SAVE_IMAGES"] = "1" if args.save_images else "0"
 
         # run command
         cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[route_idx]} {save_path_base} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {save_path_base}/logs/AGENT_{route_name}.log'
@@ -162,7 +162,6 @@ print('shutting down processes...')
 for proc in carla_procs + lbc_procs:
     try:
         kill(proc.pid)
-    except OSError as e:
-        print(e)
+    except:
         continue
 print('done')

@@ -59,7 +59,7 @@ class LeaderboardEvaluator(object):
     ego_vehicles = []
 
     # Tunable parameters
-    client_timeout = 10.0  # in seconds
+    client_timeout = 900.0  # in seconds
     wait_for_world = 20.0  # in seconds
     frame_rate = 20.0      # in Hz
 
@@ -430,7 +430,7 @@ def main():
     parser.add_argument('--debug', type=int, help='Run with debug output', default=0)
     parser.add_argument('--record', type=str, default='',
                         help='Use CARLA recording feature to create a recording of the scenario')
-    parser.add_argument('--timeout', default="60.0",
+    parser.add_argument('--timeout', default="900.0",
                         help='Set the CARLA client timeout value in seconds')
 
     # simulation setup
