@@ -497,9 +497,10 @@ class ActorSpeedAboveThresholdTest(Criterion):
         Sets the message of the event
         """
 
-        event.set_message('Agent got blocked at (x={}, y={}, z={})'.format(round(location.x, 3),
+        event.set_message('Agent got blocked at (x={}, y={}, z={}) at t={}'.format(round(location.x, 3),
                                                                            round(location.y, 3),
-                                                                           round(location.z, 3)))
+                                                                           round(location.z, 3),
+                                                                           f'{self._time_last_valid_state:.2f}'))
 
     @staticmethod
     def _set_event_dict(event, location):
@@ -507,6 +508,7 @@ class ActorSpeedAboveThresholdTest(Criterion):
         Sets the dictionary of the event
         """
         event.set_dict({
+            'time': self._time_last_valid_state,
             'x': location.x,
             'y': location.y,
             'z': location.z,

@@ -16,9 +16,12 @@ from carla_project.src.converter import Converter
 from team_code.base_agent import BaseAgent
 from team_code.pid_controller import PIDController
 
+from polyfit import approximate
+
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
-MATH = int(os.environ.get('MATH', 0))
+SAVE_MATH = int(os.environ.get('SAVE_MATH', 0))
+RUN_MATH = int(os.environ.get('RUN_MATH', 0))
 SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
 SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
 ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
@@ -169,7 +172,7 @@ class ImageAgent(BaseAgent):
         #print(timestamp) # GAMETIME
 
         # for math project
-        if self.step % 10 == 0 and MATH:
+        if self.step % 10 == 0 and SAVE_MATH:
             tick_data['points_cam'] = points.cpu().squeeze()
             tick_data['points_map'] = self.converter.cam_to_map(points_cam).numpy()
             self.save_math_data(tick_data)

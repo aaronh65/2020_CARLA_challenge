@@ -1,31 +1,41 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+def rotate_points(points, inv=False):
+    points = points.copy()
+    points = np.vstack([[[0,0]], points])
+    points = points.T # 2xN
+    N = points.shape[1]
+    x_, y_= points
+    theta = np.arctan2(y_[-1], x_[-1])
+    R = np.array([
+        [np.cos(theta), -np.sin(theta)],
+        [np.sin(theta),  np.cos(theta)]])
+    if inv:
+        R = R.T
+    points = R.dot(points)
+    return points.T, R # Nx2
+    
 # order is polynomial
 # points centered at origin and are in PIL image frame
-def approximate(points, order=-1):
+def approximate(points, order=-1, plot=False):
     bases = [lambda x: np.ones(len(x)),
          lambda x: x,
-         lambda x: x**2,]
+         lambda x: x**2,
+         lambda x: x**3]
 
 
     if order >= 0:
         bases = [lambda x: x**i for i in range(order)]
         bases[0] = lambda x: np.ones(len(x))
 
-    points = points.copy().T # 2xN
-    #points[1] = 256 - points[1]
-    dy = points[1][-1] - points[1][0]
-    dx = points[0][-1] - points[0][0]
-    theta = np.arctan2(dy, dx)
-    R = np.array([
-        [np.cos(theta), -np.sin(theta)],
-        [np.sin(theta),  np.cos(theta)]])
-    points = points.copy()
-    points = R.dot(points)
-    x, y = points
+    # R is rotmat for angle from x-axis to endpoint
+    # here we align the points along the x-axis, thus inverse
+    points, Rinv = rotate_points(points, inv=True)
+    x, y = points.T
 
-    # fit
+    # compute basis coefficients
     A = [basis(x) for basis in bases]
     A = np.asarray(A).T
     U,Sflat,V = np.linalg.svd(A, full_matrices=True)
@@ -36,49 +46,38 @@ def approximate(points, order=-1):
     Sinv = Sinv.T
     Pinv = np.matmul(V, np.matmul(Sinv, U.T))
     c = np.asarray([np.matmul(Pinv,y)]).T
-    #c[abs(c)<1e-3]=0
-    print(c)
+
+    # approximated points
     Ac = np.matmul(A,c)
-    x_apx = np.linspace(0, x[-1], 100)
+    N, M = len(x), 4 # 4 equally spaced segments between points
+    x_apx = np.zeros((N-1)*M)
+    for i in range(N-1):
+        diff = x[i+1] - x[i]
+        dx = diff / M
+        for j in range(M): 
+            insert = i*M+j
+            inc = dx*j
+            x_apx[insert] = x[i] + inc
+
     y_apx = [basis(x_apx) for basis in bases] #3xM
     y_apx = c.T.dot(y_apx)
     y_apx = y_apx[0]
 
-    if True:
+    if plot:
         plt.scatter(x, y, color='green', s=20)
         plt.plot(x, y, color='green', label='gt')
         plt.scatter(x, Ac, color='blue', s=20)
-        plt.plot(x_apx,y_apx, color='blue', label='apx')
+        #plt.plot(x_apx,y_apx, color='blue', label='apx')
+        plt.scatter(x_apx, y_apx, color='blue')
         plt.xlabel('x')
         plt.ylabel('y')
         plt.pause(0.5)
         plt.clf()
 
-
-
-def main(path):
-    with open(path, 'r') as f:
-        arr = f.readlines()[0].split()
-    f = np.asarray([float(num) for num in arr])
-    x = np.linspace(0, 1, len(f))
-    
-    A = [basis(x) for basis in bases]
-    A = np.asarray(A).T
-    U,Sflat,V = np.linalg.svd(A, full_matrices=True)
-    V = V.T
-    Sinv = np.zeros((len(U),len(V)))
-    for i, val in enumerate(Sflat):
-        Sinv[i,i] = 1/val if val != 0 else 0
-    Sinv = Sinv.T
-    Pinv = np.matmul(V, np.matmul(Sinv, U.T))
-    c = np.asarray([np.matmul(Pinv,f)]).T
-    #c[abs(c)<1e-3]=0
-    print(c)
-    Ac = np.matmul(A,c)
-    plt.plot(x, f)
-    plt.plot(x, Ac)
-    plt.show()
-
+    result = np.vstack([x_apx,y_apx])
+    result = Rinv.T.dot(result).T
+    #print(result)
+    return result
 
 if __name__ == '__main__':
     path = 'problem2.txt'
