@@ -28,6 +28,9 @@ from py_trees.blackboard import Blackboard
 from leaderboard.scenarios.route_scenario import NUMBER_CLASS_TRANSLATION
 from leaderboard.utils.checkpoint_tools import fetch_dict, save_dict, create_default_json_msg
 
+SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
+ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
+
 PENALTY_COLLISION_PEDESTRIAN = 0.50
 PENALTY_COLLISION_VEHICLE = 0.60
 PENALTY_COLLISION_STATIC = 0.65
@@ -210,11 +213,9 @@ class StatisticsManager(object):
         ax.set_ylim([ymin, ymax])
         
         # finish up and save
-        save_perf_path = os.environ.get('SAVE_PERF_PATH', 0)
-        route_name = save_perf_path.split('/')[-1]
         rep_number = int(os.environ.get('REP', 0))
-        save_path = f'{save_perf_path}/repetition_{rep_number:02d}.png'
-        title = f'{route_name}: repetition {rep_number:02d}'
+        save_path = f'{SAVE_PATH_BASE}/plots/{ROUTE_NAME}/repetition_{rep_number:02d}.png'
+        title = f'{ROUTE_NAME}: repetition {rep_number:02d}'
         title = title.replace('_', ' ')
         plt.title(title)
         plt.legend(frameon=False, loc='lower right')

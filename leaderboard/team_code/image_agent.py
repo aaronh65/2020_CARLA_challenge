@@ -1,11 +1,14 @@
 import os
 import numpy as np
 import cv2
+#import json
+import pickle as pkl
 import torch
 import torchvision
 import carla
 
 from PIL import Image, ImageDraw
+from pathlib import Path
 
 from carla_project.src.image_model import ImageModel
 from carla_project.src.converter import Converter
@@ -15,59 +18,14 @@ from team_code.pid_controller import PIDController
 
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
+MATH = int(os.environ.get('MATH', 0))
 SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
-SAVE_IMAGES_PATH = os.environ.get('SAVE_IMAGES_PATH', 0)
+SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
+ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
 DIM=(1371,256)
 
 def get_entry_point():
     return 'ImageAgent'
-
-def debug_display(tick_data, target_cam, out, steer, throttle, brake, desired_speed, step, _waypoint_img):
-
-    # make BEV image
-    _waypoint_img = self._command_planner.debug.img
-
-    _rgb = Image.fromarray(tick_data['rgb'])
-    _draw_rgb = ImageDraw.Draw(_rgb)
-    print('IMAGE SIZE', _draw_rgb.size)
-    _draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 0, 0))
-
-    for x, y in out:
-        x = (x + 1) / 2 * 256
-        y = (y + 1) / 2 * 144
-
-        _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (127, 255, 212))
-
-    _combined = Image.fromarray(np.hstack([tick_data['rgb_left'], _rgb, tick_data['rgb_right']]))
-    _draw = ImageDraw.Draw(_combined)
-
-    # draw debug text
-    text_color = (153, 51, 255)
-    _draw.text((5, 10), 'Steer: %.3f' % steer, text_color)
-    _draw.text((5, 30), 'Throttle: %.3f' % throttle, text_color)
-    _draw.text((5, 50), 'Brake: %s' % brake, text_color)
-    _draw.text((5, 70), 'Speed: %.3f' % tick_data['speed'], text_color)
-    _draw.text((5, 90), 'Desired: %.3f' % desired_speed, text_color)
-    cur_command = tick_data['cur_command']
-    _draw.text((5, 110), f'Current: {cur_command}', text_color)
-    next_command = tick_data['next_command']
-    _draw.text((5, 130), f'Next: {next_command}', text_color)
-
-    _rgb_img = cv2.resize(np.array(_combined), DIM, interpolation=cv2.INTER_AREA)
-
-    _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
-    _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
-    if step % 10 == 0 and SAVE_IMAGES:
-        frame_number = step // 10 + 1
-        rep_number = int(os.environ.get('REP',0))
-        save_path = os.path.join(SAVE_IMAGES_PATH, f'repetition_{rep_number:02d}', f'{frame_number:06d}.png')
-        cv2.imwrite(save_path, _save_img)
-    if DEBUG:
-        cv2.imshow('debug', _save_img)
-        cv2.waitKey(1)
-
-
-
 
 class ImageAgent(BaseAgent):
     def setup(self, path_to_conf_file):
@@ -84,6 +42,10 @@ class ImageAgent(BaseAgent):
         self._turn_controller = PIDController(K_P=1.25, K_I=0.75, K_D=0.3, n=40)
         self._speed_controller = PIDController(K_P=5.0, K_I=0.5, K_D=1.0, n=40)
 
+        self.save_math_path = Path(f'{SAVE_PATH_BASE}/math/{ROUTE_NAME}')
+        self.save_images_path = Path(f'{SAVE_PATH_BASE}/images/{ROUTE_NAME}')
+        #self.save_path.mkdir()
+
 
     def tick(self, input_data):
         result = super().tick(input_data)
@@ -92,6 +54,7 @@ class ImageAgent(BaseAgent):
         theta = result['compass']
         theta = 0.0 if np.isnan(theta) else theta
         theta = theta + np.pi / 2
+        result['theta'] = theta
         #print((theta * 180 / np.pi)%360)
         R = np.array([
             [np.cos(theta), -np.sin(theta)],
@@ -193,10 +156,8 @@ class ImageAgent(BaseAgent):
         points_cam = points_cam.squeeze()
 
         points_world = self.converter.cam_to_world(points_cam).numpy()
-
-        # for math project
-        #self.save_poly_data(tick_data, points_world)
-
+        tick_data['points_world'] = points_world
+        
         aim = (points_world[1] + points_world[0]) / 2.0
         angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
         steer = self._turn_controller.step(angle)
@@ -220,17 +181,16 @@ class ImageAgent(BaseAgent):
         control.brake = float(brake)
         #print(timestamp) # GAMETIME
 
+        # for math project
+        if self.step % 10 == 0 and MATH:
+            self.save_math_data(tick_data)
+
         if DEBUG or SAVE_IMAGES:
 
             # transform image model cam points to overhead BEV image (spectator frame?)
-            #tick_data['points'] = points.cpu().squeeze()
             tick_data['points_cam'] = points.cpu().squeeze()
             tick_data['points_map'] = self.converter.cam_to_map(points_cam).numpy()
                         
-            #debug_display(
-            #        tick_data, target_cam.squeeze(), points.cpu().squeeze(),
-            #        steer, throttle, brake, desired_speed,
-            #        self.step, _waypoint_img)
             self.debug_display(
                     tick_data, target_cam.squeeze(), 
                     steer, throttle, brake, desired_speed)
@@ -296,21 +256,27 @@ class ImageAgent(BaseAgent):
         _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
         _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
         if self.step % 10 == 0 and SAVE_IMAGES:
-            frame_number = self.step // 10 + 1
+            frame_number = self.step // 10
             rep_number = int(os.environ.get('REP',0))
-            save_path = os.path.join(SAVE_IMAGES_PATH, f'repetition_{rep_number:02d}', f'{frame_number:06d}.png')
+            save_path = self.save_images_path / f'repetition_{rep_number:02d}' / f'{frame_number:06d}.png'
             cv2.imwrite(save_path, _save_img)
         if DEBUG:
             cv2.imshow('debug', _save_img)
             cv2.waitKey(1)
  
 
-    def save_poly_data(self, tick_data, points_world):
+    def save_math_data(self, tick_data):
+        points_world = tick_data['points_world']
         pos = self._get_position(tick_data)
+        theta = tick_data['theta']
         data = {
-                'points': points_world,
-                'pos': pos
+                'points': points_world.tolist(),
+                'pos': pos,
+                'theta': theta
                 }
-        print(f'points_world\n{points_world}')
-        print(f'pos\n{pos}')
-        print(f'data\n{data}')
+
+        frame_number = self.step // 10
+        rep_number = int(os.environ.get('REP',0))
+        save_path = self.save_math_path / f'repetition_{rep_number:02d}' / f'{frame_number:06d}.pkl'
+        with open(save_path, 'wb') as f:
+            pkl.dump(data, f)
