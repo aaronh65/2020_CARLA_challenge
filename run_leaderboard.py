@@ -57,6 +57,9 @@ try:
         save_path_base = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
     if not args.local:
         save_path_base = f'/ssd{args.ssd}/aaronhua/{save_path_base}'
+
+    # log dir
+    mkdir_if_not_exists(f'{save_path_base}/logs')
         
     # launch CARLA servers
     carla_procs = list()
@@ -81,9 +84,6 @@ try:
     print(f'Opened {len(gpus)} CARLA servers, warming up for {timeout} seconds')
     time.sleep(timeout)
     
-    # log dir
-    mkdir_if_not_exists(f'{save_path_base}/logs')
-
     # route paths
     route_prefix = f'leaderboard/data/routes_{args.split}'
     routes = [f'{route_prefix}/{route}' for route in sorted(os.listdir(route_prefix)) if route.endswith('.xml')]
@@ -117,23 +117,23 @@ try:
         gpu = gpus_free.index(True)
         wp, tp = port_map[gpu]
         route_idx = routes_done.index(False)
-        route = routes[route_idx].split('/')[-1].split('.')[0]
+        route_name = routes[route_idx].split('/')[-1].split('.')[0]
         
-        # log dir
-        save_perf_path = f'{save_path_base}/plots/{route}'
+        # per-route performance plot dirs
+        save_perf_path = f'{save_path_base}/plots/{route_name}'
         mkdir_if_not_exists(save_perf_path)
 
         # image dirs
-        save_images_path = f'{save_path_base}/images/{route}'
-        for rep_number in range(args.repetitions):
-            if args.save_images:
+        if args.save_images:
+            save_images_path = f'{save_path_base}/images/{route_name}'
+            for rep_number in range(args.repetitions):
                 mkdir_if_not_exists(f'{save_images_path}/repetition_{rep_number:02d}')
 
         # math project
         if args.math:
             os.environ["MATH"] = "1" if args.math else "0"
             mkdir_if_not_exists(f'{save_path_base}/math')
-            mkdir_if_not_exists(f'{save_path_base}/math/{route}')
+            mkdir_if_not_exists(f'{save_path_base}/math/{route_name}')
 
         # setup env
         env = os.environ.copy()
@@ -141,12 +141,10 @@ try:
         env["SAVE_IMAGES"] = "1" if args.save_images else "0"
         env["SAVE_PATH_BASE"] = save_path_base
         env["ROUTE_NAME"] = route
-        env["SAVE_IMAGES_PATH"] = save_images_path
-        env["SAVE_PERF_PATH"] = save_perf_path
         env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
 
         # run command
-        cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[route_idx]} {save_path_base} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {save_path_base}/logs/AGENT_{route}.log'
+        cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[route_idx]} {save_path_base} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {save_path_base}/logs/AGENT_{route_name}.log'
         lbc_procs.append(subprocess.Popen(cmd, env=env, shell=True))
         gpus_free[gpu] = False
         gpus_procs[gpu] = lbc_procs[-1]

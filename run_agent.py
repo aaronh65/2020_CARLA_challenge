@@ -34,8 +34,12 @@ else:
 # log dir
 mkdir_if_not_exists(f'{save_path_base}/logs')
 
-# per-route performance plot dirs
+# route path
+route_prefix = f'leaderboard/data/routes_{args.split}'
 route_name = f'route_{args.route:02d}'
+route_path = f'{route_prefix}/{route_name}.xml'
+
+# per-route performance plot dirs
 save_perf_path = f'{save_path_base}/plots/{route_name}'
 mkdir_if_not_exists(save_perf_path)
 
@@ -45,9 +49,6 @@ if args.save_images:
     for rep_number in range(args.repetitions):
         mkdir_if_not_exists(f'{save_images_path}/repetition_{rep_number:02d}')
     
-# route path
-route_path = f'leaderboard/data/routes_{args.split}/{route_name}.xml'
-
 # math project
 if args.math:
     os.environ["MATH"] = "1" if args.math else "0"
