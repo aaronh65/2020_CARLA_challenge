@@ -64,20 +64,7 @@ class ImageAgent(BaseAgent):
         gps = self._get_position(result)
 
         # oriented in world frame
-        #far_node, _ = self._command_planner.run_step(gps)
-        #current_waypoint, next_waypoint = self._command_planner.run_step(gps)
-        #cur_node, cur_command = current_waypoint
-        #far_node, far_command = next_waypoint
-        #result['cur_node'] = cur_node
-        #result['cur_command'] = str(cur_command).split('.')[1]
-        #result['next_node'] = far_node
-        #result['next_command'] = str(far_command).split('.')[1]
-        #target = R.T.dot(far_node - gps) # map/world frame to ego frame
-        #target *= 5.5 # from converter.PIXELS_PER_WORLD
-        #target += [128, 256] # ego origin in map frame
-        #target = np.clip(target, 0, 256)
-        #result['target'] = target
-
+        
         # transform route waypoints to overhead map view
         route = self._command_planner.run_step(gps)
         nodes = np.array([node for node, _ in route]) # (N,2)
@@ -183,6 +170,8 @@ class ImageAgent(BaseAgent):
 
         # for math project
         if self.step % 10 == 0 and MATH:
+            tick_data['points_cam'] = points.cpu().squeeze()
+            tick_data['points_map'] = self.converter.cam_to_map(points_cam).numpy()
             self.save_math_data(tick_data)
 
         if DEBUG or SAVE_IMAGES:
@@ -259,18 +248,18 @@ class ImageAgent(BaseAgent):
             frame_number = self.step // 10
             rep_number = int(os.environ.get('REP',0))
             save_path = self.save_images_path / f'repetition_{rep_number:02d}' / f'{frame_number:06d}.png'
-            cv2.imwrite(save_path, _save_img)
+            cv2.imwrite(str(save_path), _save_img)
         if DEBUG:
             cv2.imshow('debug', _save_img)
             cv2.waitKey(1)
  
 
     def save_math_data(self, tick_data):
-        points_world = tick_data['points_world']
-        pos = self._get_position(tick_data)
+        points_map = tick_data['points_map']
+        pos = tick_data['gps']
         theta = tick_data['theta']
         data = {
-                'points': points_world.tolist(),
+                'points': points_map.tolist(),
                 'pos': pos,
                 'theta': theta
                 }
