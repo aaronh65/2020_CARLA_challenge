@@ -16,7 +16,8 @@ from carla_project.src.converter import Converter
 from team_code.base_agent import BaseAgent
 from team_code.pid_controller import PIDController
 
-from polyfit import approximate
+#from polyfit import approximate
+import polyfit
 
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
@@ -148,13 +149,38 @@ class ImageAgent(BaseAgent):
         points_world = self.converter.cam_to_world(points_cam).numpy()
         tick_data['points_world'] = points_world
         
-        aim = (points_world[1] + points_world[0]) / 2.0
-        angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
-        steer = self._turn_controller.step(angle)
-        steer = np.clip(steer, -1.0, 1.0)
 
-        desired_speed = np.linalg.norm(points_world[0] - points_world[1]) * 2.0
-        # desired_speed *= (1 - abs(angle)) ** 2
+        if RUN_MATH:
+            # there are 5 points including the origin and last pt
+            # and 3 points in between a pair of points
+            # so there are 16 valid choices total
+            i = 6 # point between 1st and 2nd waypoint
+            assert i < 11
+
+            points_apx = polyfit.approximate(points_world)
+            aim = points_apx[i]
+            #aim = (points_world[1] + points_world[0]) / 2.0
+            angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
+            steer = self._turn_controller.step(angle)
+            steer = np.clip(steer, -1.0, 1.0)
+
+            j = i // 4
+            k = i % 4 
+            if k == 0:
+                desired_speed = np.linalg.norm(points_apx[j+1] - points_apx[j])*2.0
+            else:
+                dt = k * (1/4) / 2 # seconds to traverse the distance
+                desired_speed = np.linalg.norm(points_apx[i] - points_apx[j])/dt
+            desired_speed = np.linalg.norm(points_world[0] - points_world[1]) * 2.0
+
+        else:
+            aim = (points_world[1] + points_world[0]) / 2.0
+            angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
+            steer = self._turn_controller.step(angle)
+            steer = np.clip(steer, -1.0, 1.0)
+
+            desired_speed = np.linalg.norm(points_world[0] - points_world[1]) * 2.0
+            # desired_speed *= (1 - abs(angle)) ** 2
 
         speed = tick_data['speed']
 

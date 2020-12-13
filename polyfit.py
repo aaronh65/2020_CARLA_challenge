@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+bases = [lambda x: np.ones(len(x)),
+         lambda x: x,
+         lambda x: x**2,
+         lambda x: x**3]
 
 def rotate_points(points, inv=False):
     points = points.copy()
@@ -20,15 +24,15 @@ def rotate_points(points, inv=False):
 # order is polynomial
 # points centered at origin and are in PIL image frame
 def approximate(points, order=-1, plot=False):
+
+    if order >= 0:
+        bases = [lambda x: x**i for i in range(order)]
+        bases[0] = lambda x: np.ones(len(x))
     bases = [lambda x: np.ones(len(x)),
          lambda x: x,
          lambda x: x**2,
          lambda x: x**3]
 
-
-    if order >= 0:
-        bases = [lambda x: x**i for i in range(order)]
-        bases[0] = lambda x: np.ones(len(x))
 
     # R is rotmat for angle from x-axis to endpoint
     # here we align the points along the x-axis, thus inverse
