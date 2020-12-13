@@ -3,16 +3,20 @@ import numpy as np
 import cv2
 import time
 np.set_printoptions(suppress=True, precision=6)
-#import json
+from polyfit import approximate
 import pickle as pkl
 import argparse
 from PIL import Image, ImageDraw
 
 
-
+splits = ['devtest', 'testing', 'training']
 parser = argparse.ArgumentParser()
 parser.add_argument('--target_dir', type=str, required=True)
+parser.add_argument('--bev', action='store_true')
+parser.add_argument('--route', type=int)
+parser.add_argument('--fit', action='store_true')
 args = parser.parse_args()
+
 
 # gps 
 mean = np.array([49.0, 8.0])
@@ -21,9 +25,17 @@ size = 256
 c = size/2
 r = 2
 
-fnames = sorted(os.listdir(args.target_dir))
-math_path = f'{args.target_dir}/math'
-rpaths = [f'{math_path}/{route}' for route in os.listdir(math_path) if 'route' in route]
+# get route paths
+split = os.listdir(args.target_dir)[0]
+print(split)
+assert split in splits, 'error in save paths'
+math_path = os.path.join(args.target_dir, split, 'math')
+if args.route:
+    route_name = f'route_{args.route:02d}'
+    rpaths = [f'{math_path}/{route}' for route in os.listdir(math_path) if route == route_name]
+else:
+    rpaths = [f'{math_path}/{route}' for route in os.listdir(math_path) if 'route' in route]
+rpaths = sorted(rpaths)
 
 img = Image.fromarray(np.zeros((size, size, 3), dtype=np.uint8))
 for rpath in rpaths: # per route
@@ -63,12 +75,14 @@ for rpath in rpaths: # per route
             #points = points * 5.5 * -1 # map
             points = all_points[n].copy() # 4x2
             points = points - [128, 256]
+            approximate(points)
             points = R.dot(points.T).T
             points = points * -1
 
             l2 = np.linalg.norm(poses-points, axis=1)
 
-            if True:
+            # bev check against videos
+            if args.bev:
                 img = Image.fromarray(np.zeros((size, size, 3), dtype=np.uint8))
                 draw = ImageDraw.Draw(img)
                 poses_draw = poses + size/2

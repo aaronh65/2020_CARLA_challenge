@@ -143,8 +143,7 @@ def main(args):
             metrics[route][f'{inf_type} max'] = np.amax(num_infractions)
             metrics[route][f'{inf_type} min'] = np.amin(num_infractions)
 
-    if args.plot:
-        plot_metrics(args, metrics, routes)
+    plot_metrics(args, metrics, routes)
 
     overall_dscore_mean = np.mean([metrics[route]['driving score mean'] for route in routes])
     overall_rcscore_mean = np.mean([metrics[route]['route completion mean'] for route in routes])
@@ -159,7 +158,6 @@ def parse_args():
     # (compute-1-24) /ssd1/aaronhua/leaderboard/results/image_agent/20201206_2103/testing
     # (compute-1-29) /ssd0/aaronhua/leaderboard/results/image_agent/debug/20201206_2017/devtest
     parser.add_argument('--target_dir', type=str, required=True)
-    parser.add_argument('--plot', action='store_true')
     args = parser.parse_args()
 
     # augment args with metadata from target_dir
