@@ -155,24 +155,20 @@ class ImageAgent(BaseAgent):
             # and 3 points in between a pair of points
             # so there are 16 valid choices total
             i = 6 # point between 1st and 2nd waypoint
-            assert i < 11
+            # we exclude the origin and end to compute desired speed
+            assert 0 < i < 15, 'point choice invalid'
 
             points_apx = polyfit.approximate(points_world)
             aim = points_apx[i]
-            #aim = (points_world[1] + points_world[0]) / 2.0
             angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
             steer = self._turn_controller.step(angle)
             steer = np.clip(steer, -1.0, 1.0)
 
-            j = i // 4
-            k = i % 4 
-            if k == 0:
-                desired_speed = np.linalg.norm(points_apx[j+1] - points_apx[j])*2.0
-            else:
-                dt = k * (1/4) / 2 # seconds to traverse the distance
-                desired_speed = np.linalg.norm(points_apx[i] - points_apx[j])/dt
-            desired_speed = np.linalg.norm(points_world[0] - points_world[1]) * 2.0
-
+            desired_speed_1 = np.linalg.norm(points_apx[i] - points_apx[i-1]) * 8.0
+            desired_speed_2 = np.linalg.norm(points_apx[i+1] - points_apx[i]) * 8.0
+            desired_speed = desired_speed_1 + desired_speed_2
+            desired_speed = desired_speed / 2
+            
         else:
             aim = (points_world[1] + points_world[0]) / 2.0
             angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
@@ -181,6 +177,8 @@ class ImageAgent(BaseAgent):
 
             desired_speed = np.linalg.norm(points_world[0] - points_world[1]) * 2.0
             # desired_speed *= (1 - abs(angle)) ** 2
+
+        tick_data['aim_world'] = aim
 
         speed = tick_data['speed']
 
@@ -219,13 +217,24 @@ class ImageAgent(BaseAgent):
     def debug_display(self, tick_data, target_cam, steer, throttle, brake, desired_speed):
 
         # make BEV image
-        points_plot = tick_data['points_map'] - [128, 256] # center at origin, rotate
+
+        # transform aim from world to map
+        aim_world = np.array(tick_data['aim_world'])
+        aim_map = self.converter.world_to_map(torch.Tensor(aim_world)).numpy()
+
+        # append to image model points and plot
+        points_plot = np.vstack([tick_data['points_map'], aim_map])
+        points_plot = points_plot - [128,256] # center at origin
         points_plot = tick_data['R'].dot(points_plot.T).T
         points_plot = points_plot * -1 # why is this required?
         points_plot = points_plot + 256/2 # recenter origin in middle of plot
         _waypoint_img = self._command_planner.debug.img
         for x, y in points_plot:
             ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (0, 191, 255))
+        x, y = points_plot[-1]
+        ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (255, 105, 147))
+
+        # make RGB images
 
         # draw center RGB image
         _rgb = Image.fromarray(tick_data['rgb'])
@@ -235,32 +244,35 @@ class ImageAgent(BaseAgent):
             y = (y + 1)/2 * 144
             _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (0, 191, 255))
 
+        # transform aim from world to cam
+        aim_world = np.array(tick_data['aim_world'])
+        aim_cam = self.converter.world_to_cam(torch.Tensor(aim_world)).numpy()
+        x, y = aim_cam
+        _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (255, 105, 147))
+
+
+        # draw route waypoints in RGB image
         route_map = np.array(tick_data['route_map'])
         route_map = route_map[:3].squeeze()
         route_cam = self.converter.map_to_cam(torch.Tensor(route_map)).numpy()
         for i, (x, y) in enumerate(route_cam):
-            if i == 0:
+            if i == 0: # waypoint we just passed
                 if y >= 139 or x <= 2 or x >= 254: # bottom of frame (behind us)
                     continue
-                color = (0, 255, 0)
-            elif i == 1:
-                color = (255, 0, 0)
-            elif i == 2:
-                color = (139, 0, 139)
+                color = (0, 255, 0) # green 
+            elif i == 1: # target
+                color = (255, 0, 0) # red
+            elif i == 2: # beyond target
+                color = (139, 0, 139) # darkmagenta
             else:
                 continue
             _draw_rgb.ellipse((x-2, y-2, x+2, y+2), color)
-
-        #_draw_rgb.ellipse((target_cam[0]-3,target_cam[1]-3,target_cam[0]+3,target_cam[1]+3), (255, 0, 0))
-
 
         _combined = Image.fromarray(np.hstack([tick_data['rgb_left'], _rgb, tick_data['rgb_right']]))
         _draw = ImageDraw.Draw(_combined)
 
         # draw debug text
-        #text_color = (255, 215, 0)
-        #text_color = (47, 79, 79)
-        text_color = (139, 0, 139)
+        text_color = (139, 0, 139) #darkmagenta
         _draw.text((5, 10), 'Steer: %.3f' % steer, text_color)
         _draw.text((5, 30), 'Throttle: %.3f' % throttle, text_color)
         _draw.text((5, 50), 'Brake: %s' % brake, text_color)
