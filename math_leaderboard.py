@@ -92,8 +92,9 @@ try:
 
 
     j_list = [3,4,5,6]
+    lbc_procs = []
     #j_list = [7,8,9,10]
-    for j in range(j_list):
+    for j in j_list:
         # base save path
         if args.debug:
             save_path_base = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}_{j:02d}'
