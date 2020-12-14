@@ -499,8 +499,7 @@ class ActorSpeedAboveThresholdTest(Criterion):
 
         event.set_message('Agent got blocked at (x={}, y={}, z={}) at t={}'.format(round(location.x, 3),
                                                                            round(location.y, 3),
-                                                                           round(location.z, 3),
-                                                                           f'{self._time_last_valid_state:.2f}'))
+                                                                           round(location.z, 3)))
 
     @staticmethod
     def _set_event_dict(event, location):
