@@ -497,7 +497,7 @@ class ActorSpeedAboveThresholdTest(Criterion):
         Sets the message of the event
         """
 
-        event.set_message('Agent got blocked at (x={}, y={}, z={}) at t={}'.format(round(location.x, 3),
+        event.set_message('Agent got blocked at (x={}, y={}, z={})'.format(round(location.x, 3),
                                                                            round(location.y, 3),
                                                                            round(location.z, 3)))
 
