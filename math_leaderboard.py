@@ -14,7 +14,9 @@ parser.add_argument('--save_images', action='store_true')
 parser.add_argument('--debug', action='store_true')
 parser.add_argument('--ssd', type=int, default=0, choices=[0,1])
 parser.add_argument('--local', action='store_true')
-parser.add_argument('--math', action='store_true')
+parser.add_argument('--save_math', action='store_true')
+parser.add_argument('--run_math', action='store_true')
+
 args = parser.parse_args()
 
 if args.agent == 'auto_pilot':
@@ -49,18 +51,17 @@ def mkdir_if_not_exists(_dir):
 
 try:
 
-    # base save path
     date_str = datetime.now().strftime("%Y%m%d_%H%M")
+    # base save path
     if args.debug:
         save_path_base = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
     else:
         save_path_base = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
     if not args.local:
         save_path_base = f'/ssd{args.ssd}/aaronhua/{save_path_base}'
-
-    # log dir
     mkdir_if_not_exists(f'{save_path_base}/logs')
-        
+     
+    
     # launch CARLA servers
     carla_procs = list()
     gpus=list(range(args.gpus))
@@ -75,6 +76,7 @@ try:
         
         # CARLA command
         cmd = f'bash {prefix}/CARLA_0.9.10.1/CarlaUE4.sh --world-port={wp} -opengl &> {save_path_base}/logs/CARLA_G{gpu}.log'
+        #cmd = f'bash {prefix}/CARLA_0.9.10.1/CarlaUE4.sh --world-port={wp} -opengl'
         carla_procs.append(subprocess.Popen(cmd, env=env, shell=True))
 
         print(f'running {cmd}')
@@ -87,70 +89,86 @@ try:
     # route paths
     route_prefix = f'leaderboard/data/routes_{args.split}'
     routes = [f'{route_prefix}/{route}' for route in sorted(os.listdir(route_prefix)) if route.endswith('.xml')]
-    if args.debug and args.local:
-        routes = routes[24:25]
 
-    # False if gpu[index] not in use by LBC
-    lbc_procs = []
-    gpus_free = [True] * len(gpus)
-    gpus_procs = [None] * len(gpus)
-    gpus_routes = [-1] * len(gpus)
-    routes_done = [False] * len(routes)
 
-    # main testing loop
-    while False in routes_done or 'running' in routes_done:
+    j_list = [3,4,5,6]
+    #j_list = [7,8,9,10]
+    for j in range(j_list):
+        # base save path
+        if args.debug:
+            save_path_base = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}_{j:02d}'
+        else:
+            save_path_base = f'leaderboard/results/{args.agent}/{date_str}/{args.split}_{j:02d}'
+        if not args.local:
+            save_path_base = f'/ssd{args.ssd}/aaronhua/{save_path_base}'
+         
+        # log dir
+        mkdir_if_not_exists(f'{save_path_base}/logs')
+         
+        # False if gpu[index] not in use by LBC
+        lbc_procs = []
+        gpus_free = [True] * len(gpus)
+        gpus_procs = [None] * len(gpus)
+        gpus_routes = [-1] * len(gpus)
+        routes_done = [False] * len(routes)
 
-        # check for finished Leaderboard runs
-        for i, (free, proc, route_idx) in enumerate(zip(gpus_free, gpus_procs, gpus_routes)):
-            if proc and proc.poll() is not None: # check if server is done
-                gpus_free[i] = True
-                gpus_procs[i] = None
-                gpus_routes[i] = -1
-                routes_done[route_idx] = True
+        # main testing loop
+        while False in routes_done or 'running' in routes_done:
 
-        # wait and continue if we need to
-        if True not in gpus_free or False not in routes_done:
-            time.sleep(10)
-            continue
-        
-        # else run new process
-        gpu = gpus_free.index(True)
-        wp, tp = port_map[gpu]
-        route_idx = routes_done.index(False)
-        route_name = routes[route_idx].split('/')[-1].split('.')[0]
-        
-        # per-route performance plot dirs
-        save_perf_path = f'{save_path_base}/plots/{route_name}'
-        mkdir_if_not_exists(save_perf_path)
+            # check for finished Leaderboard runs
+            for i, (free, proc, route_idx) in enumerate(zip(gpus_free, gpus_procs, gpus_routes)):
+                if proc and proc.poll() is not None: # check if server is done
+                    gpus_free[i] = True
+                    gpus_procs[i] = None
+                    gpus_routes[i] = -1
+                    routes_done[route_idx] = True
 
-        # image dirs
-        if args.save_images:
-            save_images_path = f'{save_path_base}/images/{route_name}'
-            for rep_number in range(args.repetitions):
-                mkdir_if_not_exists(f'{save_images_path}/repetition_{rep_number:02d}')
+            # wait and continue if we need to
+            if True not in gpus_free or False not in routes_done:
+                time.sleep(10)
+                continue
+            
+            # else run new process
+            gpu = gpus_free.index(True)
+            wp, tp = port_map[gpu]
+            route_idx = routes_done.index(False)
+            route_name = routes[route_idx].split('/')[-1].split('.')[0]
+            
+            # per-route performance plot dirs
+            save_perf_path = f'{save_path_base}/plots/{route_name}'
+            mkdir_if_not_exists(save_perf_path)
 
-        # math project
-        if args.math:
-            os.environ["MATH"] = "1" if args.math else "0"
-            for rep_number in range(args.repetitions):
-                mkdir_if_not_exists(f'{save_path_base}/math/{route_name}/repetition_{rep_number:02d}')
+            # image dirs
+            if args.save_images:
+                save_images_path = f'{save_path_base}/images/{route_name}'
+                for rep_number in range(args.repetitions):
+                    mkdir_if_not_exists(f'{save_images_path}/repetition_{rep_number:02d}')
 
-        # setup env
-        env = os.environ.copy()
-        env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
-        env["LOCAL"] = "1" if args.local else "0"
-        env["SAVE_PATH_BASE"] = save_path_base
-        env["ROUTE_NAME"] = route_name
-        env["SAVE_IMAGES"] = "1" if args.save_images else "0"
+            # math project
+            if args.save_math:
+                for rep_number in range(args.repetitions):
+                    mkdir_if_not_exists(f'{save_path_base}/math/{route_name}/repetition_{rep_number:02d}')
 
-        # run command
-        cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[route_idx]} {save_path_base} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {save_path_base}/logs/AGENT_{route_name}.log'
-        lbc_procs.append(subprocess.Popen(cmd, env=env, shell=True))
-        gpus_free[gpu] = False
-        gpus_procs[gpu] = lbc_procs[-1]
-        gpus_routes[gpu] = route_idx
-        routes_done[route_idx] = 'running'
-        print(f'running {cmd}')
+            # setup env
+            env = os.environ.copy()
+
+            env["RUN_MATH"] = "1" if args.run_math else "0"
+            env["SAVE_MATH"] = "1" if args.save_math else "0"
+            env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
+            env["LOCAL"] = "1" if args.local else "0"
+            env["POLY_SELECT"] = f'{j}'
+            env["SAVE_PATH_BASE"] = save_path_base
+            env["ROUTE_NAME"] = route_name
+            env["SAVE_IMAGES"] = "1" if args.save_images else "0"
+
+            # run command
+            cmd = f'bash {prefix}/2020_CARLA_challenge/run_leaderboard.sh {wp} {routes[route_idx]} {save_path_base} {tp} {args.agent} {config} {args.repetitions} {prefix} &> {save_path_base}/logs/AGENT_{route_name}.log'
+            lbc_procs.append(subprocess.Popen(cmd, env=env, shell=True))
+            gpus_free[gpu] = False
+            gpus_procs[gpu] = lbc_procs[-1]
+            gpus_routes[gpu] = route_idx
+            routes_done[route_idx] = 'running'
+            print(f'running {cmd}')
 
 except KeyboardInterrupt:
     print('detected keyboard interrupt')

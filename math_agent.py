@@ -25,6 +25,14 @@ def mkdir_if_not_exists(_dir):
         print(f"Creating a directory at {_dir}")
         os.makedirs(_dir)
 
+i_list = [3,4,5,6]
+#i_list = [7,8,9,10]
+
+# route path
+route_prefix = f'leaderboard/data/routes_{args.split}'
+route_name = f'route_{args.route:02d}'
+route_path = f'{route_prefix}/{route_name}.xml'
+
 # base save path
 date_str = datetime.now().strftime("%Y%m%d_%H%M")
 if args.debug:
@@ -34,11 +42,6 @@ else:
 
 # log dir
 mkdir_if_not_exists(f'{save_path_base}/logs')
-
-# route path
-route_prefix = f'leaderboard/data/routes_{args.split}'
-route_name = f'route_{args.route:02d}'
-route_path = f'{route_prefix}/{route_name}.xml'
 
 # per-route performance plot dirs
 save_perf_path = f'{save_path_base}/plots/{route_name}'

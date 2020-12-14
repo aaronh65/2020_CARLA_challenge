@@ -154,18 +154,19 @@ class ImageAgent(BaseAgent):
             # there are 5 points including the origin and last pt
             # and 3 points in between a pair of points
             # so there are 16 valid choices total
-            i = 6 # point between 1st and 2nd waypoint
+            #j = 6 # point between 1st and 2nd waypoint
+            j = int(os.environ.get('POLY_SELECT', 0))
             # we exclude the origin and end to compute desired speed
-            assert 0 < i < 15, 'point choice invalid'
+            assert 0 < j < 15, 'point choice invalid'
 
             points_apx = polyfit.approximate(points_world)
-            aim = points_apx[i]
+            aim = points_apx[j]
             angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
             steer = self._turn_controller.step(angle)
             steer = np.clip(steer, -1.0, 1.0)
 
-            desired_speed_1 = np.linalg.norm(points_apx[i] - points_apx[i-1]) * 8.0
-            desired_speed_2 = np.linalg.norm(points_apx[i+1] - points_apx[i]) * 8.0
+            desired_speed_1 = np.linalg.norm(points_apx[j] - points_apx[j-1]) * 8.0
+            desired_speed_2 = np.linalg.norm(points_apx[j+1] - points_apx[j]) * 8.0
             desired_speed = desired_speed_1 + desired_speed_2
             desired_speed = desired_speed / 2
             
