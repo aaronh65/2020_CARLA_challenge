@@ -507,7 +507,6 @@ class ActorSpeedAboveThresholdTest(Criterion):
         Sets the dictionary of the event
         """
         event.set_dict({
-            'time': self._time_last_valid_state,
             'x': location.x,
             'y': location.y,
             'z': location.z,
