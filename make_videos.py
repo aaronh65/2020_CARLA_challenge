@@ -6,6 +6,8 @@ def main(args):
     for split in splits:
         video_dir = os.path.join(args.target_dir, split, 'videos')
         image_dir = os.path.join(args.target_dir, split, 'images')
+        if not os.path.exists(image_dir):
+            continue
         routes = sorted(os.listdir(image_dir))
         for route in routes:
             route_image_dir = os.path.join(image_dir, route)
