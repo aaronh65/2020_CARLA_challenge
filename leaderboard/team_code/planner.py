@@ -38,9 +38,9 @@ class Plotter(object):
 
 class RoutePlanner(object):
     def __init__(self, min_distance, max_distance, debug_size=256):
-        self.route = deque()
-        self.min_distance = min_distance
-        self.max_distance = max_distance
+        self.route = deque() # in meters
+        self.min_distance = min_distance # default 7.5
+        self.max_distance = max_distance # default 25.0
 
         self.mean = np.array([49.0, 8.0])
         self.scale = np.array([111324.60662786, 73032.1570362])
@@ -51,7 +51,7 @@ class RoutePlanner(object):
         self.route.clear()
 
         for pos, cmd in global_plan:
-            if gps: # from lat/lon to ???
+            if gps: # from lat/lon to meters
                 pos = np.array([pos['lat'], pos['lon']])
                 pos -= self.mean
                 pos *= self.scale

@@ -65,16 +65,15 @@ class ImageAgent(BaseAgent):
             [np.sin(theta),  np.cos(theta)],
             ])
         result['R'] = R
-        gps = self._get_position(result)
+        gps = self._get_position(result) # method returns position in meters
 
-        # oriented in world frame
         
         # transform route waypoints to overhead map view
-        route = self._command_planner.run_step(gps)
+        route = self._command_planner.run_step(gps) # oriented in world frame
         nodes = np.array([node for node, _ in route]) # (N,2)
-        nodes = nodes - gps
+        nodes = nodes - gps # center at agent position and rotate
         nodes = R.T.dot(nodes.T) # (2,2) x (2,N) = (2,N)
-        nodes = nodes.T * 5.5 # (N,2)
+        nodes = nodes.T * 5.5 # (N,2) # to map frame (5.5 pixels per meter)
         nodes += [128,256]
         nodes = np.clip(nodes, 0, 256)
         commands = [command for _, command in route]
@@ -141,6 +140,9 @@ class ImageAgent(BaseAgent):
         target = target[None].cuda()
 
         points, (target_cam, _) = self.net.forward(img, target)
+        #heatmap = _.cpu().numpy()
+        #heatmap = cv2.flip(heatmap[0][0], 0)
+        #cv2.imshow('heatmap', heatmap)
         points_cam = points.clone().cpu()
         points_cam[..., 0] = (points_cam[..., 0] + 1) / 2 * img.shape[-1]
         points_cam[..., 1] = (points_cam[..., 1] + 1) / 2 * img.shape[-2]
