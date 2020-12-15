@@ -9,7 +9,7 @@ penalties = ['.5x', '.6x', '.65x', '.7x', '.8x', 'STOP', 'STOP', 'STOP', '']
 def get_metrics(metrics, metric_type, routes):
         return [metrics[route][metric_type] for route in routes]
 
-def plot_metrics(args, metrics, routes):
+def plot_metrics(args, metrics, routes, plot_dir, split):
     import seaborn as sns
     sns.set()
     colors = sns.color_palette("Paired")
@@ -45,7 +45,7 @@ def plot_metrics(args, metrics, routes):
         plt.xticks(x_plot, plot_labels, fontsize=8)
         plt.yticks(np.arange(max(maxs) + 1))
         plt.ylim(-0.5, max(maxs) + 0.5)
-        plt.title(f'{args.split}/{route} average infractions')
+        plt.title(f'{split}/{route} average infractions')
         plt.xlabel('infraction type')
         plt.ylabel('average # of infractions')
 
@@ -56,12 +56,12 @@ def plot_metrics(args, metrics, routes):
         plt.text(2*W*7.75, max(maxs)+0.5, f'{rcompletion_score:.2f}\n{driving_score:.2f}')
 
         plt.tight_layout()
-        save_path = os.path.join(args.plot_dir, f'{route}_infractions.png')
+        save_path = os.path.join(plot_dir, f'{route}_infractions.png')
         plt.savefig(save_path, dpi=100)
         plt.clf()
 
     # driving and route completion metrics - one/two plots for the entire split
-    if args.split == 'training':
+    if split == 'training':
         split_idx = len(routes)//2
         routes_iter = [routes[:split_idx], routes[split_idx:]]
     else:
@@ -94,18 +94,26 @@ def plot_metrics(args, metrics, routes):
             plt.scatter(x_plot, mins, color=color, s=5, edgecolors='black', alpha=0.75)
             plots.append(barplot) # used for making the legend
 
-        plt.legend(plots, plot_labels)
+        
+        plt.legend(plots, plot_labels, loc='upper right')
 
         # place the route number label right in between and below the two bars
         numbers = [route[-2:] for route in routes]
         plt.xticks(X+W/2, numbers, fontsize=12) 
         plt.xlabel('route #')
         plt.ylabel('average score')
-        plt.title(f'average driving/route scores on {args.split} routes')
+        plt.title(f'average driving/route scores on {split} routes')
         plt.ylim(-5,105)
 
+        ymin, ymax = plt.ylim()
+        xmin, xmax = plt.xlim()
+        overall_dscore_mean = np.mean([metrics[route]['driving score mean'] for route in routes])
+        overall_rcscore_mean = np.mean([metrics[route]['route completion mean'] for route in routes])
+        plt.text(-2.5, 97.5, 'mean route completion\nmean driving score')
+        plt.text(xmax/5, 97.5, f'{overall_rcscore_mean:.2f}\n{overall_dscore_mean:.2f}')
+
         plt.tight_layout()
-        save_path = os.path.join(args.plot_dir, f'overall_score_metrics_{i}.png')
+        save_path = os.path.join(plot_dir, f'overall_score_metrics_{i}.png')
         plt.savefig(save_path, dpi=100)
         plt.clf()
 
@@ -113,43 +121,54 @@ def plot_metrics(args, metrics, routes):
 def main(args):
 
     metrics = {}
-    routes = []
+    splits = sorted(os.listdir(args.target_dir))
+    for split in splits:
+        log_dir = os.path.join(args.target_dir, split, 'logs')
+        plot_dir = os.path.join(args.target_dir, split, 'plots')
+        if not os.path.exists(log_dir):
+            print('continuing')
+            continue
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir)
+        log_fnames = sorted([os.path.join(log_dir, fname) for fname in os.listdir(log_dir) if fname.endswith('.txt')])
 
-    for fname in args.log_fnames:
-        with open(fname) as f:
-            log = json.load(f)
-        route = fname.split('/')[-1].split('.')[0]
-        routes.append(route)
-        metrics[route] = {}
-        records = log['_checkpoint']['records']
+        routes = []
 
-        # driving score, route completion score metrics
-        dscores = [record['scores']['score_composed'] for record in records]
-        rcscores = [record['scores']['score_route'] for record in records]
-        metrics[route]['driving score mean'] = np.mean(dscores)
-        metrics[route]['driving score std'] = np.std(dscores)
-        metrics[route]['driving score max'] = np.amax(dscores)
-        metrics[route]['driving score min'] = np.amin(dscores)
-        metrics[route]['route completion mean'] = np.mean(rcscores)
-        metrics[route]['route completion std'] = np.std(rcscores)
-        metrics[route]['route completion max'] = np.amax(rcscores)
-        metrics[route]['route completion min'] = np.amin(rcscores)
+        for fname in log_fnames:
+            with open(fname) as f:
+                log = json.load(f)
+            route = fname.split('/')[-1].split('.')[0]
+            routes.append(route)
+            metrics[route] = {}
+            records = log['_checkpoint']['records']
 
-        # infractions
-        for inf_type in infraction_types:
-            num_infractions = [len(record['infractions'][inf_type]) for record in records]
-            metrics[route][f'{inf_type} mean'] = np.mean(num_infractions)
-            metrics[route][f'{inf_type} std'] = np.std(num_infractions)
-            metrics[route][f'{inf_type} max'] = np.amax(num_infractions)
-            metrics[route][f'{inf_type} min'] = np.amin(num_infractions)
+            # driving score, route completion score metrics
+            dscores = [record['scores']['score_composed'] for record in records]
+            rcscores = [record['scores']['score_route'] for record in records]
+            metrics[route]['driving score mean'] = np.mean(dscores)
+            metrics[route]['driving score std'] = np.std(dscores)
+            metrics[route]['driving score max'] = np.amax(dscores)
+            metrics[route]['driving score min'] = np.amin(dscores)
+            metrics[route]['route completion mean'] = np.mean(rcscores)
+            metrics[route]['route completion std'] = np.std(rcscores)
+            metrics[route]['route completion max'] = np.amax(rcscores)
+            metrics[route]['route completion min'] = np.amin(rcscores)
 
-    plot_metrics(args, metrics, routes)
+            # infractions
+            for inf_type in infraction_types:
+                num_infractions = [len(record['infractions'][inf_type]) for record in records]
+                metrics[route][f'{inf_type} mean'] = np.mean(num_infractions)
+                metrics[route][f'{inf_type} std'] = np.std(num_infractions)
+                metrics[route][f'{inf_type} max'] = np.amax(num_infractions)
+                metrics[route][f'{inf_type} min'] = np.amin(num_infractions)
 
-    overall_dscore_mean = np.mean([metrics[route]['driving score mean'] for route in routes])
-    overall_rcscore_mean = np.mean([metrics[route]['route completion mean'] for route in routes])
-    print(f'On the {args.split} routes over {args.repetitions} repetitions:')
-    print(f'avg driving score \t = {overall_dscore_mean:.2f}')
-    print(f'avg route completion \t = {overall_rcscore_mean:.2f}')
+        plot_metrics(args, metrics, routes, plot_dir, split)
+
+    #overall_dscore_mean = np.mean([metrics[route]['driving score mean'] for route in routes])
+    #overall_rcscore_mean = np.mean([metrics[route]['route completion mean'] for route in routes])
+    #print(f'On the {args.split} routes over {args.repetitions} repetitions:')
+    #print(f'avg driving score \t = {overall_dscore_mean:.2f}')
+    #print(f'avg route completion \t = {overall_rcscore_mean:.2f}')
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -160,33 +179,33 @@ def parse_args():
     parser.add_argument('--target_dir', type=str, required=True)
     args = parser.parse_args()
 
-    # augment args with metadata from target_dir
-    target_tokens = args.target_dir.split('/')
-    if 'debug' in target_tokens:
-        insert_strs = ('agent', 'debug', 'date_str', 'split')
-    else:
-        insert_strs = ('agent', 'date_str', 'split')
-    start_token = -len(insert_strs)
-    args_dict = vars(args)
-    for string, token in zip(insert_strs, target_tokens[start_token:]):
-        if string == 'debug':
-            args_dict[string] = True
-        else:
-            args_dict[string] = token
+    ## augment args with metadata from target_dir
+    #target_tokens = args.target_dir.split('/')
+    #if 'debug' in target_tokens:
+    #    insert_strs = ('agent', 'debug', 'date_str', 'split')
+    #else:
+    #    insert_strs = ('agent', 'date_str', 'split')
+    #start_token = -len(insert_strs)
+    #args_dict = vars(args)
+    #for string, token in zip(insert_strs, target_tokens[start_token:]):
+    #    if string == 'debug':
+    #        args_dict[string] = True
+    #    else:
+    #        args_dict[string] = token
 
-    # get log directory and check for number of repetitions
-    log_dir = os.path.join(args.target_dir, 'logs')
-    assert len(os.listdir(log_dir)) > 0, 'ERROR: no logs in log directory'
-    log_fnames = [os.path.join(log_dir, fname) for fname in os.listdir(log_dir) if fname.endswith('.txt')]
-    args_dict['log_fnames'] = sorted(log_fnames)
-    with open(log_fnames[0]) as f:
-        log = json.load(f)
-    args_dict['repetitions'] = len(log['_checkpoint']['records'])
+    ## get log directory and check for number of repetitions
+    #log_dir = os.path.join(args.target_dir, 'logs')
+    #assert len(os.listdir(log_dir)) > 0, 'ERROR: no logs in log directory'
+    #log_fnames = [os.path.join(log_dir, fname) for fname in os.listdir(log_dir) if fname.endswith('.txt')]
+    #args_dict['log_fnames'] = sorted(log_fnames)
+    #with open(log_fnames[0]) as f:
+    #    log = json.load(f)
+    #args_dict['repetitions'] = len(log['_checkpoint']['records'])
 
-    # construct plot directory
-    args_dict['plot_dir'] = os.path.join(args.target_dir, 'plots')
-    if not os.path.exists(args.plot_dir):
-        os.makedirs(args.plot_dir)
+    ## construct plot directory
+    #args_dict['plot_dir'] = os.path.join(args.target_dir, 'plots')
+    #if not os.path.exists(args.plot_dir):
+    #    os.makedirs(args.plot_dir)
 
     for key, val in vars(args).items():
         print(f'{key}: {val}')

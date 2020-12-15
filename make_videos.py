@@ -27,39 +27,8 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    # example target_dir: 
-    # (compute-1-24) /ssd1/aaronhua/leaderboard/results/image_agent/20201206_2103/testing
-    # (compute-1-29) /ssd0/aaronhua/leaderboard/results/image_agent/debug/20201206_2017/devtest
     parser.add_argument('--target_dir', type=str, required=True)
     args = parser.parse_args()
-
-    ## augment args with metadata from target_dir
-    #target_tokens = args.target_dir.split('/')
-    #if 'debug' in target_tokens:
-    #    insert_strs = ('agent', 'debug', 'date_str')
-    #else:
-    #    insert_strs = ('agent', 'date_str')
-    #start_token = -len(insert_strs)
-    #args_dict = vars(args)
-    #for string, token in zip(insert_strs, target_tokens[start_token:]):
-    #    if string == 'debug':
-    #        args_dict[string] = True
-    #    else:
-    #        args_dict[string] = token
-
-    # get log directory and check for number of repetitions
-    #args_dict['splits'] = os.listdir(args.target_dir)
-    #image_dir = os.path.join(args.target_dir, 'images')
-    #args_dict['image_dir'] = image_dir
-
-    # construct plot directory
-    #args_dict['video_dir'] = os.path.join(args.target_dir, 'videos')
-    #if not os.path.exists(args.video_dir):
-        #os.makedirs(args.video_dir)
-
-    #for key, val in vars(args).items():
-    #    print(f'{key}: {val}')
-
     return args
 
 if __name__ == '__main__':

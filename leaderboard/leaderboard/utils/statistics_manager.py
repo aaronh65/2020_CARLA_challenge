@@ -214,8 +214,9 @@ class StatisticsManager(object):
         
         # finish up and save
         rep_number = int(os.environ.get('REP', 0))
+        split = SAVE_PATH_BASE.split('/')[-1]
         save_path = f'{SAVE_PATH_BASE}/plots/{ROUTE_NAME}/repetition_{rep_number:02d}.png'
-        title = f'{ROUTE_NAME}: repetition {rep_number:02d}'
+        title = f'{split}/{ROUTE_NAME}: repetition {rep_number:02d}'
         title = title.replace('_', ' ')
         plt.title(title)
         plt.legend(frameon=False, loc='lower right')
