@@ -24,7 +24,7 @@ def main(args):
                 save_path = os.path.join(route_video_dir, f'{repetition}.mp4')
 
                 # make video
-                cmd = f'ffmpeg -r 2 -s 1627x256 -f image2 -i {input_dir}/%06d.png -pix_fmt yuv420p -vf \"pad=ceil(iw/2)*2:ceil(ih/2)*2\" {save_path}'
+                cmd = f'ffmpeg -y -r 2 -s 1627x256 -f image2 -i {input_dir}/%06d.png -pix_fmt yuv420p -vf \"pad=ceil(iw/2)*2:ceil(ih/2)*2\" {save_path}'
                 os.system(cmd)
 
 def parse_args():
