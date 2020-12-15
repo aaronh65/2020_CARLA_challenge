@@ -2,6 +2,11 @@ import os
 import json
 import argparse
 import numpy as np
+import seaborn as sns
+sns.set()
+colors = sns.color_palette("Paired")
+import matplotlib.pyplot as plt
+
 
 infraction_types = ['collisions_pedestrian', 'collisions_vehicle', 'collisions_layout', 'red_light', 'stop_infraction', 'route_dev', 'route_timeout', 'vehicle_blocked', 'outside_route_lanes']
 penalties = ['.5x', '.6x', '.65x', '.7x', '.8x', 'STOP', 'STOP', 'STOP', '']
@@ -10,11 +15,7 @@ def get_metrics(metrics, metric_type, routes):
         return [metrics[route][metric_type] for route in routes]
 
 def plot_metrics(args, metrics, routes, plot_dir, split):
-    import seaborn as sns
-    sns.set()
-    colors = sns.color_palette("Paired")
-    import matplotlib.pyplot as plt
-
+    
     fig = plt.gcf()
     fig.set_size_inches(12,8)
 
@@ -164,52 +165,10 @@ def main(args):
 
         plot_metrics(args, metrics, routes, plot_dir, split)
 
-    #overall_dscore_mean = np.mean([metrics[route]['driving score mean'] for route in routes])
-    #overall_rcscore_mean = np.mean([metrics[route]['route completion mean'] for route in routes])
-    #print(f'On the {args.split} routes over {args.repetitions} repetitions:')
-    #print(f'avg driving score \t = {overall_dscore_mean:.2f}')
-    #print(f'avg route completion \t = {overall_rcscore_mean:.2f}')
-
 def parse_args():
     parser = argparse.ArgumentParser()
-
-    # example target_dir: 
-    # (compute-1-24) /ssd1/aaronhua/leaderboard/results/image_agent/20201206_2103/testing
-    # (compute-1-29) /ssd0/aaronhua/leaderboard/results/image_agent/debug/20201206_2017/devtest
     parser.add_argument('--target_dir', type=str, required=True)
     args = parser.parse_args()
-
-    ## augment args with metadata from target_dir
-    #target_tokens = args.target_dir.split('/')
-    #if 'debug' in target_tokens:
-    #    insert_strs = ('agent', 'debug', 'date_str', 'split')
-    #else:
-    #    insert_strs = ('agent', 'date_str', 'split')
-    #start_token = -len(insert_strs)
-    #args_dict = vars(args)
-    #for string, token in zip(insert_strs, target_tokens[start_token:]):
-    #    if string == 'debug':
-    #        args_dict[string] = True
-    #    else:
-    #        args_dict[string] = token
-
-    ## get log directory and check for number of repetitions
-    #log_dir = os.path.join(args.target_dir, 'logs')
-    #assert len(os.listdir(log_dir)) > 0, 'ERROR: no logs in log directory'
-    #log_fnames = [os.path.join(log_dir, fname) for fname in os.listdir(log_dir) if fname.endswith('.txt')]
-    #args_dict['log_fnames'] = sorted(log_fnames)
-    #with open(log_fnames[0]) as f:
-    #    log = json.load(f)
-    #args_dict['repetitions'] = len(log['_checkpoint']['records'])
-
-    ## construct plot directory
-    #args_dict['plot_dir'] = os.path.join(args.target_dir, 'plots')
-    #if not os.path.exists(args.plot_dir):
-    #    os.makedirs(args.plot_dir)
-
-    for key, val in vars(args).items():
-        print(f'{key}: {val}')
-
     return args
 
 if __name__ == '__main__':
