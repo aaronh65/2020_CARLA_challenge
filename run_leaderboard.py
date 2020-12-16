@@ -50,7 +50,7 @@ def mkdir_if_not_exists(_dir):
 try:
 
     # base save path
-    date_str = datetime.now().strftime("%Y%m%d_%H%M")
+    date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
     if args.debug:
         save_path_base = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
     else:
