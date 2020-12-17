@@ -19,6 +19,8 @@ from carla_project.src.converter import Converter
 #HAS_DISPLAY = True
 HAS_DISPLAY = os.environ.get('HAS_DISPLAY', 0)
 SAVE_IMAGES = os.environ.get('SAVE_IMAGES', 0)
+SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
+ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
 DEBUG = False
 WEATHERS = [
         carla.WeatherParameters.ClearNoon,
@@ -84,6 +86,7 @@ class AutoPilot(MapAgent):
 
         self.save_path = None
         self.converter = Converter()
+        self.save_images_path = pathlib.Path(f'{SAVE_PATH_BASE}/images/{ROUTE_NAME}')
 
         if path_to_conf_file and path_to_conf_file.split('/')[-1] != 'none':
             now = datetime.datetime.now()
@@ -119,7 +122,7 @@ class AutoPilot(MapAgent):
 
         return angle
 
-    def _get_control(self, target, far_target, tick_data, _draw):
+    def _get_control(self, target, far_target, tick_data):
         pos = self._get_position(tick_data)
         theta = tick_data['compass']
         speed = tick_data['speed']
@@ -148,11 +151,6 @@ class AutoPilot(MapAgent):
             steer *= 0.5
             throttle = 0.0
 
-        #_draw.text((5, 90), 'Speed: %.3f' % speed)
-        #_draw.text((5, 110), 'Target: %.3f' % target_speed)
-        #_draw.text((5, 130), 'Angle: %.3f' % angle_unnorm)
-        #_draw.text((5, 150), 'Angle Far: %.3f' % angle_far_unnorm)
-
         return steer, throttle, brake, target_speed
 
     def run_step(self, input_data, timestamp):
@@ -174,18 +172,16 @@ class AutoPilot(MapAgent):
 
         near_node, near_command = wpt_route[0]
         far_node, far_command = cmd_route[0]
-
+        steer, throttle, brake, target_speed = self._get_control(near_node, far_node, data)
         
         topdown = data['topdown']
         _topdown = Image.fromarray(COLOR[CONVERTER[topdown]])
-        print(_topdown.size)
-        #_topdown.thumbnail((256, 256))
         _topdown_draw = ImageDraw.Draw(_topdown)
         _rgb = Image.fromarray(data['rgb'])
         _rgb_draw = ImageDraw.Draw(_rgb)
-        r = 2
 
         if (SAVE_IMAGES or HAS_DISPLAY) and not self.save_path:
+            r = 2
             theta = data['compass']
             theta = 0.0 if np.isnan(theta) else theta
             theta = theta + np.pi / 2
@@ -196,7 +192,6 @@ class AutoPilot(MapAgent):
             nodes = cmd_nodes - gps
             nodes = R.T.dot(nodes.T).T
             nodes = nodes * 5.5
-            print(nodes[:3])
             nodes_bev = nodes.copy() + [256, 256]
             nodes_bev = nodes_bev[:3]
             for i, (x,y) in enumerate(nodes_bev):
@@ -226,20 +221,7 @@ class AutoPilot(MapAgent):
 
         #rgb = np.hstack((data['rgb_left'], data['rgb'], data['rgb_right']))
         _rgb = Image.fromarray(np.hstack((data['rgb_left'], _rgb, data['rgb_right'])))
-
-        # (256, 144) -> (256/144*256, 256)
-        _rgb = _rgb.resize((int(256 / _rgb.size[1] * _rgb.size[0]), 256))
-        _topdown = _topdown.resize((256,256))
-        _combined = Image.fromarray(np.hstack((_rgb, _topdown)))
-        _draw = ImageDraw.Draw(_combined)
-
-        steer, throttle, brake, target_speed = self._get_control(near_node, far_node, data, _draw)
-
-        #_draw.text((5, 10), 'FPS: %.3f' % (self.step / (time.time() - self.wall_start)))
-        #_draw.text((5, 30), 'Steer: %.3f' % steer)
-        #_draw.text((5, 50), 'Throttle: %.3f' % throttle)
-        #_draw.text((5, 70), 'Brake: %s' % brake)
-
+        _draw = ImageDraw.Draw(_rgb)
         text_color = (139, 0, 139) #darkmagenta
         _draw.text((5, 10), 'Steer: %.3f' % steer, text_color)
         _draw.text((5, 30), 'Throttle: %.3f' % throttle, text_color)
@@ -249,6 +231,19 @@ class AutoPilot(MapAgent):
         cur_command, next_command = cmd_cmds[:2]
         _draw.text((5, 110), f'Current: {cur_command}', text_color)
         _draw.text((5, 130), f'Next: {next_command}', text_color)
+        
+
+        # (256, 144) -> (256/144*256, 256)
+        _rgb = _rgb.resize((int(256 / _rgb.size[1] * _rgb.size[0]), 256))
+        _topdown = _topdown.resize((256,256))
+        _combined = Image.fromarray(np.hstack((_rgb, _topdown)))
+
+        if self.step % 10 == 0 and SAVE_IMAGES:
+            _save_img = cv2.cvtColor(np.array(_combined), cv2.COLOR_BGR2RGB)
+            frame_number = self.step//10
+            rep_number = int(os.environ.get('REP', 0))
+            save_path = self.save_images_path / f'repetition_{rep_number:02d}' / f'{frame_number:06d}.png'
+            cv2.imwrite(str(save_path), _save_img)
 
 
         control = carla.VehicleControl()
