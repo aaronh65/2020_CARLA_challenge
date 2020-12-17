@@ -17,7 +17,7 @@ from carla_project.src.converter import Converter
 
 
 #HAS_DISPLAY = True
-HAS_DISPLAY = os.environ.get('HAS_DISPLAY', 0)
+HAS_DISPLAY = int(os.environ.get('HAS_DISPLAY', 0))
 SAVE_IMAGES = os.environ.get('SAVE_IMAGES', 0)
 SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
 ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
