@@ -23,7 +23,7 @@ def rotate_points(points, inv=False):
     
 # order is polynomial
 # points centered at origin and are in PIL image frame
-def approximate(points, order=-1, plot=False):
+def approximate(points, order=-1, M=4, plot=False):
 
     if order >= 0:
         bases = [lambda x: x**i for i in range(order)]
@@ -53,8 +53,8 @@ def approximate(points, order=-1, plot=False):
 
     # approximated points
     Ac = np.matmul(A,c)
-    N, M = len(x), 4 # 4 equally spaced segments between points
-    x_apx = np.zeros((N-1)*M)
+    N = len(x) 
+    x_apx = np.zeros((N-1)*M) # M defaults to 4 equally spaced segments between points
     for i in range(N-1):
         diff = x[i+1] - x[i]
         dx = diff / M
