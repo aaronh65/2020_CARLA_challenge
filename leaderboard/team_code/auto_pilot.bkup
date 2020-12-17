@@ -6,19 +6,15 @@ import pathlib
 import numpy as np
 import cv2
 import carla
-import torch
 
 from PIL import Image, ImageDraw
 
 from carla_project.src.common import CONVERTER, COLOR
 from team_code.map_agent import MapAgent
 from team_code.pid_controller import PIDController
-from carla_project.src.converter import Converter
 
 
-#HAS_DISPLAY = True
-HAS_DISPLAY = os.environ.get('HAS_DISPLAY', 0)
-SAVE_IMAGES = os.environ.get('SAVE_IMAGES', 0)
+HAS_DISPLAY = True
 DEBUG = False
 WEATHERS = [
         carla.WeatherParameters.ClearNoon,
@@ -83,7 +79,6 @@ class AutoPilot(MapAgent):
         super().setup(path_to_conf_file)
 
         self.save_path = None
-        self.converter = Converter()
 
         if path_to_conf_file and path_to_conf_file.split('/')[-1] != 'none':
             now = datetime.datetime.now()
@@ -148,10 +143,10 @@ class AutoPilot(MapAgent):
             steer *= 0.5
             throttle = 0.0
 
-        #_draw.text((5, 90), 'Speed: %.3f' % speed)
-        #_draw.text((5, 110), 'Target: %.3f' % target_speed)
-        #_draw.text((5, 130), 'Angle: %.3f' % angle_unnorm)
-        #_draw.text((5, 150), 'Angle Far: %.3f' % angle_far_unnorm)
+        _draw.text((5, 90), 'Speed: %.3f' % speed)
+        _draw.text((5, 110), 'Target: %.3f' % target_speed)
+        _draw.text((5, 130), 'Angle: %.3f' % angle_unnorm)
+        _draw.text((5, 150), 'Angle Far: %.3f' % angle_far_unnorm)
 
         return steer, throttle, brake, target_speed
 
@@ -164,92 +159,34 @@ class AutoPilot(MapAgent):
             self._world.set_weather(WEATHERS[index])
 
         data = self.tick(input_data)
+        topdown = data['topdown']
+        rgb = np.hstack((data['rgb_left'], data['rgb'], data['rgb_right']))
+
         gps = self._get_position(data)
 
+        near_node, near_command = self._waypoint_planner.run_step(gps)
+        far_node, far_command = self._command_planner.run_step(gps)
 
-        wpt_route = self._waypoint_planner.run_step(gps)
-        cmd_route = self._command_planner.run_step(gps)
-        cmd_nodes = np.array([node for node, _ in cmd_route])
-        cmd_cmds = [cmd for _, cmd in cmd_route]
-
-        near_node, near_command = wpt_route[0]
-        far_node, far_command = cmd_route[0]
-
-        
-        topdown = data['topdown']
         _topdown = Image.fromarray(COLOR[CONVERTER[topdown]])
-        print(_topdown.size)
-        #_topdown.thumbnail((256, 256))
-        _topdown_draw = ImageDraw.Draw(_topdown)
-        _rgb = Image.fromarray(data['rgb'])
-        _rgb_draw = ImageDraw.Draw(_rgb)
-        r = 2
+        _rgb = Image.fromarray(rgb)
+        _draw = ImageDraw.Draw(_topdown)
 
-        if (SAVE_IMAGES or HAS_DISPLAY) and not self.save_path:
-            theta = data['compass']
-            theta = 0.0 if np.isnan(theta) else theta
-            theta = theta + np.pi / 2
-            R = np.array([
-                [np.cos(theta), -np.sin(theta)],
-                [np.sin(theta),  np.cos(theta)]])
-            
-            nodes = cmd_nodes - gps
-            nodes = R.T.dot(nodes.T).T
-            nodes = nodes * 5.5
-            print(nodes[:3])
-            nodes_bev = nodes.copy() + [256, 256]
-            nodes_bev = nodes_bev[:3]
-            for i, (x,y) in enumerate(nodes_bev):
-                if i == 0:
-                    color = (0, 255, 0)
-                elif i == 1: # target
-                    color = (255, 0, 0)
-                elif i == 2:
-                    color = (139, 0, 139)
-                _topdown_draw.ellipse((x-2*r, y-2*r, x+2*r, y+2*r), color)
-
-            nodes_cam = nodes.copy()[:3].squeeze()
-            nodes_cam = nodes_cam + [128, 256]
-            nodes_cam = np.clip(nodes_cam, 0, 256)
-            nodes_cam = self.converter.map_to_cam(torch.Tensor(nodes_cam)).numpy()
-            for i, (x,y) in enumerate(nodes_cam[:3]):
-                if i == 0:
-                    if not (0 < y < 143 and 0 < x < 255):
-                        continue
-                    color = (0, 255, 0)
-                elif i == 1: # target
-                    color = (255, 0, 0)
-                elif i == 2:
-                    color = (139, 0, 139)
-                _rgb_draw.ellipse((x-r, y-r, x+r, y+r), color)
-
-
-        #rgb = np.hstack((data['rgb_left'], data['rgb'], data['rgb_right']))
-        _rgb = Image.fromarray(np.hstack((data['rgb_left'], _rgb, data['rgb_right'])))
-
-        # (256, 144) -> (256/144*256, 256)
+        _topdown.thumbnail((256, 256))
         _rgb = _rgb.resize((int(256 / _rgb.size[1] * _rgb.size[0]), 256))
-        _topdown = _topdown.resize((256,256))
+
         _combined = Image.fromarray(np.hstack((_rgb, _topdown)))
         _draw = ImageDraw.Draw(_combined)
 
         steer, throttle, brake, target_speed = self._get_control(near_node, far_node, data, _draw)
 
-        #_draw.text((5, 10), 'FPS: %.3f' % (self.step / (time.time() - self.wall_start)))
-        #_draw.text((5, 30), 'Steer: %.3f' % steer)
-        #_draw.text((5, 50), 'Throttle: %.3f' % throttle)
-        #_draw.text((5, 70), 'Brake: %s' % brake)
+        _draw.text((5, 10), 'FPS: %.3f' % (self.step / (time.time() - self.wall_start)))
+        _draw.text((5, 30), 'Steer: %.3f' % steer)
+        _draw.text((5, 50), 'Throttle: %.3f' % throttle)
+        _draw.text((5, 70), 'Brake: %s' % brake)
 
-        text_color = (139, 0, 139) #darkmagenta
-        _draw.text((5, 10), 'Steer: %.3f' % steer, text_color)
-        _draw.text((5, 30), 'Throttle: %.3f' % throttle, text_color)
-        _draw.text((5, 50), 'Brake: %s' % brake, text_color)
-        _draw.text((5, 70), 'Speed: %.3f' % data['speed'], text_color)
-        _draw.text((5, 90), 'Target: %.3f' % target_speed, text_color)
-        cur_command, next_command = cmd_cmds[:2]
-        _draw.text((5, 110), f'Current: {cur_command}', text_color)
-        _draw.text((5, 130), f'Next: {next_command}', text_color)
-
+        if HAS_DISPLAY:
+            cv2.imshow('map', cv2.cvtColor(np.array(_combined), cv2.COLOR_BGR2RGB))
+            cv2.waitKey(1)
 
         control = carla.VehicleControl()
         control.steer = steer + 1e-2 * np.random.randn()
@@ -258,12 +195,6 @@ class AutoPilot(MapAgent):
 
         if self.step % 10 == 0 and self.save_path:
             self.save(far_node, near_command, steer, throttle, brake, target_speed, data)
-
-                    
-        if HAS_DISPLAY:
-            cv2.imshow('map', cv2.cvtColor(np.array(_combined), cv2.COLOR_BGR2RGB))
-            cv2.waitKey(1)
-
 
         return control
 
