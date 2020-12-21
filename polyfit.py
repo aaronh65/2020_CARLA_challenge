@@ -23,7 +23,7 @@ def rotate_points(points, inv=False):
     
 # order is polynomial
 # points centered at origin and are in PIL image frame
-def approximate(points, order=-1, M=4, plot=False):
+def approximate(points, order=-1, M=4, plot=False, save_name=None):
 
     if order >= 0:
         bases = [lambda x: x**i for i in range(order)]
@@ -54,7 +54,7 @@ def approximate(points, order=-1, M=4, plot=False):
     # approximated points
     Ac = np.matmul(A,c)
     N = len(x) 
-    x_apx = np.zeros((N-1)*M) # M defaults to 4 equally spaced segments between points
+    x_apx = np.zeros((N-1)*M+1) # M defaults to 4 equally spaced segments between points
     for i in range(N-1):
         diff = x[i+1] - x[i]
         dx = diff / M
@@ -62,20 +62,23 @@ def approximate(points, order=-1, M=4, plot=False):
             insert = i*M+j
             inc = dx*j
             x_apx[insert] = x[i] + inc
-
+    x_apx[-1] = x[-1]
     y_apx = [basis(x_apx) for basis in bases] #3xM
     y_apx = c.T.dot(y_apx)
     y_apx = y_apx[0]
 
     if plot:
         plt.scatter(x, y, color='green', s=20)
-        plt.plot(x, y, color='green', label='gt')
+        plt.plot(x, y, color='green', label='ground truth')
         plt.scatter(x, Ac, color='blue', s=20)
-        #plt.plot(x_apx,y_apx, color='blue', label='apx')
+        plt.plot(x_apx,y_apx, color='blue', label='approximated')
         plt.scatter(x_apx, y_apx, color='blue')
         plt.xlabel('x')
         plt.ylabel('y')
-        plt.pause(0.5)
+        plt.tight_layout()
+        #plt.pause(0.5)
+        plt.legend()
+        plt.savefig(save_name)
         plt.clf()
 
     result = np.vstack([x_apx,y_apx])

@@ -25,14 +25,11 @@ size = 256
 c = size/2
 r = 2
 
-fig = plt.gcf()
-ax = plt.gca()
 def format_ticks(value, tick_number):
     minute = int(value/60)
     return f'{minute:02d}:00'
 
 # get route paths
-
 for split in sorted(os.listdir(args.target_dir)):
     math_path = os.path.join(args.target_dir, split, 'math')
     if not os.path.exists(math_path):
@@ -45,7 +42,7 @@ for split in sorted(os.listdir(args.target_dir)):
     rpaths = sorted(rpaths)
     all_errors = [None] * len(rpaths)
     for rpath in rpaths: # per route
-        repaths = [f'{rpath}/{rep}' for rep in sorted(os.listdir(rpath)) if 'repetition' in rep]
+        repaths = [f'{rpath}/{rep}' for rep in sorted(os.listdir(rpath)) if 'repetition' in rep and not 'png' in rep]
         for repath in repaths: # per rep
             pkl_paths = sorted([f'{repath}/{fname}' for fname in os.listdir(repath) if '.pkl' in fname])
 
@@ -64,8 +61,11 @@ for split in sorted(os.listdir(args.target_dir)):
             li_errors = [0] * (N-5)
             route = rpath.split('/')[-1]
             rep = repath.split('/')[-1]
-
             print(f'{split}/{route}/{rep}')
+            fig = plt.gcf()
+            fig.set_size_inches(12,8)
+            ax = plt.gca()
+
             for n in range(N-5):
 
                 # print time
@@ -78,6 +78,7 @@ for split in sorted(os.listdir(args.target_dir)):
                 poses -= poses[0]
                 poses = poses[1:] * scale # world
                 poses = poses * 5.5 * -1 # map
+                #poses = approximate(poses)
 
                 # theta rotation
                 theta = all_thetas[n]
@@ -87,13 +88,15 @@ for split in sorted(os.listdir(args.target_dir)):
                 #points = points * 5.5 * -1 # map
                 points = all_points[n].copy() # 4x2
                 points = points - [128, 256]
-                approximate(points)
                 points = R.dot(points.T).T
                 points = points * -1
+                plot_save_path = f'{repath}/{n:06d}.png'
+                #points = approximate(points,plot=args.fit, save_name=plot_save_path)
 
                 l2 = np.linalg.norm(poses-points, axis=1)
-                l2_errors[n] = np.sum(l2)
-                li = np.amax(l2)
+                l2[l2>40] = 40
+                l2_errors[n] = np.mean(l2)
+                li_errors[n] = np.amax(l2)
 
                 # bev check against videos
                 if args.bev:
@@ -110,17 +113,22 @@ for split in sorted(os.listdir(args.target_dir)):
                     cv2.imshow('debug', cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB))
                     cv2.waitKey(500)
 
-            x_plot = np.arange(len(errors))*0.5
+            x_plot = np.arange(len(l2_errors))*0.5
+            #l2_errors[l2_errors > 
+            plt.plot(x_plot, l2_errors, label='L2')
+            plt.plot(x_plot, li_errors, label='Linf')
             plt.xlabel('Game time')
-            plt.ylabel('L2 error')
+            plt.ylabel('Error')
             ax.xaxis.set_major_locator(MultipleLocator(60))
             ax.xaxis.set_major_formatter(plt.FuncFormatter(format_ticks))
             ax.xaxis.set_minor_locator(MultipleLocator(15))
             ax.tick_params(which='both', direction='in')
 
-            plt.plot(x_plot, errors)
-            plt.title(f'{split}/{route}/{rep}')
-            plt.show()
+            plt.title(f'{split}/{route}/{rep} errors')
+            plt.legend()
+            plt.tight_layout()
+            plt.savefig(f'{rpath}/{rep}_nofit.png')
+            #plt.show()
             plt.clf()
 
 
