@@ -1,5 +1,4 @@
 *.pyc
-*.py
 .pydevproject
 config
 results
