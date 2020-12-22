@@ -20,7 +20,7 @@ if args.agent == 'auto_pilot':
 elif args.agent == 'image_agent':
     config = 'image_model.ckpt'
 elif args.agent == 'privileged_agent':
-    config = 'seg_model.ckpt'
+    config = 'map_model.ckpt'
 
 def mkdir_if_not_exists(_dir):
     if not os.path.exists(_dir):

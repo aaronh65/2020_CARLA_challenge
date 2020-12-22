@@ -7,7 +7,7 @@ from datetime import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--split', type=str, default='devtest', choices=['devtest','testing','training','debug'])
-parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot'])
+parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot', 'privileged_agent'])
 parser.add_argument('--gpus', type=int, default=1)
 parser.add_argument('--repetitions', type=int, default=1)
 parser.add_argument('--save_images', action='store_true')
@@ -21,6 +21,8 @@ if args.agent == 'auto_pilot':
     config = 'none'
 elif args.agent == 'image_agent':
     config = 'image_model.ckpt'
+elif args.agent == 'privileged_agent':
+    config = 'map_model.ckpt'
 
 if args.local:
     prefix = '/home/aaron/workspace/carla'
