@@ -109,9 +109,12 @@ def plot_metrics(args, metrics, routes, plot_dir, split):
         ymin, ymax = plt.ylim()
         xmin, xmax = plt.xlim()
         overall_dscore_mean = np.mean([metrics[route]['driving score mean'] for route in routes])
+        overall_dscore_std = np.std([metrics[route]['driving score mean'] for route in routes])
         overall_rcscore_mean = np.mean([metrics[route]['route completion mean'] for route in routes])
+        overall_rcscore_std = np.std([metrics[route]['route completion mean'] for route in routes])
+        pm = r'$\pm$'
         plt.text(-2.5, 97.5, 'mean route completion\nmean driving score')
-        plt.text(xmax/5, 97.5, f'{overall_rcscore_mean:.2f}\n{overall_dscore_mean:.2f}')
+        plt.text(xmax/5, 97.5, f'{overall_rcscore_mean:.0f}{pm}{overall_rcscore_std:.0f}\n{overall_dscore_mean:.0f}{pm}{overall_dscore_std:.0f}')
 
         plt.tight_layout()
         save_path = os.path.join(plot_dir, f'overall_score_metrics_{i}.png')

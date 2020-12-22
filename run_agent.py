@@ -7,7 +7,7 @@ from datetime import datetime
 parser = argparse.ArgumentParser()
 parser.add_argument('--split', type=str, default='devtest', choices=['devtest','testing','training','debug'])
 parser.add_argument('--route', type=int, default=3)
-parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot'])
+parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot', 'privileged_agent'])
 parser.add_argument('--save_images', action='store_true')
 parser.add_argument('--repetitions', type=int, default=1)
 parser.add_argument('--debug', action='store_true')
@@ -19,6 +19,8 @@ if args.agent == 'auto_pilot':
     config = 'none'
 elif args.agent == 'image_agent':
     config = 'image_model.ckpt'
+elif args.agent == 'privileged_agent':
+    config = 'seg_model.ckpt'
 
 def mkdir_if_not_exists(_dir):
     if not os.path.exists(_dir):
@@ -61,8 +63,6 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 os.environ["SAVE_PATH_BASE"] = save_path_base
 os.environ["ROUTE_NAME"] = route_name
 os.environ["SAVE_IMAGES"] = "1" if args.save_images else "0"
-#os.environ["SAVE_IMAGES_PATH"] = save_images_path
-#os.environ["SAVE_PERF_PATH"] = save_perf_path
 
 cmd = f'bash run_agent.sh {args.agent} {route_path} {save_path_base} {config} {args.repetitions}'
 print(f'running {cmd}')

@@ -14,6 +14,7 @@ from pathlib import Path
 from carla_project.src.map_model import MapModel
 from carla_project.src.dataset import preprocess_semantic
 from carla_project.src.converter import Converter
+from carla_project.src.common import CONVERTER, COLOR
 
 from team_code.map_agent import MapAgent
 from team_code.pid_controller import PIDController
@@ -42,20 +43,6 @@ class PrivilegedAgent(MapAgent):
         
         super().setup(path_to_conf_file)
         self.converter = Converter()
-
-        # make hacky hparams namespace for now
-        # missing training hparams
-        class Bunch(object):
-            def __init__(self, adict):
-                self.__dict__.update(adict)
-        hparams = {}
-        hparams['hack'] = True
-        hparams['temperature'] = 10
-        hparams['heatmap_radius'] = 5
-        hparams['command_coefficient'] = 0.01
-        hparams['batch_norm'] = False
-        hparams_ns = Bunch(hparams)
-
         self.net = MapModel.load_from_checkpoint(path_to_conf_file)
         self.net.cuda()
         self.net.eval()
@@ -95,14 +82,15 @@ class PrivilegedAgent(MapAgent):
         nodes = R.T.dot(nodes.T) # (2,2) x (2,N) = (2,N)
         nodes = nodes.T * 5.5 # (N,2) # to map frame (5.5 pixels per meter)
         nodes += [128,256]
-        nodes = np.clip(nodes, 0, 256)
+        #nodes = np.clip(nodes, 0, 256)
         commands = [command for _, command in route]
+        target = np.clip(nodes[1], 0, 256)
 
         # populate results
         result['num_waypoints'] = len(route)
         result['route_map'] = nodes
         result['commands'] = commands
-        result['target'] = nodes[1]
+        result['target'] = target
 
         return result
 
@@ -165,6 +153,8 @@ class PrivilegedAgent(MapAgent):
         #points, (target_cam, _) = self.net.forward(topdown, target)
         points = self.net.forward(topdown, target) # world frame
         points_map = points.clone().cpu().squeeze()
+        # what's this conversion for?
+        # was this originally normalized for training stability or something?
         points_map = points_map + 1
         points_map = points_map / 2 * 256
         points_map = np.clip(points_map, 0, 256)
@@ -176,41 +166,16 @@ class PrivilegedAgent(MapAgent):
         tick_data['points_cam'] = points_cam
         tick_data['points_world'] = points_world
 
-        img = tick_data['image']
+        #img = tick_data['image']
 
-        if RUN_MATH:
-            # there are 5 points including the origin and last pt
-            # and 3 points in between a pair of points
-            # so there are 16 valid choices total
-            #j = 6 # point between 1st and 2nd waypoint
-            j = int(os.environ.get('POLY_SELECT', 0))
-            # we exclude the origin and end to compute desired speed
-            assert 0 < j < 15, 'point choice invalid'
-
-            points_apx = polyfit.approximate(points_world)
-            aim = points_apx[j]
-            angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
-            steer = self._turn_controller.step(angle)
-            steer = np.clip(steer, -1.0, 1.0)
-
-            desired_speed_1 = np.linalg.norm(points_apx[j] - points_apx[j-1]) * 8.0
-            desired_speed_2 = np.linalg.norm(points_apx[j+1] - points_apx[j]) * 8.0
-            desired_speed = desired_speed_1 + desired_speed_2
-            desired_speed = desired_speed / 2
-            
-        else:
-            aim = (points_world[1] + points_world[0]) / 2.0
-            angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
-            steer = self._turn_controller.step(angle)
-            steer = np.clip(steer, -1.0, 1.0)
-
-            desired_speed = np.linalg.norm(points_world[0] - points_world[1]) * 2.0
-            # desired_speed *= (1 - abs(angle)) ** 2
-
+        aim = (points_world[1] + points_world[0]) / 2.0
+        angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
+        steer = self._turn_controller.step(angle)
+        steer = np.clip(steer, -1.0, 1.0)
+        desired_speed = np.linalg.norm(points_world[0] - points_world[1]) * 2.0
         tick_data['aim_world'] = aim
 
         speed = tick_data['speed']
-
         brake = desired_speed < 0.4 or (speed / desired_speed) > 1.1
 
         delta = np.clip(desired_speed - speed, 0.0, 0.25)
@@ -237,25 +202,37 @@ class PrivilegedAgent(MapAgent):
 
         return control
 
-    def debug_display(self, tick_data, steer, throttle, brake, desired_speed):
+    def debug_display(self, tick_data, steer, throttle, brake, desired_speed, r=2):
 
-        # make BEV image
+        topdown = tick_data['topdown']
+        _topdown = Image.fromarray(COLOR[CONVERTER[topdown]])
+        _topdown_draw = ImageDraw.Draw(_topdown)
 
-        # transform aim from world to map
+        # model points
+        points_map = tick_data['points_map']
+        points_td = points_map + [128, 0]
+        for i, (x,y) in enumerate(points_td):
+            _topdown_draw.ellipse((x-2*r, y-2*r, x+2*r, y+2*r), (0,191,255))
+        route_map = tick_data['route_map']
+        route_td = route_map + [128, 0]
+
+        # control point
         aim_world = np.array(tick_data['aim_world'])
         aim_map = self.converter.world_to_map(torch.Tensor(aim_world)).numpy()
+        aim_map = aim_map + [128,0]
+        x, y = aim_map
+        _topdown_draw.ellipse((x-2, y-2, x+2, y+2), (255, 105, 147))
 
-        # append to image model points and plot
-        points_plot = np.vstack([tick_data['points_map'], aim_map])
-        points_plot = points_plot - [128,256] # center at origin
-        points_plot = tick_data['R'].dot(points_plot.T).T
-        points_plot = points_plot * -1 # why is this required?
-        points_plot = points_plot + 256/2 # recenter origin in middle of plot
-        _waypoint_img = self._command_planner.debug.img
-        for x, y in points_plot:
-            ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (0, 191, 255))
-        x, y = points_plot[-1]
-        ImageDraw.Draw(_waypoint_img).ellipse((x-2, y-2, x+2, y+2), (255, 105, 147))
+        # route waypoints
+        for i, (x, y) in enumerate(route_td[:3]):
+            if i == 0:
+                color = (0, 255, 0)
+            elif i == 1:
+                color = (255, 0, 0)
+            elif i == 2:
+                color = (139, 0, 139)
+            _topdown_draw.ellipse((x-2*r, y-2*r, x+2*r, y+2*r), color)
+
 
         # make RGB images
 
@@ -268,18 +245,18 @@ class PrivilegedAgent(MapAgent):
             _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (0, 191, 255))
 
         # transform aim from world to cam
-        aim_world = np.array(tick_data['aim_world'])
         aim_cam = self.converter.world_to_cam(torch.Tensor(aim_world)).numpy()
         x, y = aim_cam
         _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (255, 105, 147))
 
         # draw route waypoints in RGB image
         route_map = np.array(tick_data['route_map'])
-        route_map = route_map[:3].squeeze()
+        route_map = np.clip(route_map, 0, 256)
+        route_map = route_map[:3].squeeze() # just the next couple
         route_cam = self.converter.map_to_cam(torch.Tensor(route_map)).numpy()
         for i, (x, y) in enumerate(route_cam):
             if i == 0: # waypoint we just passed
-                if y >= 139 or x <= 2 or x >= 254: # bottom of frame (behind us)
+                if not (0 < y < 143 and 0 < x < 255):
                     continue
                 color = (0, 255, 0) # green 
             elif i == 1: # target
@@ -304,8 +281,9 @@ class PrivilegedAgent(MapAgent):
         _draw.text((5, 110), f'Current: {cur_command}', text_color)
         _draw.text((5, 130), f'Next: {next_command}', text_color)
 
-        _rgb_img = cv2.resize(np.array(_combined), DIM, interpolation=cv2.INTER_AREA)
-        _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
+        _rgb_img = _combined.resize((int(256/ _combined.size[1] * _combined.size[0]), 256))
+        _topdown = _topdown.resize((256, 256))
+        _save_img = Image.fromarray(np.hstack([_rgb_img, _topdown]))
         _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
         if self.step % 10 == 0 and SAVE_IMAGES:
             frame_number = self.step // 10
