@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import cv2
-#import json
 import pickle as pkl
 import torch
 import torchvision
@@ -10,7 +9,6 @@ import carla
 from PIL import Image, ImageDraw
 from pathlib import Path
 
-#from carla_project.src.image_model import ImageModel
 from carla_project.src.map_model import MapModel
 from carla_project.src.dataset import preprocess_semantic
 from carla_project.src.converter import Converter
@@ -19,13 +17,8 @@ from carla_project.src.common import CONVERTER, COLOR
 from team_code.map_agent import MapAgent
 from team_code.pid_controller import PIDController
 
-#from polyfit import approximate
-import polyfit
-
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
-SAVE_MATH = int(os.environ.get('SAVE_MATH', 0))
-RUN_MATH = int(os.environ.get('RUN_MATH', 0))
 SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
 SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
 ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
@@ -52,8 +45,6 @@ class PrivilegedAgent(MapAgent):
 
         self._turn_controller = PIDController(K_P=1.25, K_I=0.75, K_D=0.3, n=40)
         self._speed_controller = PIDController(K_P=5.0, K_I=0.5, K_D=1.0, n=40)
-
-        self.save_math_path = Path(f'{SAVE_PATH_BASE}/math/{ROUTE_NAME}')
         self.save_images_path = Path(f'{SAVE_PATH_BASE}/images/{ROUTE_NAME}')
         #self.save_path.mkdir()
 
@@ -189,10 +180,6 @@ class PrivilegedAgent(MapAgent):
         control.brake = float(brake)
         #print(timestamp) # GAMETIME
 
-        # for math project
-        if self.step % 10 == 0 and SAVE_MATH:
-            self.save_math_data(tick_data)
-
         if DEBUG or SAVE_IMAGES:
 
             # transform image model cam points to overhead BEV image (spectator frame?)
@@ -294,19 +281,3 @@ class PrivilegedAgent(MapAgent):
             cv2.imshow('debug', _save_img)
             cv2.waitKey(1)
  
-
-    def save_math_data(self, tick_data):
-        points_map = tick_data['points_map']
-        pos = tick_data['gps']
-        theta = tick_data['theta']
-        data = {
-                'points': points_map.tolist(),
-                'pos': pos,
-                'theta': theta
-                }
-
-        frame_number = self.step // 10
-        rep_number = int(os.environ.get('REP',0))
-        save_path = self.save_math_path / f'repetition_{rep_number:02d}' / f'{frame_number:06d}.pkl'
-        with open(save_path, 'wb') as f:
-            pkl.dump(data, f)
