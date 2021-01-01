@@ -16,15 +16,10 @@ from carla_project.src.converter import Converter
 from team_code.base_agent import BaseAgent
 from team_code.pid_controller import PIDController
 
-#from polyfit import approximate
-import polyfit
-
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
-SAVE_MATH = int(os.environ.get('SAVE_MATH', 0))
-RUN_MATH = int(os.environ.get('RUN_MATH', 0))
-SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
 SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
+SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
 ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
 DIM=(1371,256)
 
@@ -46,7 +41,6 @@ class ImageAgent(BaseAgent):
         self._turn_controller = PIDController(K_P=1.25, K_I=0.75, K_D=0.3, n=40)
         self._speed_controller = PIDController(K_P=5.0, K_I=0.5, K_D=1.0, n=40)
 
-        self.save_math_path = Path(f'{SAVE_PATH_BASE}/math/{ROUTE_NAME}')
         self.save_images_path = Path(f'{SAVE_PATH_BASE}/images/{ROUTE_NAME}')
         #self.save_path.mkdir()
 
@@ -66,7 +60,6 @@ class ImageAgent(BaseAgent):
             ])
         result['R'] = R
         gps = self._get_position(result) # method returns position in meters
-
         
         # transform route waypoints to overhead map view
         route = self._command_planner.run_step(gps) # oriented in world frame
@@ -133,12 +126,13 @@ class ImageAgent(BaseAgent):
 
         tick_data = self.tick(input_data)
 
+        # prepare image model inputs
         img = torchvision.transforms.functional.to_tensor(tick_data['image'])
         img = img[None].cuda()
-
         target = torch.from_numpy(tick_data['target'])
         target = target[None].cuda()
 
+        # forward through NN and process output
         points, (target_cam, _) = self.net.forward(img, target)
         #heatmap = _.cpu().numpy()
         #heatmap = cv2.flip(heatmap[0][0], 0)
@@ -147,73 +141,41 @@ class ImageAgent(BaseAgent):
         points_cam[..., 0] = (points_cam[..., 0] + 1) / 2 * img.shape[-1]
         points_cam[..., 1] = (points_cam[..., 1] + 1) / 2 * img.shape[-2]
         points_cam = points_cam.squeeze()
-
         points_world = self.converter.cam_to_world(points_cam).numpy()
         tick_data['points_world'] = points_world
-        
 
-        if RUN_MATH:
-            # there are 5 points including the origin and last pt
-            # and 3 points in between a pair of points
-            # so there are 16 valid choices total
-            #j = 6 # point between 1st and 2nd waypoint
-            j = int(os.environ.get('POLY_SELECT', 0))
-            # we exclude the origin and end to compute desired speed
-            assert 0 < j < 15, 'point choice invalid'
-
-            points_apx = polyfit.approximate(points_world)
-            aim = points_apx[j]
-            angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
-            steer = self._turn_controller.step(angle)
-            steer = np.clip(steer, -1.0, 1.0)
-
-            desired_speed_1 = np.linalg.norm(points_apx[j] - points_apx[j-1]) * 8.0
-            desired_speed_2 = np.linalg.norm(points_apx[j+1] - points_apx[j]) * 8.0
-            desired_speed = desired_speed_1 + desired_speed_2
-            desired_speed = desired_speed / 2
-            
-        else:
-            aim = (points_world[1] + points_world[0]) / 2.0
-            angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
-            steer = self._turn_controller.step(angle)
-            steer = np.clip(steer, -1.0, 1.0)
-
-            desired_speed = np.linalg.norm(points_world[0] - points_world[1]) * 2.0
-            # desired_speed *= (1 - abs(angle)) ** 2
-
+        # decide on control waypoint
+        aim = (points_world[1] + points_world[0]) / 2.0
         tick_data['aim_world'] = aim
 
+        # compute steer
+        angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
+        steer = self._turn_controller.step(angle)
+        steer = np.clip(steer, -1.0, 1.0)
+
+        # compute throttle
         speed = tick_data['speed']
-
+        desired_speed = np.linalg.norm(points_world[0] - points_world[1]) * 2.0
         brake = desired_speed < 0.4 or (speed / desired_speed) > 1.1
-
         delta = np.clip(desired_speed - speed, 0.0, 0.25)
         throttle = self._speed_controller.step(delta)
         throttle = np.clip(throttle, 0.0, 0.75)
         throttle = throttle if not brake else 0.0
 
+        # create control object
         control = carla.VehicleControl()
         control.steer = steer
         control.throttle = throttle
         control.brake = float(brake)
-        #print(timestamp) # GAMETIME
-
-        # for math project
-        if self.step % 10 == 0 and SAVE_MATH:
-            tick_data['points_cam'] = points.cpu().squeeze()
-            tick_data['points_map'] = self.converter.cam_to_map(points_cam).numpy()
-            self.save_math_data(tick_data)
 
         if DEBUG or SAVE_IMAGES:
 
-            # transform image model cam points to overhead BEV image (spectator frame?)
+            # make display image
             tick_data['points_cam'] = points.cpu().squeeze()
             tick_data['points_map'] = self.converter.cam_to_map(points_cam).numpy()
-                        
             self.debug_display(
                     tick_data, target_cam.squeeze(), 
                     steer, throttle, brake, desired_speed)
-            
 
         return control
 
@@ -253,7 +215,6 @@ class ImageAgent(BaseAgent):
         x, y = aim_cam
         _draw_rgb.ellipse((x-2, y-2, x+2, y+2), (255, 105, 147))
 
-
         # draw route waypoints in RGB image
         route_map = np.array(tick_data['route_map'])
         route_map = route_map[:3].squeeze()
@@ -285,31 +246,17 @@ class ImageAgent(BaseAgent):
         _draw.text((5, 110), f'Current: {cur_command}', text_color)
         _draw.text((5, 130), f'Next: {next_command}', text_color)
 
+        # compose image to display/save
         _rgb_img = cv2.resize(np.array(_combined), DIM, interpolation=cv2.INTER_AREA)
         _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
         _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
+
         if self.step % 10 == 0 and SAVE_IMAGES:
             frame_number = self.step // 10
             rep_number = int(os.environ.get('REP',0))
             save_path = self.save_images_path / f'repetition_{rep_number:02d}' / f'{frame_number:06d}.png'
             cv2.imwrite(str(save_path), _save_img)
+
         if DEBUG:
             cv2.imshow('debug', _save_img)
             cv2.waitKey(1)
- 
-
-    def save_math_data(self, tick_data):
-        points_map = tick_data['points_map']
-        pos = tick_data['gps']
-        theta = tick_data['theta']
-        data = {
-                'points': points_map.tolist(),
-                'pos': pos,
-                'theta': theta
-                }
-
-        frame_number = self.step // 10
-        rep_number = int(os.environ.get('REP',0))
-        save_path = self.save_math_path / f'repetition_{rep_number:02d}' / f'{frame_number:06d}.pkl'
-        with open(save_path, 'wb') as f:
-            pkl.dump(data, f)

@@ -1,5 +1,5 @@
 #####################
-# this script is generally run on a remote cluster
+# this script is usually used on a remote cluster
 
 import os, sys, time
 import subprocess
@@ -18,13 +18,6 @@ parser.add_argument('--debug', action='store_true')
 parser.add_argument('--ssd', type=int, default=0, choices=[0,1])
 parser.add_argument('--local', action='store_true')
 args = parser.parse_args()
-
-if args.agent == 'auto_pilot':
-    config = 'none'
-elif args.agent == 'image_agent':
-    config = 'image_model.ckpt'
-elif args.agent == 'privileged_agent':
-    config = 'map_model.ckpt'
 
 def kill(proc_pid):
     process = psutil.Process(proc_pid)
@@ -88,24 +81,32 @@ try:
     timeout = max(args.gpus*base_timeout, 10)
     print(f'Opened {len(gpus)} CARLA servers, warming up for {timeout} seconds')
     time.sleep(timeout)
+
+    # agent-specific configurations
+    if args.agent == 'auto_pilot':
+        config = 'none' # change to anything except 'none' to save training data
+    elif args.agent == 'image_agent':
+        config = 'image_model.ckpt' # NN weights in leaderboard/configs
+    elif args.agent == 'privileged_agent':
+        config = 'map_model.ckpt' # NN weights in leaderboard/configs
     
     # route paths
     route_prefix = f'leaderboard/data/routes_{args.split}'
     routes = [f'{route_prefix}/{route}' for route in sorted(os.listdir(route_prefix)) if route.endswith('.xml')]
 
-    # keep track of a bunch of things
-    lbc_procs = [] # one process per route
-    gpus_free = [True] * len(gpus) # True if gpu can be used for next leaderboard run
+    # tracks relevant information for running on cluster
+    lbc_procs = [] # one leaderboard process per route
+    gpus_free = [True] * len(gpus) # True if gpu can be used for next leaderboard process
     gpus_procs = [None] * len(gpus) # tracks which gpu has which process
     gpus_routes = [-1] * len(gpus) # tracks the route idx each gpu is working on
-    routes_done = [False] * len(routes) # tracks which routes are done
+    routes_done = [False] * len(routes) # tracks which routes are done (can be True/False/'running')
 
     # main testing loop
     while False in routes_done or 'running' in routes_done:
 
         # check for finished leaderboard runs
         for i, (free, proc, route_idx) in enumerate(zip(gpus_free, gpus_procs, gpus_routes)):
-            # check if gpus has a process and if it's done
+            # check if gpus has a valid process and if it's done
             if proc and proc.poll() is not None: 
                 gpus_free[i] = True
                 gpus_procs[i] = None
@@ -118,13 +119,11 @@ try:
             time.sleep(10)
             continue
         
-        # otherwise run a new leaderboard process
-        gpu = gpus_free.index(True)
-        wp, tp = port_map[gpu]
+        # otherwise run a new leaderboard process on next route
         route_idx = routes_done.index(False)
-        route_name = routes[route_idx].split('/')[-1].split('.')[0] #e.g. route_00
-        
-        # image and performance plot dirs
+        route_name = routes[route_idx].split('/')[-1].split('.')[0] # e.g. route_00
+                        
+        # make image + performance plot dirs
         if args.save_images:
             save_images_path = f'{save_path_base}/images/{route_name}'
             for rep_number in range(args.repetitions):
@@ -133,6 +132,8 @@ try:
         mkdir_if_not_exists(save_perf_path)
 
         # setup env
+        gpu = gpus_free.index(True)
+        wp, tp = port_map[gpu]
         env = os.environ.copy()
         env["CUDA_VISIBLE_DEVICES"] = f'{gpu}'
         env["LOCAL"] = "1" if args.local else "0"
