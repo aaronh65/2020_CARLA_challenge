@@ -3,7 +3,7 @@
 # running on my local machine vs CMU cluster
 export NAME=aaron
 source /home/$NAME/anaconda3/etc/profile.d/conda.sh
-conda activate lb
+conda activate lblbc
 
 
 # Python env variables so the subdirectories can find each other

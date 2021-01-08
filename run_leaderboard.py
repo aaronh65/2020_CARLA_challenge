@@ -72,7 +72,7 @@ try:
         env["DISPLAY"] = ""
         
         # CARLA command
-        cmd = f'bash {prefix}/CARLA_0.9.10.1/CarlaUE4.sh --world-port={wp} -opengl &> {save_path_base}/logs/CARLA_G{gpu}.txt'
+        cmd = f'bash {prefix}/CARLA_0.9.11/CarlaUE4.sh --world-port={wp} -opengl &> {save_path_base}/logs/CARLA_G{gpu}.txt'
         carla_procs.append(subprocess.Popen(cmd, env=env, shell=True))
         print(f'running {cmd}')
 

@@ -3,7 +3,7 @@
 # running on my local machine vs CMU cluster
 export PREFIX=$8
 source ~/anaconda3/etc/profile.d/conda.sh
-conda activate lb
+conda activate lblbc
 
 # Python env variables so the subdirectories can find each other
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/anaconda3/lib
