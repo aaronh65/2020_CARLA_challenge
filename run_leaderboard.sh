@@ -7,10 +7,12 @@ conda activate lb
 
 # Python env variables so the subdirectories can find each other
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/anaconda3/lib
-export CARLA_ROOT=$PREFIX/CARLA_0.9.10.1
+#export CARLA_ROOT=$PREFIX/CARLA_0.9.10.1
+export CARLA_ROOT=$PREFIX/CARLA_0.9.11
 export LBC_ROOT=$PREFIX/2020_CARLA_challenge
 export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
-export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.10-py3.7-linux-x86_64.egg
+#export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.10-py3.7-linux-x86_64.egg
+export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.11-py3.7-linux-x86_64.egg
 export PYTHONPATH=$PYTHONPATH:leaderboard
 export PYTHONPATH=$PYTHONPATH:leaderboard/team_code
 export PYTHONPATH=$PYTHONPATH:scenario_runner
