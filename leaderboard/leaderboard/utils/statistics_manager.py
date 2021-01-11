@@ -238,6 +238,7 @@ class StatisticsManager(object):
         target_reached = False
         score_penalty = 1.0
         score_route = 0.0
+        score_route_list = []
         infraction_list = [] # each elem is (time, TrafficEventType)
 
         route_record.meta['duration_system'] = duration_time_system
@@ -298,8 +299,8 @@ class StatisticsManager(object):
                         elif event.get_type() == TrafficEventType.ROUTE_COMPLETION:
                             if not target_reached:
                                 if event.get_dict():
-                                    score_route = event.get_dict()['route_completed']
                                     score_route_list = event.get_dict()['route_completed_list']
+                                    score_route = event.get_dict()['route_completed']
                                 else:
                                     score_route = 0
 
