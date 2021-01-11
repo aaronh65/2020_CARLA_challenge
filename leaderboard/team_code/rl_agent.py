@@ -31,10 +31,6 @@ class RLAgent(BaseAgent):
         self.map = self.world.get_map()
         self.actor = self.provider.get_hero_actor()
 
-        self.dao = GlobalRoutePlannerDAO(self.map, 1.0)
-        self.grp = GlobalRoutePlanner(self.dao)
-        self.grp.setup()
-
         self.route = self.provider.get_ego_vehicle_route()
         self.route_waypoints = [self.map.get_waypoint(route_elem[0]) for route_elem in self.route]
         draw_waypoints(self.world, self.route_waypoints)
