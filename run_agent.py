@@ -3,13 +3,14 @@
 # you need to run CARLA before running this script
 
 import os, sys, time
+import yaml
 import argparse
 from datetime import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--split', type=str, default='devtest', choices=['devtest','testing','training','debug'])
 parser.add_argument('--route', type=int, default=3)
-parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot', 'privileged_agent'])
+parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot', 'privileged_agent', 'rl_agent'])
 parser.add_argument('--repetitions', type=int, default=1)
 parser.add_argument('--save_images', action='store_true')
 parser.add_argument('--debug', action='store_true')
@@ -29,14 +30,7 @@ else:
 
 mkdir_if_not_exists(f'{save_path_base}/logs')
 
-# agent-specific configurations
-if args.agent == 'auto_pilot':
-    config = 'none' # change to anything except 'none' to save training data
-elif args.agent == 'image_agent':
-    config = 'image_model.ckpt' # NN weights in leaderboard/configs
-elif args.agent == 'privileged_agent':
-    config = 'map_model.ckpt' # NN weights in leaderboard/configs
- 
+
 # route path
 route_prefix = f'leaderboard/data/routes_{args.split}'
 route_name = f'route_{args.route:02d}'
@@ -55,6 +49,22 @@ os.environ["SAVE_PATH_BASE"] = save_path_base
 os.environ["SAVE_IMAGES"] = "1" if args.save_images else "0"
 os.environ["ROUTE_NAME"] = route_name
 
+# agent-specific configurations
+weights_path = 'leaderboard/config'
+if args.agent == 'auto_pilot':
+    config = 'none' # change to anything except 'none' to save training data
+elif args.agent == 'image_agent':
+    config = '{weights_path}/image_model.ckpt' # NN weights in leaderboard/configs
+elif args.agent == 'privileged_agent':
+    config = '{weights_path}/map_model.ckpt' # NN weights in leaderboard/configs
+elif args.agent == 'rl_agent':
+    config_dict = {'mode': 'train', 'world_port': 2000, 'tm_port': 8000}
+    config = f'{save_path_base}/config.yml'
+    with open(config, 'w') as f:
+        yaml.dump(config_dict, f)
+else:
+    config = 'None'
+ 
 cmd = f'bash run_agent.sh {args.agent} {route_path} {save_path_base} {config} {args.repetitions}'
 print(f'running {cmd}')
 os.system(cmd)

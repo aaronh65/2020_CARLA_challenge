@@ -8,12 +8,12 @@ conda activate lblbc
 
 # Python env variables so the subdirectories can find each other
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$NAME/anaconda3/lib
-#export CARLA_ROOT=/home/$NAME/workspace/carla/CARLA_0.9.10.1
-export CARLA_ROOT=/home/$NAME/workspace/carla/CARLA_0.9.11
+export CARLA_ROOT=/home/$NAME/workspace/carla/CARLA_0.9.10.1
+#export CARLA_ROOT=/home/$NAME/workspace/carla/CARLA_0.9.11
 export LBC_ROOT=/home/$NAME/workspace/carla/2020_CARLA_challenge
 export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
-#export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.10-py3.7-linux-x86_64.egg
-export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.11-py3.7-linux-x86_64.egg
+export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.10-py3.7-linux-x86_64.egg
+#export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.11-py3.7-linux-x86_64.egg
 export PYTHONPATH=$PYTHONPATH:leaderboard
 export PYTHONPATH=$PYTHONPATH:leaderboard/team_code
 export PYTHONPATH=$PYTHONPATH:scenario_runner
@@ -30,7 +30,8 @@ export REPETITIONS=$5
 export PORT=2000
 
 export TEAM_AGENT=$LBC_ROOT/leaderboard/team_code/${AGENT}.py
-export TEAM_CONFIG=$LBC_ROOT/leaderboard/config/${CONFIG}
+#export TEAM_CONFIG=$LBC_ROOT/leaderboard/config/${CONFIG}
+export TEAM_CONFIG=${CONFIG}
 
 
 # logging
