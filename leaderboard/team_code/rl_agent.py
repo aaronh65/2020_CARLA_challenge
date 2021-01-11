@@ -31,15 +31,13 @@ class RLAgent(BaseAgent):
         self.map = self.world.get_map()
         self.actor = self.provider.get_hero_actor()
 
-        self.global_planner_dao = GlobalRoutePlannerDAO(self.map, 2.0)
-        self.global_planner = GlobalRoutePlanner(self.global_planner_dao)
-        self.global_planner.setup()
+        self.dao = GlobalRoutePlannerDAO(self.map, 1.0)
+        self.grp = GlobalRoutePlanner(self.dao)
+        self.grp.setup()
 
-        origin_transform, origin_command = self._global_plan_world_coord[0]
-        dest_transform, dest_command = self._global_plan_world_coord[1]
-
-        route = self.global_planner.trace_route(origin_transform.location, dest_transform.location)
-        print(route)
+        self.route = self.provider.get_ego_vehicle_route()
+        self.route_waypoints = [self.map.get_waypoint(route_elem[0]) for route_elem in self.route]
+        draw_waypoints(self.world, self.route_waypoints)
 
     def tick(self, input_data):
         result = super().tick(input_data)
