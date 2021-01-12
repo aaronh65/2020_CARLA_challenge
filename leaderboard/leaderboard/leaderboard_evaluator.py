@@ -21,7 +21,6 @@ import importlib
 import os
 import pkg_resources
 import sys
-import torchvision
 
 import carla
 import signal

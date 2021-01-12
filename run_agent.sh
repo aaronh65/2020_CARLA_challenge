@@ -3,8 +3,8 @@
 # running on my local machine vs CMU cluster
 export NAME=aaron
 source /home/$NAME/anaconda3/etc/profile.d/conda.sh
-conda activate lblbc
-
+#conda activate lblbc
+conda activate lbrl
 
 # Python env variables so the subdirectories can find each other
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$NAME/anaconda3/lib
