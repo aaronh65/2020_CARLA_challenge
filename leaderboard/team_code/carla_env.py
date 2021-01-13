@@ -25,6 +25,7 @@ class CarlaEnv(gym.Env):
     def step(self, action):
         obs = self.provider.get_transform(self.hero)
         obs = transform_to_vector(obs)
+        self.last_state = obs
 
         reward = 1
         done = False
@@ -44,10 +45,10 @@ class CarlaEnv(gym.Env):
         self.route_locations = [transform.location for transform in self.route_transforms]
         self.route_rotations = [transform.rotation for transform in self.route_transforms]
 
-        self.last_state = self.provider.get_transform(self.hero)
+        self.last_state = transform_to_vector(self.provider.get_transform(self.hero))
         self.last_action = (0,0)
 
-        return transform_to_vector(self.last_state)
+        return self.last_state
 
         #draw_waypoints(self.world, self.route_waypoints)
     def get_last_state(self):
