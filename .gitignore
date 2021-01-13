@@ -2,5 +2,6 @@
 *.swo
 *.png
 *.ckpt
+*.bkup
 __pycache__
 p2.py

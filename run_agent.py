@@ -23,13 +23,9 @@ def mkdir_if_not_exists(_dir):
 
 # make base save path + log dir
 date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-if args.debug:
-    save_path_base = f'leaderboard/results/{args.agent}/debug/{date_str}/{args.split}'
-else:
-    save_path_base = f'leaderboard/results/{args.agent}/{date_str}/{args.split}'
-
-mkdir_if_not_exists(f'{save_path_base}/logs')
-
+end_str = f'debug/{date_str}/{args.split}' if args.debug else f'{date_str}/{args.split}' 
+base_save_path = f'leaderboard/results/{args.agent}/{end_str}'
+mkdir_if_not_exists(f'{base_save_path}/logs')
 
 # route path
 route_prefix = f'leaderboard/data/routes_{args.split}'
@@ -38,33 +34,44 @@ route_path = f'{route_prefix}/{route_name}.xml'
 
 # make image + performance plot dirs
 if args.save_images:
-    save_images_path = f'{save_path_base}/images/{route_name}'
+    save_images_path = f'{base_save_path}/images/{route_name}'
     for rep_number in range(args.repetitions):
         mkdir_if_not_exists(f'{save_images_path}/repetition_{rep_number:02d}')
-save_perf_path = f'{save_path_base}/plots/{route_name}'
+save_perf_path = f'{base_save_path}/plots/{route_name}'
 mkdir_if_not_exists(save_perf_path)
-  
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-os.environ["SAVE_PATH_BASE"] = save_path_base
-os.environ["SAVE_IMAGES"] = "1" if args.save_images else "0"
-os.environ["ROUTE_NAME"] = route_name
 
 # agent-specific configurations
-weights_path = 'leaderboard/config'
+config = {}
+#config['base_save_path'] = base_save_path
+#config['route_name'] = route_name
+config['save_images'] = args.save_images
+conda_env = 'lb'
 if args.agent == 'auto_pilot':
-    config = 'none' # change to anything except 'none' to save training data
+    config['save_data'] = False
 elif args.agent == 'image_agent':
-    config = '{weights_path}/image_model.ckpt' # NN weights in leaderboard/configs
+    conda_env = 'lblbc'
+    config['weights_path'] = 'leaderboard/config/image_model.ckpt'
 elif args.agent == 'privileged_agent':
-    config = '{weights_path}/map_model.ckpt' # NN weights in leaderboard/configs
+    conda_env = 'lblbc'
+    config['weights_path'] = 'leaderboard/config/map_model.ckpt'
 elif args.agent == 'rl_agent':
-    config_dict = {'mode': 'train', 'world_port': 2000, 'tm_port': 8000}
-    config = f'{save_path_base}/config.yml'
-    with open(config, 'w') as f:
-        yaml.dump(config_dict, f)
-else:
-    config = 'None'
+    conda_env = 'lbrl'
+    config['mode'] = 'train'
+    config['world_port'] = 2000
+    config['tm_port'] = 8000
+
+config_path = f'{base_save_path}/config.yml'
+with open(config_path, 'w') as f:
+    yaml.dump(config, f)
+
+# environ variables
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CONDA_ENV"] = conda_env
+os.environ["BASE_SAVE_PATH"] = base_save_path
+os.environ["ROUTE_NAME"] = route_name
+os.environ["WORLD_PORT"] = "2000"
+os.environ["TM_PORT"] = "8000"
  
-cmd = f'bash run_agent.sh {args.agent} {route_path} {save_path_base} {config} {args.repetitions}'
+cmd = f'bash run_agent.sh {args.agent} {config_path} {route_path} {args.repetitions}'
 print(f'running {cmd}')
 os.system(cmd)

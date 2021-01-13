@@ -1,5 +1,5 @@
 import time
-
+import yaml
 import cv2
 import carla
 
@@ -11,6 +11,9 @@ class BaseAgent(autonomous_agent.AutonomousAgent):
     def setup(self, path_to_conf_file):
         self.track = autonomous_agent.Track.SENSORS
         self.config_path = path_to_conf_file
+        with open(self.config_path, 'r') as f:
+            self.config = yaml.load(f, Loader=yaml.Loader)
+
         self.step = -1
         self.wall_start = time.time()
         self.initialized = False

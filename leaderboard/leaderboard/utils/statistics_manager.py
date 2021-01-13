@@ -28,7 +28,7 @@ from py_trees.blackboard import Blackboard
 from leaderboard.scenarios.route_scenario import NUMBER_CLASS_TRANSLATION
 from leaderboard.utils.checkpoint_tools import fetch_dict, save_dict, create_default_json_msg
 
-SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
+SAVE_PATH_BASE = os.environ.get('BASE_SAVE_PATH', 0)
 ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
 
 PENALTY_COLLISION_PEDESTRIAN = 0.50

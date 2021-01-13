@@ -1,4 +1,4 @@
-import os
+import os 
 import numpy as np
 import cv2
 #import json
@@ -18,10 +18,8 @@ from team_code.pid_controller import PIDController
 
 
 DEBUG = int(os.environ.get('HAS_DISPLAY', 0))
-SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
-SAVE_IMAGES = int(os.environ.get('SAVE_IMAGES', 0))
+BASE_SAVE_PATH = os.environ.get('BASE_SAVE_PATH', 0)
 ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
-DIM=(1371,256)
 
 def get_entry_point():
     return 'ImageAgent'
@@ -31,7 +29,7 @@ class ImageAgent(BaseAgent):
         super().setup(path_to_conf_file)
 
         self.converter = Converter()
-        self.net = ImageModel.load_from_checkpoint(path_to_conf_file)
+        self.net = ImageModel.load_from_checkpoint(self.config['weights_path'])
         self.net.cuda()
         self.net.eval()
 
@@ -41,7 +39,8 @@ class ImageAgent(BaseAgent):
         self._turn_controller = PIDController(K_P=1.25, K_I=0.75, K_D=0.3, n=40)
         self._speed_controller = PIDController(K_P=5.0, K_I=0.5, K_D=1.0, n=40)
 
-        self.save_images_path = Path(f'{SAVE_PATH_BASE}/images/{ROUTE_NAME}')
+        self.save_images_path = Path(f'{BASE_SAVE_PATH}/images/{ROUTE_NAME}')
+        self.save_image_dim=(1371,256)
         #self.save_path.mkdir()
 
 
@@ -168,7 +167,7 @@ class ImageAgent(BaseAgent):
         control.throttle = throttle
         control.brake = float(brake)
 
-        if DEBUG or SAVE_IMAGES:
+        if DEBUG or self.config['save_images']:
 
             # make display image
             tick_data['points_cam'] = points.cpu().squeeze()
@@ -247,11 +246,11 @@ class ImageAgent(BaseAgent):
         _draw.text((5, 130), f'Next: {next_command}', text_color)
 
         # compose image to display/save
-        _rgb_img = cv2.resize(np.array(_combined), DIM, interpolation=cv2.INTER_AREA)
+        _rgb_img = cv2.resize(np.array(_combined), self.save_image_dim, interpolation=cv2.INTER_AREA)
         _save_img = Image.fromarray(np.hstack([_rgb_img, _waypoint_img]))
         _save_img = cv2.cvtColor(np.array(_save_img), cv2.COLOR_BGR2RGB)
 
-        if self.step % 10 == 0 and SAVE_IMAGES:
+        if self.step % 10 == 0 and self.config['save_images']:
             frame_number = self.step // 10
             rep_number = int(os.environ.get('REP',0))
             save_path = self.save_images_path / f'repetition_{rep_number:02d}' / f'{frame_number:06d}.png'
