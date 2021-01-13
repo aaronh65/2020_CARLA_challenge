@@ -18,8 +18,7 @@ from carla_project.src.converter import Converter
 
 #HAS_DISPLAY = True
 HAS_DISPLAY = int(os.environ.get('HAS_DISPLAY', 0))
-SAVE_IMAGES = os.environ.get('SAVE_IMAGES', 0)
-SAVE_PATH_BASE = os.environ.get('SAVE_PATH_BASE', 0)
+BASE_SAVE_PATH = os.environ.get('BASE_SAVE_PATH', 0)
 ROUTE_NAME = os.environ.get('ROUTE_NAME', 0)
 DEBUG = False
 WEATHERS = [
@@ -86,16 +85,17 @@ class AutoPilot(MapAgent):
 
         self.save_path = None
         self.converter = Converter()
-        self.save_images_path = pathlib.Path(f'{SAVE_PATH_BASE}/images/{ROUTE_NAME}')
+        self.save_images_path = pathlib.Path(f'{BASE_SAVE_PATH}/images/{ROUTE_NAME}')
 
-        if path_to_conf_file and path_to_conf_file.split('/')[-1] != 'none':
+        # if block is untested
+        if self.config['save_data']:
             now = datetime.datetime.now()
             string = pathlib.Path(os.environ['ROUTES']).stem + '_'
             string += '_'.join(map(lambda x: '%02d' % x, (now.month, now.day, now.hour, now.minute, now.second)))
 
             print(string)
 
-            self.save_path = pathlib.Path(path_to_conf_file) / string
+            self.save_path = pathlib.Path(BASE_SAVE_PATH) / 'data'
             self.save_path.mkdir(exist_ok=False)
 
             (self.save_path / 'rgb').mkdir()
@@ -180,7 +180,7 @@ class AutoPilot(MapAgent):
         _rgb = Image.fromarray(data['rgb'])
         _rgb_draw = ImageDraw.Draw(_rgb)
 
-        if (SAVE_IMAGES or HAS_DISPLAY) and not self.save_path:
+        if (self.config['save_images'] or HAS_DISPLAY):
             r = 2
             theta = data['compass']
             theta = 0.0 if np.isnan(theta) else theta
@@ -238,7 +238,7 @@ class AutoPilot(MapAgent):
         _topdown = _topdown.resize((256,256))
         _combined = Image.fromarray(np.hstack((_rgb, _topdown)))
 
-        if self.step % 10 == 0 and SAVE_IMAGES:
+        if self.step % 10 == 0 and self.config['save_images']:
             _save_img = cv2.cvtColor(np.array(_combined), cv2.COLOR_BGR2RGB)
             frame_number = self.step//10
             rep_number = int(os.environ.get('REP', 0))
