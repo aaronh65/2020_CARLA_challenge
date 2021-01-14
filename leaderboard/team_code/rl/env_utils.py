@@ -7,7 +7,7 @@ from scipy.spatial.transform import Rotation as R
 def transform_to_vector(transform):
     loc = transform.location
     rot = transform.rotation
-    return np.array([loc.x, loc.y, loc.z, rot.roll, rot.pitch, rot.yaw])
+    return [loc.x, loc.y, loc.z, rot.roll, rot.pitch, rot.yaw]
 
 def vector_to_transform(vector):
     x,y,z,roll,pitch,yaw = vector
