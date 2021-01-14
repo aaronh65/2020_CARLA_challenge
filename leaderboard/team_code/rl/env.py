@@ -30,6 +30,7 @@ class CarlaEnv(gym.Env):
 
         self.scenario = None
         self.manager = ScenarioManager(60, True)
+        self.agent_instance = None
 
     # convert action to vehicle control and tick scenario
     def step(self, action):
@@ -64,6 +65,9 @@ class CarlaEnv(gym.Env):
         self.scenario = RouteScenario(self.world, rconfig, criteria_enable=False, extra_args=extra_args)
         self.manager.load_scenario(self.scenario, rconfig.agent, rconfig.repetition_index)
 
+        if not self.agent_instance:
+            self.agent_instance = rconfig.agent
+
     def reset(self, config=None):
         self.cleanup()
         if not config:
@@ -89,13 +93,11 @@ class CarlaEnv(gym.Env):
 
     def cleanup(self):
 
-        print('manager running status')
         if self.manager:
             if self.manager.scenario is not None:
                 self.manager.scenario.terminate()
 
             if self.manager._agent is not None:
-                print('cleaning up scenario manager agent')
                 self.manager._agent.cleanup()
                 self.manager._agent = None
 
@@ -115,9 +117,10 @@ class CarlaEnv(gym.Env):
 
         self.provider.cleanup()
 
-        if hasattr(self, 'hero') and self.hero:
-            self.hero.destroy()
-            self.hero = None
+        if self.agent_instance:
+            # just clears sensor interface for resetting
+            # instance still exists
+            self.agent_instance.destroy() 
 
     def render(self):
         pass

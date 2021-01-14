@@ -51,7 +51,7 @@ def train(args, env):
         if (step+1) % 50 == 0:
             done = True
             rconfig = route_indexer.get(1)
-            agent = WaypointAgent(agent_config)
+            #agent = WaypointAgent(agent_config)
             rconfig.agent = agent
             scenario_args['rconfig'] = rconfig
 

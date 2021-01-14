@@ -2,6 +2,7 @@ import yaml
 
 #from team_code.base_agent import BaseAgent
 from leaderboard.autoagents import autonomous_agent
+from leaderboard.envs.sensor_interface import SensorInterface
 from team_code.rl.sac_models import SAC_LB
 from stable_baselines.sac.policies import MlpPolicy
 
@@ -39,6 +40,10 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
                     'id': 'gps'
                     },
                 ]
+    def destroy(self):
+        print('destroying hero')
+        if 'mode' in self.config.keys() and self.config['mode'] == 'train':
+            self.sensor_interface = SensorInterface()
 
     def run_step(self, input_data, timestamp):
         control = VehicleControl()
