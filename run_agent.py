@@ -10,7 +10,7 @@ from datetime import datetime
 parser = argparse.ArgumentParser()
 parser.add_argument('--split', type=str, default='devtest', choices=['devtest','testing','training','debug'])
 parser.add_argument('--route', type=int, default=1)
-parser.add_argument('--agent', type=str, default='image_agent', choices=['image_agent', 'auto_pilot', 'privileged_agent', 'rl_agent'])
+parser.add_argument('--agent', type=str, default='lbc/image_agent', choices=['lbc/image_agent', 'lbc/auto_pilot', 'lbc/privileged_agent', 'rl/waypoint_agent'])
 parser.add_argument('--repetitions', type=int, default=1)
 parser.add_argument('--save_images', action='store_true')
 parser.add_argument('--debug', action='store_true')
@@ -46,15 +46,15 @@ config = {}
 #config['route_name'] = route_name
 config['save_images'] = args.save_images
 conda_env = 'lb'
-if args.agent == 'auto_pilot':
+if args.agent == 'lbc/auto_pilot':
     config['save_data'] = False
-elif args.agent == 'image_agent':
+elif args.agent == 'lbc/image_agent':
     conda_env = 'lblbc'
     config['weights_path'] = 'leaderboard/config/image_model.ckpt'
-elif args.agent == 'privileged_agent':
+elif args.agent == 'lbc/privileged_agent':
     conda_env = 'lblbc'
     config['weights_path'] = 'leaderboard/config/map_model.ckpt'
-elif args.agent == 'rl_agent':
+elif args.agent == 'rl/waypoint_agent':
     conda_env = 'lbrl'
     config['mode'] = 'train'
     config['world_port'] = 2000

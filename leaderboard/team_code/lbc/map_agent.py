@@ -1,7 +1,7 @@
 from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 
-from team_code.base_agent import BaseAgent
-from team_code.planner import RoutePlanner
+from team_code.lbc.base_agent import BaseAgent
+from team_code.lbc.planner import RoutePlanner
 from carla_project.src.carla_env import draw_traffic_lights, get_nearby_lights
 
 

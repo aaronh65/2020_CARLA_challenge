@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # running on my local machine vs CMU cluster
+export NAME=aaron
 source /home/$NAME/anaconda3/etc/profile.d/conda.sh
 #conda activate lblbc
 #conda activate lbrl
@@ -14,7 +15,6 @@ export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
 export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.10-py3.7-linux-x86_64.egg
 #export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.11-py3.7-linux-x86_64.egg
 
-export NAME=aaron
 export PROJECT_ROOT=/home/$NAME/workspace/carla/2020_CARLA_challenge
 export PYTHONPATH=$PYTHONPATH:$PROJECT_ROOT/leaderboard
 export PYTHONPATH=$PYTHONPATH:$PROJECT_ROOT/leaderboard/team_code

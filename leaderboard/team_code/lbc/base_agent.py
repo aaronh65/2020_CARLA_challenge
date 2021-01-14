@@ -4,7 +4,7 @@ import cv2
 import carla
 
 from leaderboard.autoagents import autonomous_agent
-from team_code.planner import RoutePlanner
+from team_code.lbc.planner import RoutePlanner
 
 
 class BaseAgent(autonomous_agent.AutonomousAgent):
