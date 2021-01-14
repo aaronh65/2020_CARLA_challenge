@@ -25,11 +25,14 @@ class CarlaEnv(gym.Env):
     def step(self, action):
         obs = self.provider.get_transform(self.hero)
         obs = transform_to_vector(obs)
-        self.last_state = obs
 
         reward = 1
         done = False
         info = {}
+
+
+        self.last_state = obs
+        self.last_action = action
 
         return obs, reward, done, info
 

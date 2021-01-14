@@ -50,8 +50,10 @@ class RLAgent(BaseAgent):
         tick_data = self.tick(input_data)
 
         dummy_action = (0,0)
-        s = self.env.get_last_state() # get last state before you step
-        s = vector_to_transform(s)
+        # get experience tuple for replay buffer
+        s_prev = self.env.get_last_state() # get last state before you step
+        a_prev = self.env.get_last_action()
+        r_prev = self.env.compute_reward(s_prev, a_prev)
         s_new, r, done, info = self.env.step(dummy_action)
         s_new_test = s_new.copy()
         add_vec = np.array([-3,0,0,0,90,0])
@@ -60,7 +62,7 @@ class RLAgent(BaseAgent):
         s_new = vector_to_transform(s_new)
         s_new_test = vector_to_transform(s_new_test)
 
-            
+        # compute action for the current state and execute 
         target_transform = convert_transform(s, s_new_test)
         print()
         #print(timestamp)
