@@ -46,6 +46,10 @@ class RouteIndexer():
 
         return config
 
+    def get(self, retrieve_index):
+        key, config = self._configs_list[retrieve_index]
+        return config
+
     def resume(self, endpoint):
         data = fetch_dict(endpoint)
 

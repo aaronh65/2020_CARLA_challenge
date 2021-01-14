@@ -28,12 +28,12 @@ export REPETITIONS=1
 #export TEAM_CONFIG=$PROJECT_ROOT/leaderboard/config/${CONFIG}
 CHECKPOINT_ENDPOINT="$BASE_SAVE_PATH/logs/${ROUTE_NAME}.txt"
 
-python $PROJECT_ROOT/leaderboard/team_code/rl/generate_dense_waypoints.py
+#python $PROJECT_ROOT/leaderboard/team_code/rl/generate_dense_waypoints.py
 
-#python $PROJECT_ROOT/leaderboard/team_code/rl/trainer.py \
-#	--routes=$ROUTES \
-#	--scenarios=$SCENARIOS \
-#	--repetitions=$REPETITIONS
+python $PROJECT_ROOT/leaderboard/team_code/rl/trainer.py \
+	--routes=$ROUTES \
+	--scenarios=$SCENARIOS \
+	--repetitions=$REPETITIONS
 
 echo "Done. See $CHECKPOINT_ENDPOINT for detailed results."
 
