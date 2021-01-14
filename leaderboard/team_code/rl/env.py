@@ -28,66 +28,80 @@ class CarlaEnv(gym.Env):
         self.provider.set_world(self.world)
         self.provider.set_traffic_manager_port(env_args['tm_port'])
 
-        timeout = 60
-        self.manager = ScenarioManager(timeout, True)
+        self.scenario = None
+        self.manager = ScenarioManager(60, True)
 
+    # convert action to vehicle control and tick scenario
     def step(self, action):
-        #obs = self.provider.get_transform(self.hero)
-        #obs = transform_to_vector(obs)
         obs = np.zeros(6)
 
         reward = 1
         done = False
         info = {}
 
-
-        self.last_state = obs
-        self.last_action = action
-
         return obs, reward, done, info
 
-    def load_world_and_scenario(self, config):
-        self.world = self.client.load_world(config.town)
+    def _load_world_and_scenario(self, config):
+        rconfig = config['rconfig']
+        extra_args = config['extra_args']
+
+        # setup world and provider
+        self.world = self.client.load_world(rconfig.town)
         settings = self.world.get_settings()
         settings.fixed_delta_seconds = 1.0 / 20.0
         settings.synchronous_mode = True
         self.world.apply_settings(settings)
         self.world.reset_all_traffic_lights()
-        self.provider.set_world(self.world)
+        self.map = self.world.get_map()
 
+        self.provider.set_world(self.world)
         if self.provider.is_sync_mode():
             self.world.tick()
         else:
             self.world.wait_for_tick()
-
-        self.scenario = RouteScenario(self.world, config, criteria_enable=False)
-        self.manager.load_scenario(self.scenario, config.agent, config.repetition_index)
-
+        
+        # setup scenario and scenario manager
+        self.scenario = RouteScenario(self.world, rconfig, criteria_enable=False, extra_args=extra_args)
+        self.manager.load_scenario(self.scenario, rconfig.agent, rconfig.repetition_index)
 
     def reset(self, config=None):
+
         if not config:
-            print('Warning! No configuration given, doing nothing')
+            print('Warning! No configuration given - reloading world')
             self.client.reload_world()
             return np.zeros(6)
 
-        self.load_world(config)
-        self.load_scenario(config)
+        self._load_world_and_scenario(config)
 
-        # retrieve route stuff
-        self.hero = self.provider.get_hero_actor()
         self.route = self.provider.get_ego_vehicle_route()
-        self.map = self.world.get_map()
-        self.route_waypoints = [self.map.get_waypoint(route_elem[0]) for route_elem in self.route]
-        #draw_waypoints(self.world, self.route_waypoints)
-        #self.route_transforms = [waypoint.transform for waypoint in self.route_waypoints]
-        #self.route_locations = [transform.location for transform in self.route_transforms]
-        #self.route_rotations = [transform.rotation for transform in self.route_transforms]
-
-        state = transform_to_vector(self.provider.get_transform(self.hero))
+        start_waypoint = self.map.get_waypoint(self.route[0][0])
+        state = transform_to_vector(start_waypoint.transform)
 
         return state
 
+
+    def get_hero_route(self, draw=False):
+        # retrieve new hero route
+        self.map = self.world.get_map()
+        self.route_waypoints = [self.map.get_waypoint(route_elem[0]) for route_elem in self.route]
+        if draw:
+            draw_waypoints(self.world, self.route_waypoints)
+
+
     def cleanup(self):
+
+        if self.manager.get_running_status():
+            if self.manager.scenario is not None:
+                self.manager.scenario.terminate()
+
+            if self.manager._agent is not None:
+                self.manager._agent.cleanup()
+                self.manager._agent = None
+
+        if self.scenario:
+            self.scenario.remove_all_actors()
+            self.scenario = None
+
         # Simulation still running and in synchronous mode?
         if self.manager and self.manager.get_running_status() \
                 and hasattr(self, 'world') and self.world:
@@ -98,9 +112,6 @@ class CarlaEnv(gym.Env):
             settings.fixed_delta_seconds = None
             self.world.apply_settings(settings)
             self.traffic_manager.set_synchronous_mode(False)
-
-        if self.manager:
-            self.manager.cleanup()
 
         self.provider.cleanup()
         if hasattr(self, 'hero') and self.hero:

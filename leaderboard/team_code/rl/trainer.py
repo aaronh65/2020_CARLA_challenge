@@ -18,8 +18,15 @@ def train(args, env, agent):
 
     rconfig = route_indexer.get(0)
     rconfig.agent = agent
+    rconfig.empty = True
+    extra_args = {}
+    extra_args['empty'] = True
+
     # setup stopping parameters and metrics
-    env.load_world_and_scenario(rconfig)
+    scenario_args = {'rconfig': rconfig, 'extra_args': extra_args}
+    state = env.reset(scenario_args)
+    print(state)
+    time.sleep(10)
     
     # loop until target number of interactions
     print(f'training for {args.total_timesteps} timesteps')
@@ -34,8 +41,12 @@ def train(args, env, agent):
             pass
 
         # step environment with action
+        action = np.zeros(2)
+        obs, reward, done, info = env.step(action)
 
         # reset environment if done
+        if done:
+            env.reset()
 
         # store in replay buffer
 
@@ -63,7 +74,13 @@ def main(args):
     try:
         train(args, env, agent)
     except Exception as e:
-        traceback.print_exc(e)
+        try: 
+            traceback.print_exc(e)
+        except Exception as ne:
+            print('could not traceback error because')
+            print(ne)
+            print('original error is')
+            print(e)
     env.cleanup()
     client.reload_world()
 
