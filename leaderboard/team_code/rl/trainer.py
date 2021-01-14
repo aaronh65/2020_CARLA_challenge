@@ -12,9 +12,12 @@ from stable_baselines.common.env_checker import check_env
 from leaderboard.utils.route_indexer import RouteIndexer
 
 
-def train(args, env, agent):
+def train(args, env):
     
     route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
+    agent_config = {}
+    agent_config['mode'] = 'train'
+    agent = WaypointAgent(agent_config)
 
     rconfig = route_indexer.get(0)
     rconfig.agent = agent
@@ -24,9 +27,9 @@ def train(args, env, agent):
 
     # setup stopping parameters and metrics
     scenario_args = {'rconfig': rconfig, 'extra_args': extra_args}
+    
     state = env.reset(scenario_args)
     print(state)
-    time.sleep(10)
     
     # loop until target number of interactions
     print(f'training for {args.total_timesteps} timesteps')
@@ -45,8 +48,16 @@ def train(args, env, agent):
         obs, reward, done, info = env.step(action)
 
         # reset environment if done
+        if (step+1) % 50 == 0:
+            done = True
+            rconfig = route_indexer.get(1)
+            agent = WaypointAgent(agent_config)
+            rconfig.agent = agent
+            scenario_args['rconfig'] = rconfig
+
         if done:
-            env.reset()
+            state = env.reset(scenario_args)
+            print(state)
 
         # store in replay buffer
 
@@ -54,7 +65,6 @@ def train(args, env, agent):
 
         # save model if applicable
         
-        break
 
     print('done training')
 
@@ -67,12 +77,9 @@ def main(args):
     env = CarlaEnv(client, env_args)
     #check_env(env)
 
-    agent_config = {}
-    agent_config['mode'] = 'train'
-    agent = WaypointAgent(agent_config)
-
+    
     try:
-        train(args, env, agent)
+        train(args, env)
     except Exception as e:
         try: 
             traceback.print_exc(e)

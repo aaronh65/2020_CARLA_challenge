@@ -65,14 +65,13 @@ class CarlaEnv(gym.Env):
         self.manager.load_scenario(self.scenario, rconfig.agent, rconfig.repetition_index)
 
     def reset(self, config=None):
-
+        self.cleanup()
         if not config:
             print('Warning! No configuration given - reloading world')
             self.client.reload_world()
             return np.zeros(6)
 
         self._load_world_and_scenario(config)
-
         self.route = self.provider.get_ego_vehicle_route()
         start_waypoint = self.map.get_waypoint(self.route[0][0])
         state = transform_to_vector(start_waypoint.transform)
@@ -90,21 +89,22 @@ class CarlaEnv(gym.Env):
 
     def cleanup(self):
 
-        if self.manager.get_running_status():
+        print('manager running status')
+        if self.manager:
             if self.manager.scenario is not None:
                 self.manager.scenario.terminate()
 
             if self.manager._agent is not None:
+                print('cleaning up scenario manager agent')
                 self.manager._agent.cleanup()
                 self.manager._agent = None
 
-        if self.scenario:
-            self.scenario.remove_all_actors()
-            self.scenario = None
+            if self.scenario:
+                self.scenario.remove_all_actors()
+                self.scenario = None
 
         # Simulation still running and in synchronous mode?
-        if self.manager and self.manager.get_running_status() \
-                and hasattr(self, 'world') and self.world:
+        if self.world:
 
             # Reset to asynchronous mode
             settings = self.world.get_settings()
@@ -114,6 +114,7 @@ class CarlaEnv(gym.Env):
             self.traffic_manager.set_synchronous_mode(False)
 
         self.provider.cleanup()
+
         if hasattr(self, 'hero') and self.hero:
             self.hero.destroy()
             self.hero = None
