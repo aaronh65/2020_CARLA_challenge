@@ -2,39 +2,23 @@ import carla
 import argparse
 import time
 import traceback
-
 import numpy as np
 np.set_printoptions(precision=3, suppress=True)
 
-from waypoint_agent import WaypointAgent
-from agents.tools.misc import *
 from env import CarlaEnv
-from env_utils import *
 from stable_baselines.common.env_checker import check_env
-
+from waypoint_agent import WaypointAgent
 from leaderboard.utils.route_indexer import RouteIndexer
 
 
-def train(args, env):
-    
-    route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
-    agent_config = {}
-    agent_config['mode'] = 'train'
-    agent = WaypointAgent(agent_config)
+def train(args, env, agent):
 
+    route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
     for ri in range(len(route_indexer._configs_list)):
         route_indexer.get(ri).agent = agent
-
     rconfig = route_indexer.get(0)
-    extra_args = {}
-    extra_args['empty'] = True
-
-    # setup stopping parameters and metrics
-    scenario_args = {'rconfig': rconfig, 'extra_args': extra_args}
+    scenario_args = {'rconfig': rconfig, 'extra_args': {'empty':True}}
     state = env.reset(scenario_args)
-    
-    # loop until target number of interactions
-    print(f'training for {args.total_timesteps} timesteps')
     for step in range(args.total_timesteps):
 
         # randomly explore for a bit
@@ -65,26 +49,36 @@ def train(args, env):
 
 def main(args):
     client = carla.Client('localhost', 2000)
+
+    agent_config = {}
+    agent_config['mode'] = 'train'
+    agent = WaypointAgent(agent_config)
+
     env_args = {}
     env_args['world_port'] = 2000
     env_args['tm_port'] = 8000
     env_args['tm_seed'] = 0
     env = CarlaEnv(client, env_args)
+    env.set_agent(agent)
     #check_env(env)
 
     
     try:
-        train(args, env)
+        train(args, env, agent)
     except Exception as e:
-        try: 
-            traceback.print_exc(e)
-        except Exception as ne:
-            print('could not traceback error because')
-            print(ne)
-            print('original error is')
-            print(e)
+        traceback.print_exception(type(e), e, e.__traceback__)
+        #try: 
+        #    if type(e) == int:
+        #        print(e)
+        #    else:
+        #        traceback.print_exc(e)
+        #except Exception as ne:
+        #    print('could not traceback error because')
+        #    print(ne)
+        #    print('original error is')
+        #    print(e)
     env.cleanup()
-    client.reload_world()
+    #client.reload_world()
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -93,7 +87,7 @@ def parse_args():
     parser.add_argument('--repetitions', type=int)
     #parser.add_argument('--total_timesteps', type=int, default=1000000)
     #parser.add_argument('--burn_timesteps' , type=int, default=2500)
-    parser.add_argument('--total_timesteps', type=int, default=100)
+    parser.add_argument('--total_timesteps', type=int, default=1000)
     parser.add_argument('--burn_timesteps' , type=int, default=25)
     args = parser.parse_args()
     #train(args)

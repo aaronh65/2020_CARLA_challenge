@@ -6,8 +6,7 @@ from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from leaderboard.scenarios.scenario_manager import ScenarioManager
 from leaderboard.scenarios.route_scenario import RouteScenario
 from env_utils import *
-from test_utils import *
-from reward_utils import closest_transform
+from reward_utils import closest_aligned_transform
 #from agents.tools.misc import *
 
 class CarlaEnv(gym.Env):
@@ -33,13 +32,27 @@ class CarlaEnv(gym.Env):
 
         self.scenario = None
         self.manager = ScenarioManager(60, False)
-        self.agent_instance = None
-        self.actor_instance = None
+        self.agent_object = None
+        self.hero_actor = None
+
+    def set_agent(self, agent_object):
+        self.agent_object = agent_object
 
     def tick(self, obs):
 
         # find target waypoint
-        target_idx = closest_transform(obs, self.route_transforms)
+        #target_idx = closest_aligned_transform(obs, self.route_transforms, self.forward_vectors)
+        candidates = closest_aligned_transform(
+                self.hero_transform, 
+                self.route_transforms, 
+                self.forward_vectors)
+        waypoints = [self.route_waypoints[i] for i in candidates]
+        locations = [wp.transform.location for wp in waypoints]
+        hero_location = self.hero_transform.location
+        for arrow_end in locations:
+            draw_arrow(self.world, hero_location, arrow_end, color=(0,0,255), z=3, life_time=0.05)
+        #waypoints = [self.route_waypoints[i] for i in candidates]
+        #draw_waypoints(self.world, waypoints, color=(0,0,255), z=3, life_time=0.05)
         reward = 1
         done = False
         info = {}
@@ -55,16 +68,15 @@ class CarlaEnv(gym.Env):
         if timestamp:
             self.manager._tick_scenario(timestamp)
 
-        state = self.provider.get_transform(self.actor_instance)
-        obs = np.array(transform_to_vector(state))
+        self.hero_transform = self.provider.get_transform(self.hero_actor)
+        draw_transforms(self.world, [self.hero_transform], color=(0,255,0), z=3, life_time=0.05)
+        obs = np.array(transform_to_vector(self.hero_transform))
 
         reward, done, info = self.tick(obs)
         return obs, reward, done, info
 
     def _load_world_and_scenario(self, config):
         rconfig = config['rconfig']
-        if not self.agent_instance:
-            self.agent_instance = rconfig.agent
         extra_args = config['extra_args']
 
         # setup world and retrieve map
@@ -91,9 +103,9 @@ class CarlaEnv(gym.Env):
                 extra_args=extra_args)
         self.manager.load_scenario(
                 self.scenario, 
-                self.agent_instance, 
+                self.agent_object, 
                 rconfig.repetition_index)
-        self.actor_instance = self.provider.get_hero_actor()
+        self.hero_actor = self.provider.get_hero_actor()
         
     def reset(self, config=None):
         if not config:
@@ -123,14 +135,17 @@ class CarlaEnv(gym.Env):
                 for loc in route_locations]
         self.route_transforms = np.array([transform_to_vector(wp.transform) 
                 for wp in self.route_waypoints])
+        forward_vectors = [wp.transform.get_forward_vector() for wp in self.route_waypoints]
+        self.forward_vectors = np.array([[v.x, v.y, v.z] for v in forward_vectors])
         if draw:
-            draw_waypoints(self.world, self.route_waypoints)
+            draw_waypoints(self.world, self.route_waypoints, life_time=100)
 
     def cleanup(self):
 
         if self.manager:
             self.manager.cleanup()
-            self.manager._watchdog.stop()
+            if self.manager._watchdog._timer:
+                self.manager._watchdog.stop()
             if self.manager.scenario is not None:
                 self.manager.scenario.terminate()
 
@@ -154,10 +169,9 @@ class CarlaEnv(gym.Env):
 
         self.provider.cleanup()
 
-        if self.agent_instance:
+        if self.agent_object:
             # just clears sensor interface for resetting
-            # instance still exists
-            self.agent_instance.destroy() 
+            self.agent_object.destroy() 
 
     def render(self):
         pass

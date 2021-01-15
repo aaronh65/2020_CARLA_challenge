@@ -3,6 +3,9 @@ import math
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
+def to_array(carla_vector):
+    v = carla_vector
+    return np.array([v.x, v.y, v.z])
 # represent transforms as a vector of length 6
 def transform_to_vector(transform):
     loc = transform.location
@@ -32,15 +35,21 @@ def add_transform(transform, dx=0, dy=0, dz=0, dp=0, dyaw=0, dr=0):
     rotation = add_rotation(transform.rotation,dp,dyaw,dr)
     return carla.Transform(location, rotation)
 
-def draw_transforms(world, transforms, color=(255,0,0), z=0.5):
+def draw_transforms(world, transforms, color=(255,0,0), z=0.5, life_time=0.05):
     r,g,b = color
     ccolor = carla.Color(r,g,b)
     for tf in transforms:
         begin = tf.location + carla.Location(z=z)
         angle = math.radians(tf.rotation.yaw)
         end = begin + carla.Location(x=math.cos(angle), y=math.sin(angle))
-        world.debug.draw_arrow(begin, end, arrow_size=0.3, life_time=15.0, color=ccolor)
+        world.debug.draw_arrow(begin, end, arrow_size=0.3, life_time=life_time, color=ccolor)
 
-def draw_waypoints(world, waypoints, color=(255,0,0), z=0.5):
+def draw_waypoints(world, waypoints, color=(255,0,0), z=0.5, life_time=0.05):
     transforms = [wp.transform for wp in waypoints]
-    draw_transforms(world, transforms, color, z)
+    draw_transforms(world, transforms, color, z, life_time=life_time)
+
+def draw_arrow(world, loc1, loc2, color=(255,0,0), z=0.5, life_time=0.05):
+    r,g,b = color
+    ccolor = carla.Color(r,g,b)
+    world.debug.draw_arrow(loc1, loc2, arrow_size=0.3, life_time=life_time, color=ccolor)
+
