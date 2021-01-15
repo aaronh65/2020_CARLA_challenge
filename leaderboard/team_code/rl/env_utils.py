@@ -55,11 +55,13 @@ def draw_transforms(world, transforms, color=(255,0,0), z=0.5):
         :param waypoints: list or iterable container with the waypoints to draw
         :param z: height in meters
     """
+    r,g,b = color
+    ccolor = carla.Color(r,g,b)
     for tf in transforms:
         begin = tf.location + carla.Location(z=z)
         angle = math.radians(tf.rotation.yaw)
         end = begin + carla.Location(x=math.cos(angle), y=math.sin(angle))
-        world.debug.draw_arrow(begin, end, arrow_size=0.3, life_time=15.0, color=color)
+        world.debug.draw_arrow(begin, end, arrow_size=0.3, life_time=15.0, color=ccolor)
 
 
 #def closest_waypoint(self, waypoint):

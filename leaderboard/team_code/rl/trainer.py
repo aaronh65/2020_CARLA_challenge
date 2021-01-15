@@ -19,9 +19,11 @@ def train(args, env):
     agent_config['mode'] = 'train'
     agent = WaypointAgent(agent_config)
 
+    for ri in range(len(route_indexer._configs_list)):
+        route_indexer.get(ri).agent = agent
+
     rconfig = route_indexer.get(0)
-    rconfig.agent = agent
-    rconfig.empty = True
+    #rconfig.agent = agent
     extra_args = {}
     extra_args['empty'] = True
 
@@ -29,7 +31,6 @@ def train(args, env):
     scenario_args = {'rconfig': rconfig, 'extra_args': extra_args}
     
     state = env.reset(scenario_args)
-    print(state)
     
     # loop until target number of interactions
     print(f'training for {args.total_timesteps} timesteps')
@@ -47,17 +48,10 @@ def train(args, env):
         action = np.zeros(2)
         obs, reward, done, info = env.step(action)
 
-        # reset environment if done
-        if (step+1) % 50 == 0:
-            done = True
-            rconfig = route_indexer.get(1)
-            #agent = WaypointAgent(agent_config)
-            rconfig.agent = agent
-            scenario_args['rconfig'] = rconfig
-
         if done:
+            env.cleanup()
             state = env.reset(scenario_args)
-            print(state)
+            time.sleep(5)
 
         # store in replay buffer
 

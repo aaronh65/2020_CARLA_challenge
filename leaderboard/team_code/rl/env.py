@@ -1,3 +1,4 @@
+import time
 import gym
 import numpy as np
 
@@ -5,6 +6,7 @@ from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from leaderboard.scenarios.scenario_manager import ScenarioManager
 from leaderboard.scenarios.route_scenario import RouteScenario
 from env_utils import *
+from test_utils import *
 from agents.tools.misc import *
 
 class CarlaEnv(gym.Env):
@@ -29,12 +31,22 @@ class CarlaEnv(gym.Env):
         self.provider.set_traffic_manager_port(env_args['tm_port'])
 
         self.scenario = None
-        self.manager = ScenarioManager(60, True)
+        self.manager = ScenarioManager(60, False)
         self.agent_instance = None
+        self.actor_instance = None
 
     # convert action to vehicle control and tick scenario
     def step(self, action):
-        obs = np.zeros(6)
+        #obs = np.zeros(6)
+        timestamp = None
+        snapshot = self.world.get_snapshot()
+        if snapshot:
+            timestamp = snapshot.timestamp
+        if timestamp:
+            self.manager._tick_scenario(timestamp)
+        done = self.manager._running
+        state = self.provider.get_transform(self.actor_instance)
+        obs = transform_to_vector(state)
 
         reward = 1
         done = False
@@ -44,6 +56,8 @@ class CarlaEnv(gym.Env):
 
     def _load_world_and_scenario(self, config):
         rconfig = config['rconfig']
+        if not self.agent_instance:
+            self.agent_instance = rconfig.agent
         extra_args = config['extra_args']
 
         # setup world and provider
@@ -63,27 +77,30 @@ class CarlaEnv(gym.Env):
         
         # setup scenario and scenario manager
         self.scenario = RouteScenario(self.world, rconfig, criteria_enable=False, extra_args=extra_args)
-        self.manager.load_scenario(self.scenario, rconfig.agent, rconfig.repetition_index)
+        self.manager.load_scenario(self.scenario, self.agent_instance, rconfig.repetition_index)
 
-        if not self.agent_instance:
-            self.agent_instance = rconfig.agent
-
+        
     def reset(self, config=None):
-        self.cleanup()
         if not config:
             print('Warning! No configuration given - reloading world')
             self.client.reload_world()
             return np.zeros(6)
 
         self._load_world_and_scenario(config)
+        self.actor_instance = self.provider.get_hero_actor()
         self.route = self.provider.get_ego_vehicle_route()
         start_waypoint = self.map.get_waypoint(self.route[0][0])
         state = transform_to_vector(start_waypoint.transform)
 
+        #offset_transform = add_transform(start_waypoint.transform, dx=5)
+        #draw_transforms(self.world, [offset_transform])
+        self.manager._watchdog.start()
+        self.manager.start_system_time = time.time()
+        self.manager._running = True
         return state
 
 
-    def get_hero_route(self, draw=False):
+    def _get_hero_route(self, draw=False):
         # retrieve new hero route
         self.map = self.world.get_map()
         self.route_waypoints = [self.map.get_waypoint(route_elem[0]) for route_elem in self.route]
@@ -94,6 +111,8 @@ class CarlaEnv(gym.Env):
     def cleanup(self):
 
         if self.manager:
+            self.manager.cleanup()
+            self.manager._watchdog.stop()
             if self.manager.scenario is not None:
                 self.manager.scenario.terminate()
 
