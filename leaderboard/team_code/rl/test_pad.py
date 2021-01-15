@@ -2,23 +2,6 @@ import carla
 import numpy as np
 from env_utils import *
 
-def add_location(location, dx=0, dy=0, dz=0):
-    return carla.Location(
-            location.x + dx,
-            location.y + dy,
-            location.z + dz)
-
-def add_rotation(rotation, dp=0, dy=0, dr=0):
-    return carla.Rotation(
-            rotation.pitch + dp,
-            rotation.yaw + dy,
-            rotation.roll + dr)
-
-def add_transform(transform, dx=0, dy=0, dz=0, dp=0, dyaw=0, dr=0):
-    location = add_location(transform.location,dx,dy,dz)
-    rotation = add_rotation(transform.rotation,dp,dyaw,dr)
-    return carla.Transform(location, rotation)
-
 
 
 def main(client, world, cmap):

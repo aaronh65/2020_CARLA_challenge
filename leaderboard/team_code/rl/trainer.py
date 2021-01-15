@@ -3,6 +3,9 @@ import argparse
 import time
 import traceback
 
+import numpy as np
+np.set_printoptions(precision=3, suppress=True)
+
 from waypoint_agent import WaypointAgent
 from agents.tools.misc import *
 from env import CarlaEnv
@@ -23,13 +26,11 @@ def train(args, env):
         route_indexer.get(ri).agent = agent
 
     rconfig = route_indexer.get(0)
-    #rconfig.agent = agent
     extra_args = {}
     extra_args['empty'] = True
 
     # setup stopping parameters and metrics
     scenario_args = {'rconfig': rconfig, 'extra_args': extra_args}
-    
     state = env.reset(scenario_args)
     
     # loop until target number of interactions
@@ -60,7 +61,7 @@ def train(args, env):
         # save model if applicable
         
 
-    print('done training')
+    #print('done training')
 
 def main(args):
     client = carla.Client('localhost', 2000)

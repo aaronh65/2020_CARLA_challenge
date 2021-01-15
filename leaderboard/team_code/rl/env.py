@@ -7,7 +7,8 @@ from leaderboard.scenarios.scenario_manager import ScenarioManager
 from leaderboard.scenarios.route_scenario import RouteScenario
 from env_utils import *
 from test_utils import *
-from agents.tools.misc import *
+from reward_utils import closest_transform
+#from agents.tools.misc import *
 
 class CarlaEnv(gym.Env):
 
@@ -35,23 +36,29 @@ class CarlaEnv(gym.Env):
         self.agent_instance = None
         self.actor_instance = None
 
+    def tick(self, obs):
+
+        # find target waypoint
+        target_idx = closest_transform(obs, self.route_transforms)
+        reward = 1
+        done = False
+        info = {}
+
+        return reward, done, info
+
     # convert action to vehicle control and tick scenario
     def step(self, action):
-        #obs = np.zeros(6)
         timestamp = None
         snapshot = self.world.get_snapshot()
         if snapshot:
             timestamp = snapshot.timestamp
         if timestamp:
             self.manager._tick_scenario(timestamp)
-        done = self.manager._running
+
         state = self.provider.get_transform(self.actor_instance)
-        obs = transform_to_vector(state)
+        obs = np.array(transform_to_vector(state))
 
-        reward = 1
-        done = False
-        info = {}
-
+        reward, done, info = self.tick(obs)
         return obs, reward, done, info
 
     def _load_world_and_scenario(self, config):
@@ -60,7 +67,7 @@ class CarlaEnv(gym.Env):
             self.agent_instance = rconfig.agent
         extra_args = config['extra_args']
 
-        # setup world and provider
+        # setup world and retrieve map
         self.world = self.client.load_world(rconfig.town)
         settings = self.world.get_settings()
         settings.fixed_delta_seconds = 1.0 / 20.0
@@ -69,6 +76,7 @@ class CarlaEnv(gym.Env):
         self.world.reset_all_traffic_lights()
         self.map = self.world.get_map()
 
+        # setup provider and tick to check correctness
         self.provider.set_world(self.world)
         if self.provider.is_sync_mode():
             self.world.tick()
@@ -76,9 +84,16 @@ class CarlaEnv(gym.Env):
             self.world.wait_for_tick()
         
         # setup scenario and scenario manager
-        self.scenario = RouteScenario(self.world, rconfig, criteria_enable=False, extra_args=extra_args)
-        self.manager.load_scenario(self.scenario, self.agent_instance, rconfig.repetition_index)
-
+        self.scenario = RouteScenario(
+                self.world, 
+                rconfig, 
+                criteria_enable=False, 
+                extra_args=extra_args)
+        self.manager.load_scenario(
+                self.scenario, 
+                self.agent_instance, 
+                rconfig.repetition_index)
+        self.actor_instance = self.provider.get_hero_actor()
         
     def reset(self, config=None):
         if not config:
@@ -87,10 +102,9 @@ class CarlaEnv(gym.Env):
             return np.zeros(6)
 
         self._load_world_and_scenario(config)
-        self.actor_instance = self.provider.get_hero_actor()
-        self.route = self.provider.get_ego_vehicle_route()
-        start_waypoint = self.map.get_waypoint(self.route[0][0])
-        state = transform_to_vector(start_waypoint.transform)
+        self._get_hero_route(draw=True)
+        state = transform_to_vector(
+                self.map.get_waypoint(self.route[0][0]).transform)
 
         #offset_transform = add_transform(start_waypoint.transform, dx=5)
         #draw_transforms(self.world, [offset_transform])
@@ -103,10 +117,14 @@ class CarlaEnv(gym.Env):
     def _get_hero_route(self, draw=False):
         # retrieve new hero route
         self.map = self.world.get_map()
-        self.route_waypoints = [self.map.get_waypoint(route_elem[0]) for route_elem in self.route]
+        self.route = self.provider.get_ego_vehicle_route()
+        route_locations = [route_elem[0] for route_elem in self.route]
+        self.route_waypoints = [self.map.get_waypoint(loc) 
+                for loc in route_locations]
+        self.route_transforms = np.array([transform_to_vector(wp.transform) 
+                for wp in self.route_waypoints])
         if draw:
             draw_waypoints(self.world, self.route_waypoints)
-
 
     def cleanup(self):
 

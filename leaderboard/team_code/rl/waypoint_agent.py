@@ -8,7 +8,6 @@ from stable_baselines.sac.policies import MlpPolicy
 
 from carla import VehicleControl
 import numpy as np
-np.set_printoptions(precision=2, suppress=True)
 
 def get_entry_point():
     return 'WaypointAgent'
@@ -40,12 +39,22 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
                     'id': 'gps'
                     },
                 ]
+
     def destroy(self):
-        print('destroying hero')
         if 'mode' in self.config.keys() and self.config['mode'] == 'train':
             self.sensor_interface = SensorInterface()
 
+    def predict(self, state):
+        pass
+
     def run_step(self, input_data, timestamp):
+        if self.config['mode'] == 'train':
+            # use cached prediction from rl training loop
+            pass
+        else:
+            # predict the action
+            pass
+
         control = VehicleControl()
         control.steer = 0
         control.throttle = 0.5
