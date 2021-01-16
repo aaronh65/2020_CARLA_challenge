@@ -25,22 +25,9 @@ def get_route_indexer(args, agent):
         route_indexer.get(ri).agent = agent
     return route_indexer
 
-def get_route_config(route_indexer, idx=None, empty=False):
-    num_configs = len(route_indexer._configs_list)
-    assert num_configs > 0, 'no configs in route indexer'
-    if idx is None:
-        config = route_indexer.get(np.random.randint(num_configs))
-    else:
-        assert 0 <= idx < num_configs, 'route config index out of range'
-        config = route_indexer.get(idx)
-    rconfig = {'config': config, 'extra_args': {'empty': empty}}
-    return rconfig
-
-
 def train(args, env, agent):
 
     # move inside of env?
-    route_indexer = get_route_indexer(args, agent) 
 
     episode_rewards = []
     episode_policy_losses = []
@@ -60,12 +47,17 @@ def train(args, env, agent):
     episode_steps = 0
 
     date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-    base_save_path = f'leaderboard/results/rl/waypoint_agent/{date_str}'
+    project_root = os.environ.get('PROJECT_ROOT', 0)
+    if args.debug:
+        base_save_path = f'leaderboard/results/rl/waypoint_agent/debug/{date_str}'
+    else:
+        base_save_path = f'leaderboard/results/rl/waypoint_agent/{date_str}'
+    base_save_path = f'{project_root}/{base_save_path}'
     os.makedirs(base_save_path)
     os.makedirs(f'{base_save_path}/weights')
 
     # start environment and run
-    obs = env.reset(get_route_config(route_indexer, empty=args.empty))
+    obs = env.reset()
     for step in tqdm(range(args.total_timesteps)):
 
         # random exploration at the beginning
@@ -93,8 +85,7 @@ def train(args, env, agent):
 
             # cleanup and reset
             env.cleanup()
-            rconfig = get_route_config(route_indexer, empty=args.empty)
-            obs = env.reset(rconfig)
+            obs = env.reset()
         
         # train at this timestep if applicable
         if step % args.train_frequency == 0 and not burn_in:
@@ -106,6 +97,10 @@ def train(args, env, agent):
                 lr = agent.model.learning_rate*frac
                 train_vals = agent.model._train_step(step, None, lr)
                 policy_loss, _, _, value_loss, entropy, _, _ = train_vals
+
+                total_policy_loss += policy_loss
+                total_value_loss += value_loss
+                total_entropy += entropy
 
                 # target network update
                 if step % args.target_update_interval == 0:
@@ -126,23 +121,29 @@ def train(args, env, agent):
                     np.save(f, arr)
 
         obs = new_obs
-        
 
     #print('done training')
 
 def main(args):
     client = Client('localhost', 2000)
-    agent_config = {}
-    agent_config['mode'] = 'train'
-    agent = WaypointAgent(agent_config)
-        
+            
     env_config = {}
     env_config['world_port'] = 2000
     env_config['tm_port'] = 8000
     env_config['tm_seed'] = 0
 
+    agent_config = {}
+    agent_config['mode'] = 'train'
+    agent = WaypointAgent(agent_config)
+
+    route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
+    for ri in range(len(route_indexer._configs_list)):
+        route_indexer.get(ri).agent = agent
+
+    extra_args = {'empty': args.empty}
+
     try:
-        env = CarlaEnv(client, agent, env_config)
+        env = CarlaEnv(client, env_config, agent, route_indexer, extra_args)
         #check_env(env)
         train(args, env, agent)
     except KeyboardInterrupt:
@@ -156,9 +157,16 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
+
+    # Leaderboard args
+    parser.add_argument('--debug', action='store_true')
     parser.add_argument('--routes', type=str)
     parser.add_argument('--scenarios', type=str)
     parser.add_argument('--repetitions', type=int)
+    parser.add_argument('--empty', type=bool, default=True)
+
+    # SAC args
+    parser.add_argument('--load_from', type=str)
     parser.add_argument('--total_timesteps', type=int, default=1000000)
     parser.add_argument('--burn_timesteps' , type=int, default=5000)
     parser.add_argument('--train_frequency', type=int, default=1)
@@ -166,7 +174,6 @@ def parse_args():
     parser.add_argument('--target_update_interval', type=int, default=1)
     parser.add_argument('--save_frequency', type=int, default=500)
     parser.add_argument('--log_frequency', type=int, default=500)
-    parser.add_argument('--empty', type=bool, default=True)
     args = parser.parse_args()
     return args
 

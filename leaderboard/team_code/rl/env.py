@@ -13,8 +13,11 @@ from reward_utils import *
 
 class CarlaEnv(gym.Env):
 
-    def __init__(self, client, agent, env_config):
+    def __init__(self, client, env_config, agent, route_indexer, extra_args):
         super(CarlaEnv, self).__init__()
+
+        self.route_indexer = route_indexer
+        self.extra_args = extra_args
 
         # state space is carla.Transform represented as a six vector
         # action space is steering angle/throttle
@@ -37,6 +40,7 @@ class CarlaEnv(gym.Env):
         self.hero_actor = None
         self.last_hero_positions = deque()
         self.max_positions_len = 100
+
         signal.signal(signal.SIGINT, self._signal_handler)
 
     def _signal_handler(self, signum, frame):
@@ -44,14 +48,14 @@ class CarlaEnv(gym.Env):
             self.manager.signal_handler(signum, frame)
         raise KeyboardInterrupt
 
-    def reset(self, rconfig=None):
-        if not rconfig:
-            print('Warning! No configuration given - reloading world')
-            self.client.reload_world()
-            return np.zeros(6)
+
+    def reset(self, config=None):
+        if config is None:
+            num_configs = len(self.route_indexer._configs_list)
+            config = self.route_indexer.get(np.random.randint(num_configs))
 
         # reset world/scenario, get route and start information
-        self._load_world_and_scenario(rconfig)
+        self._load_world_and_scenario(config)
         self._get_hero_route(draw=True)
 
         # should be equivalent to np.zeros(6) if there's no noise
@@ -103,10 +107,16 @@ class CarlaEnv(gym.Env):
                 self.route_waypoints, 
                 self.forward_vectors)
         if len(targets) == 0:
-            return np.zeros(6), 0, True, {'empty_targets': True}
+            return np.zeros(6), 0, True, {'no_targets': True}
 
         closest_waypoint = self.route_waypoints[targets[0]]
-        draw_arrow(self.world, hero_transform.location, closest_waypoint.transform.location)
+        draw_waypoints(self.world, [closest_waypoint], color=(0,255,0), size=0.5)
+        draw_arrow(
+                self.world, 
+                hero_transform.location, 
+                closest_waypoint.transform.location, 
+                color=(255,0,0),
+                size=0.5)
 
         obs = self._get_observation(hero_transform, closest_waypoint)
         reward, done = self._get_reward(hero_transform, closest_waypoint)
@@ -159,9 +169,7 @@ class CarlaEnv(gym.Env):
 
 
 
-    def _load_world_and_scenario(self, rconfig):
-        config = rconfig['config']
-        extra_args = rconfig['extra_args']
+    def _load_world_and_scenario(self, config):
 
         # setup world and retrieve map
         self.world = self.client.load_world(config.town)
@@ -184,7 +192,7 @@ class CarlaEnv(gym.Env):
                 self.world, 
                 config, 
                 criteria_enable=False, 
-                extra_args=extra_args)
+                extra_args=self.extra_args)
         self.manager.load_scenario(
                 self.scenario, 
                 config.agent,
@@ -206,7 +214,7 @@ class CarlaEnv(gym.Env):
         forward_vectors = [wp.transform.get_forward_vector() for wp in self.route_waypoints]
         self.forward_vectors = np.array([[v.x, v.y, v.z] for v in forward_vectors])
         if draw:
-            draw_waypoints(self.world, self.route_waypoints, life_time=100)
+            draw_waypoints(self.world, self.route_waypoints, color=(0,0,255), life_time=9999)
 
     def _get_observation(self, hero_transform, target_waypoint, verbose=False):
 
