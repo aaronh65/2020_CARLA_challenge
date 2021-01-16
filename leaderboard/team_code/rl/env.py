@@ -260,7 +260,7 @@ class CarlaEnv(gym.Env):
 
         # distance reward
         dist = np.linalg.norm(hero[:3] - target[:3])
-        dist_max = 2
+        dist_max = 5
         dist_reward = max(-dist/dist_max, -1)
 
         # rotation reward
