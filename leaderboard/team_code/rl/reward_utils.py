@@ -1,8 +1,15 @@
 import numpy as np
 from env_utils import *
 
+# signed angle difference w/target angle t2 and reference angle t1
+def sgn_angle_diff(t1, t2):
+    diff = t2 - t1
+    diff = (diff + 180) % 360 - 180
+    return diff
+
 # index of closest transform in candidates (vector form)
-def closest_aligned_transform(hero_transform, transforms, fvectors, world=None):
+def closest_aligned_transform(hero_transform, waypoints, fvectors, world=None):
+    transforms = np.array([waypoint_to_vector(wp) for wp in waypoints])
 
     # distance criteria
     hero_transform_vec = transform_to_vector(hero_transform)

@@ -21,6 +21,9 @@ def vector_to_transform(vector):
     rot = carla.Rotation(pitch,yaw,roll)
     return carla.Transform(loc, rot)
 
+def waypoint_to_vector(waypoint):
+    return transform_to_vector(waypoint.transform)
+
 def add_location(location, dx=0, dy=0, dz=0):
     return carla.Location(
             location.x + dx,

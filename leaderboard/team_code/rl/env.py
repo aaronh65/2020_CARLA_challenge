@@ -7,7 +7,7 @@ from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from leaderboard.scenarios.scenario_manager import ScenarioManager
 from leaderboard.scenarios.route_scenario import RouteScenario
 from env_utils import *
-from reward_utils import closest_aligned_transform
+from reward_utils import *
 #from agents.tools.misc import *
 
 class CarlaEnv(gym.Env):
@@ -50,8 +50,13 @@ class CarlaEnv(gym.Env):
         # reset world/scenario, get route and start information
         self._load_world_and_scenario(rconfig)
         self._get_hero_route(draw=True)
-        start = transform_to_vector(
-                self.map.get_waypoint(self.route[0][0]).transform)
+
+        # should be equivalent to np.zeros(6) if there's no noise
+        #start_transform = CarlaDataProvider.get_transform(self.hero_actor)
+        #start_waypoint = self.route_waypoints[3]
+        #start = self._get_observation(start_transform, start_waypoint)
+        #print(start)
+        start = np.zeros(6)
 
         # prepare manager for run
         self.manager._running = True
@@ -74,33 +79,25 @@ class CarlaEnv(gym.Env):
             return np.zeros(6), 0, True, {'running': False}
 
     def _tick(self, timestamp):
-        info = {}
 
         self.manager._tick_scenario(timestamp)
         hero_transform = CarlaDataProvider.get_transform(self.hero_actor)
-        hero_tvector = transform_to_vector(hero_transform)
+        hero_vector = transform_to_vector(hero_transform)
 
         # find target waypoint
         targets = closest_aligned_transform(
                 hero_transform, 
-                self.route_transforms, 
+                self.route_waypoints, 
                 self.forward_vectors)
-
         if len(targets) == 0:
-            reward = 0
-            done = True
-            return hero_tvector, reward, done, info
+            return np.zeros(6), 0, True, {'empty_targets': True}
 
-        waypoints = [self.route_waypoints[i] for i in targets]
-        locations = [wp.transform.location for wp in waypoints]
-        for arrow_end in locations:
-            draw_arrow(self.world, hero_transform.location, arrow_end, color=(0,0,255), z=3, life_time=0.05, size=0.5)
+        closest_waypoint = self.route_waypoints[targets[0]]
+        draw_arrow(self.world, hero_transform.location, closest_waypoint.transform.location)
 
-        closest = targets[0]
-
-        reward, done = self._get_reward(hero_tvector, self.route_transforms[closest])
-
-        return hero_tvector, reward, done, info
+        obs = self._get_observation(hero_transform, closest_waypoint)
+        reward, done = self._get_reward(hero_transform, closest_waypoint)
+        return obs, reward, done, {}
 
     def cleanup(self):
 
@@ -192,16 +189,62 @@ class CarlaEnv(gym.Env):
         self.map = self.world.get_map()
         self.route = CarlaDataProvider.get_ego_vehicle_route()
         route_locations = [route_elem[0] for route_elem in self.route]
-        self.route_waypoints = [self.map.get_waypoint(loc) 
-                for loc in route_locations]
-        self.route_transforms = np.array([transform_to_vector(wp.transform) 
-                for wp in self.route_waypoints])
+        self.route_waypoints = [self.map.get_waypoint(loc) for loc in route_locations]
         forward_vectors = [wp.transform.get_forward_vector() for wp in self.route_waypoints]
         self.forward_vectors = np.array([[v.x, v.y, v.z] for v in forward_vectors])
         if draw:
             draw_waypoints(self.world, self.route_waypoints, life_time=100)
 
-    def _get_reward(self, hero, target):
+    def _get_observation(self, hero_transform, target_waypoint):
+
+        # transform target from world frame to hero frame
+        target = waypoint_to_vector(target_waypoint)
+        x,y,z = target[:3]
+        target_location = np.array([[x,y,z,1]]).T # 4x1
+        world_to_hero = hero_transform.get_inverse_matrix() # 4x4
+        target_in_hero = np.matmul(world_to_hero, target_location).flatten()
+        target_in_hero = target_in_hero[:3]
+
+        # compute heading angle from hero to target 
+        x,y,z = target_in_hero
+        dist = (x**2 + y**2)**0.5
+        heading = np.arctan2(y,x) * 180/np.pi if dist > 0.1 else 0 # degrees
+
+        
+        # compute difference in yaws
+        hyaw = hero_transform.rotation.yaw
+        tyaw = target_waypoint.transform.rotation.yaw
+        dyaw = sgn_angle_diff(hyaw, tyaw)
+
+        # velocity
+        velocity = CarlaDataProvider.get_velocity(self.hero_actor)
+        velocity = velocity * 3600 / 1000 # km/h
+        
+        
+        # normalize
+        norm_target_in_hero = target_in_hero / np.linalg.norm(target_in_hero) # -1 to 1
+        x,y,z = norm_target_in_hero
+        norm_heading = heading / 180 # -1 to 1
+        norm_dyaw = dyaw / 180 # -1 to 1
+        norm_velocity = max(min(velocity, 80), 0) # clip to 0, 80
+        norm_velocity = norm_velocity / 40 - 1 # squash to -1, 1
+
+        obs = np.array([x, y, z, norm_heading, norm_dyaw, norm_velocity])
+
+        print()
+        print(hero_transform)
+        print(target_waypoint.transform)
+        print(f'target in hero frame = {target_in_hero}')
+        print(f'heading = {heading} deg')
+        print(f'dyaw = {dyaw} deg')
+        print(f'velocity = {velocity} km/h')
+        print(obs)
+
+        return obs
+
+    def _get_reward(self, hero_transform, target_waypoint):
+        hero = transform_to_vector(hero_transform)
+        target = waypoint_to_vector(target_waypoint)
 
         # distance reward
         dist = np.linalg.norm(hero[:3] - target[:3])
@@ -209,11 +252,11 @@ class CarlaEnv(gym.Env):
         dist_reward = max(-dist/dist_max, -1)
 
         # rotation reward
-        rot_diff = (hero[4]-target[4]) % 360
-        rot_diff = rot_diff if rot_diff < 180 else 360 - rot_diff
-        rot_max = 90
-        rot_reward = 1 - min(rot_diff/rot_max, 1)
-        #rot_reward = 1/(rot_diff + 1)
+        yaw_diff = (hero[4]-target[4]) % 360
+        yaw_diff = yaw_diff if yaw_diff < 180 else 360 - yaw_diff
+        yaw_max = 90
+        yaw_reward = 1 - min(yaw_diff/yaw_max, 1)
+        #rot_reward = 1/(yaw_diff + 1)
 
         # speed reward
         hvel = CarlaDataProvider.get_velocity(self.hero_actor) # m/s
@@ -222,11 +265,11 @@ class CarlaEnv(gym.Env):
         vel_diff = abs(hvel-tvel)
         vel_reward = 1 - min(vel_diff/tvel, 1)
 
-        reward = dist_reward + rot_reward + vel_reward
+        reward = dist_reward + yaw_reward + vel_reward
         done = dist > dist_max
 
-        #print(f'abs({hero[4]} - {target[4]}) = {rot_diff}')
-        #print(f'reward: {dist_reward:.2f} + {rot_reward:.2f} + {vel_reward:.2f} = {reward:.2f}')
+        #print(f'abs({hero[4]} - {target[4]}) = {yaw_diff}')
+        #print(f'reward: {dist_reward:.2f} + {yaw_reward:.2f} + {vel_reward:.2f} = {reward:.2f}')
         #print(f'done: {done}')
         #print()
 

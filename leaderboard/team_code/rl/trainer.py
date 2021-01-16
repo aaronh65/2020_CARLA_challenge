@@ -48,6 +48,7 @@ def train(args, env, agent):
         # step environment with action
         action = np.zeros(2)
         obs, reward, done, info = env.step(action)
+        #print(obs, reward, done, info)
         #time.sleep(0.05)
 
         #if done or (step % 100 == 0 and step != 0):
@@ -99,6 +100,7 @@ def parse_args():
     #parser.add_argument('--burn_timesteps' , type=int, default=2500)
     #parser.add_argument('--total_timesteps', type=int, default=400)
     parser.add_argument('--total_timesteps', type=int, default=10000)
+    #parser.add_argument('--total_timesteps', type=int, default=2)
     parser.add_argument('--burn_timesteps' , type=int, default=25)
     parser.add_argument('--empty', type=bool, default=True)
     args = parser.parse_args()
