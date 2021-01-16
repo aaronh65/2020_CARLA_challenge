@@ -3,6 +3,7 @@ import os, time
 import argparse
 import traceback
 from datetime import datetime
+from tqdm import tqdm
 
 import numpy as np
 np.set_printoptions(precision=3, suppress=True)
@@ -42,54 +43,87 @@ def train(args, env, agent):
     route_indexer = get_route_indexer(args, agent) 
 
     episode_rewards = []
+    episode_policy_losses = []
+    episode_value_losses = []
+    episode_entropies = []
+
+    save_dict = {
+            'rewards' : episode_rewards, 
+            'policy_losses' : episode_policy_losses,
+            'value_losses' : episode_value_losses,
+            'entropies' : episode_entropies}
+
     total_reward = 0
+    total_policy_loss = 0
+    total_value_loss = 0
+    total_entropy = 0
+    episode_steps = 0
+
     date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
     base_save_path = f'leaderboard/results/rl/waypoint_agent/{date_str}'
     os.makedirs(base_save_path)
+    os.makedirs(f'{base_save_path}/weights')
 
     # start environment and run
     obs = env.reset(get_route_config(route_indexer, empty=args.empty))
-    for step in range(args.total_timesteps):
+    for step in tqdm(range(args.total_timesteps)):
 
         # random exploration at the beginning
         burn_in = step < args.burn_timesteps
         action = agent.predict(obs, burn_in=burn_in)
         new_obs, reward, done, info = env.step(action)
         total_reward += reward
+        episode_steps += 1
         #print(reward, done, info)
+
+        # store in replay buffer
+        agent.model.replay_buffer.add(obs, action, reward, new_obs, float(done))
 
         if done:
             episode_rewards.append(total_reward)
+            episode_policy_losses.append(total_policy_loss/episode_steps)
+            episode_value_losses.append(total_value_loss/episode_steps)
+            episode_entropies.append(total_entropy/episode_steps)
+
             total_reward = 0
+            total_policy_loss = 0
+            total_value_loss = 0
+            total_entropy = 0
+            episode_steps = 0
 
             # cleanup and reset
             env.cleanup()
             rconfig = get_route_config(route_indexer, empty=args.empty)
             obs = env.reset(rconfig)
-
-        # store in replay buffer
-        agent.model.replay_buffer.add(obs, action, reward, new_obs, float(done))
-
+        
         # train at this timestep if applicable
         if step % args.train_frequency == 0 and not burn_in:
             mb_info_vals = []
             for grad_step in range(args.gradient_steps):
+
+                # policy and value network update
                 frac = 1.0 - step/args.total_timesteps
                 lr = agent.model.learning_rate*frac
                 train_vals = agent.model._train_step(step, None, lr)
                 policy_loss, _, _, value_loss, entropy, _, _ = train_vals
-                #print(policy_loss)
-                #print(value_loss)
-                #print(entropy)
+
+                # target network update
                 if step % args.target_update_interval == 0:
                     agent.model.sess.run(agent.model.target_update_op)
-                #frac = 1.0 - step/args.total_timesteps
-                #lr = args.model.learning_rate(frac)
+
+                if step % args.log_frequency == 0:
+                    write_str = f'\nstep {step}\npolicy_loss = {policy_loss:.3f}\nvalue_loss = {value_loss:.3f}\nentropy = {entropy:.3f}'
+                    tqdm.write(write_str)
 
         # save model if applicable
         if step % args.save_frequency == 0 and not burn_in:
-            weights_path = f'{base_save_path}/{step:07d}'
+            weights_path = f'{base_save_path}/weights/{step:07d}'
             agent.model.save(weights_path)
+
+            for name, arr in save_dict.items():
+                save_path = f'{base_save_path}/{name}.npy'
+                with open(save_path, 'wb') as f:
+                    np.save(f, arr)
 
         obs = new_obs
         
@@ -125,12 +159,13 @@ def parse_args():
     parser.add_argument('--routes', type=str)
     parser.add_argument('--scenarios', type=str)
     parser.add_argument('--repetitions', type=int)
-    parser.add_argument('--total_timesteps', type=int, default=2000)
-    parser.add_argument('--burn_timesteps' , type=int, default=500)
-    parser.add_argument('--train_frequency', type=int, default=10)
-    parser.add_argument('--gradient_steps', type=int, default=10)
-    parser.add_argument('--target_update_interval', type=int, default=200)
+    parser.add_argument('--total_timesteps', type=int, default=1000000)
+    parser.add_argument('--burn_timesteps' , type=int, default=5000)
+    parser.add_argument('--train_frequency', type=int, default=1)
+    parser.add_argument('--gradient_steps', type=int, default=1)
+    parser.add_argument('--target_update_interval', type=int, default=1)
     parser.add_argument('--save_frequency', type=int, default=500)
+    parser.add_argument('--log_frequency', type=int, default=500)
     parser.add_argument('--empty', type=bool, default=True)
     args = parser.parse_args()
     return args
