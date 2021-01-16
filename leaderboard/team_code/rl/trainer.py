@@ -79,7 +79,7 @@ def train(args, env, agent):
         # store in replay buffer
         agent.model.replay_buffer.add(obs, action, reward, new_obs, float(done))
 
-        if done:
+        if done or episode_steps > 6000:
             episode_rewards.append(total_reward)
             episode_policy_losses.append(total_policy_loss/episode_steps)
             episode_value_losses.append(total_value_loss/episode_steps)
