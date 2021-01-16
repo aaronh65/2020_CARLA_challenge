@@ -18,7 +18,7 @@ class CarlaEnv(gym.Env):
         # state space is carla.Transform represented as a six vector
         # action space is steering angle/throttle
         self.observation_space = gym.spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32)
-        self.action_space = gym.spaces.Box(low=-1, high=1, shape=(2,), dtype=np.float32)
+        self.action_space = gym.spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32)
 
         # setup client and data provider
         self.client = client
@@ -195,7 +195,7 @@ class CarlaEnv(gym.Env):
         if draw:
             draw_waypoints(self.world, self.route_waypoints, life_time=100)
 
-    def _get_observation(self, hero_transform, target_waypoint):
+    def _get_observation(self, hero_transform, target_waypoint, verbose=False):
 
         # transform target from world frame to hero frame
         target = waypoint_to_vector(target_waypoint)
@@ -210,7 +210,6 @@ class CarlaEnv(gym.Env):
         dist = (x**2 + y**2)**0.5
         heading = np.arctan2(y,x) * 180/np.pi if dist > 0.1 else 0 # degrees
 
-        
         # compute difference in yaws
         hyaw = hero_transform.rotation.yaw
         tyaw = target_waypoint.transform.rotation.yaw
@@ -219,7 +218,6 @@ class CarlaEnv(gym.Env):
         # velocity
         velocity = CarlaDataProvider.get_velocity(self.hero_actor)
         velocity = velocity * 3600 / 1000 # km/h
-        
         
         # normalize
         norm_target_in_hero = target_in_hero / np.linalg.norm(target_in_hero) # -1 to 1
@@ -231,14 +229,15 @@ class CarlaEnv(gym.Env):
 
         obs = np.array([x, y, z, norm_heading, norm_dyaw, norm_velocity])
 
-        print()
-        print(hero_transform)
-        print(target_waypoint.transform)
-        print(f'target in hero frame = {target_in_hero}')
-        print(f'heading = {heading} deg')
-        print(f'dyaw = {dyaw} deg')
-        print(f'velocity = {velocity} km/h')
-        print(obs)
+        if verbose:
+            print()
+            print(hero_transform)
+            print(target_waypoint.transform)
+            print(f'target in hero frame = {target_in_hero}')
+            print(f'heading = {heading} deg')
+            print(f'dyaw = {dyaw} deg')
+            print(f'velocity = {velocity} km/h')
+            print(obs)
 
         return obs
 

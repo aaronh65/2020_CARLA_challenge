@@ -34,7 +34,7 @@ def train(args, env, agent):
     
     route_indexer = get_route_indexer(args, agent) 
     rconfig = get_route_config(route_indexer, idx=0, empty=args.empty)
-    state = env.reset(rconfig)
+    obs = env.reset(rconfig)
     for step in range(args.total_timesteps):
 
         # randomly explore for a bit
@@ -46,7 +46,8 @@ def train(args, env, agent):
             pass
 
         # step environment with action
-        action = np.zeros(2)
+        #action = np.zeros(2)
+        action = agent.predict(obs)
         obs, reward, done, info = env.step(action)
         #print(obs, reward, done, info)
         #time.sleep(0.05)
