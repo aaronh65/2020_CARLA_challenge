@@ -45,16 +45,16 @@ def train(args, env, agent):
             # query policy
             pass
 
+        burn_in = step < args.burn_timesteps
         # step environment with action
         #action = np.zeros(2)
-        action = agent.predict(obs)
+        action = agent.predict(obs, burn_in = burn_in)
         obs, reward, done, info = env.step(action)
-        #print(obs, reward, done, info)
+        print(reward, done, info)
         #time.sleep(0.05)
 
         #if done or (step % 100 == 0 and step != 0):
         if done:
-            print('resetting')
             env.cleanup()
             rconfig = get_route_config(route_indexer, empty=args.empty)
             state = env.reset(rconfig)
@@ -97,16 +97,10 @@ def parse_args():
     parser.add_argument('--routes', type=str)
     parser.add_argument('--scenarios', type=str)
     parser.add_argument('--repetitions', type=int)
-    #parser.add_argument('--total_timesteps', type=int, default=1000000)
-    #parser.add_argument('--burn_timesteps' , type=int, default=2500)
-    #parser.add_argument('--total_timesteps', type=int, default=400)
-    parser.add_argument('--total_timesteps', type=int, default=10000)
-    #parser.add_argument('--total_timesteps', type=int, default=2)
-    parser.add_argument('--burn_timesteps' , type=int, default=25)
+    parser.add_argument('--total_timesteps', type=int, default=2000)
+    parser.add_argument('--burn_timesteps' , type=int, default=500)
     parser.add_argument('--empty', type=bool, default=True)
     args = parser.parse_args()
-    #train(args)
-    #generate_dense_waypoints(args)
     return args
 
 if __name__ == '__main__':
