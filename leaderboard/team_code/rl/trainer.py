@@ -1,7 +1,8 @@
 import signal
-import time
+import os, time
 import argparse
 import traceback
+from datetime import datetime
 
 import numpy as np
 np.set_printoptions(precision=3, suppress=True)
@@ -11,6 +12,11 @@ from env import CarlaEnv
 from stable_baselines.common.env_checker import check_env
 from waypoint_agent import WaypointAgent
 from leaderboard.utils.route_indexer import RouteIndexer
+
+def mkdir_if_not_exists(_dir):
+    if not os.path.exists(_dir):
+        print(f"Creating a directory at {_dir}")
+        os.makedirs(_dir)
 
 def get_route_indexer(args, agent):
     route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
@@ -37,6 +43,9 @@ def train(args, env, agent):
 
     episode_rewards = []
     total_reward = 0
+    date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    base_save_path = f'leaderboard/results/rl/waypoint_agent/{date_str}'
+    os.makedirs(base_save_path)
 
     # start environment and run
     obs = env.reset(get_route_config(route_indexer, empty=args.empty))
@@ -63,7 +72,6 @@ def train(args, env, agent):
 
         # train at this timestep if applicable
         if step % args.train_frequency == 0 and not burn_in:
-            #print('training')
             mb_info_vals = []
             for grad_step in range(args.gradient_steps):
                 frac = 1.0 - step/args.total_timesteps
@@ -79,6 +87,9 @@ def train(args, env, agent):
                 #lr = args.model.learning_rate(frac)
 
         # save model if applicable
+        if step % args.save_frequency == 0 and not burn_in:
+            weights_path = f'{base_save_path}/{step:07d}'
+            agent.model.save(weights_path)
 
         obs = new_obs
         
@@ -115,10 +126,11 @@ def parse_args():
     parser.add_argument('--scenarios', type=str)
     parser.add_argument('--repetitions', type=int)
     parser.add_argument('--total_timesteps', type=int, default=2000)
-    parser.add_argument('--burn_timesteps' , type=int, default=100)
-    parser.add_argument('--train_frequency', type=int, default=100)
+    parser.add_argument('--burn_timesteps' , type=int, default=500)
+    parser.add_argument('--train_frequency', type=int, default=10)
     parser.add_argument('--gradient_steps', type=int, default=10)
     parser.add_argument('--target_update_interval', type=int, default=200)
+    parser.add_argument('--save_frequency', type=int, default=500)
     parser.add_argument('--empty', type=bool, default=True)
     args = parser.parse_args()
     return args
