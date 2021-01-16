@@ -2,6 +2,7 @@ import signal
 import time
 import gym
 import numpy as np
+from collections import deque
 
 from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from leaderboard.scenarios.scenario_manager import ScenarioManager
@@ -34,6 +35,8 @@ class CarlaEnv(gym.Env):
         self.manager = ScenarioManager(60, False)
         self.agent_instance = agent
         self.hero_actor = None
+        self.last_hero_positions = deque()
+        self.max_positions_len = 100
         signal.signal(signal.SIGINT, self._signal_handler)
 
     def _signal_handler(self, signum, frame):
@@ -83,8 +86,18 @@ class CarlaEnv(gym.Env):
         self.manager._tick_scenario(timestamp)
         hero_transform = CarlaDataProvider.get_transform(self.hero_actor)
         hero_vector = transform_to_vector(hero_transform)
+        if len(self.last_hero_positions) < self.max_positions_len:
+            self.last_hero_positions.append(hero_vector[:2])
+        else:
+            self.last_hero_positions.popleft()
+            self.last_hero_positions.append(hero_vector[:2])
+            positions = np.array([pos for pos in self.last_hero_positions]) # Nx2
+            mean = np.mean(positions, axis=0) # 1x2
+            traveled = np.linalg.norm(positions-mean, axis=1).flatten()
+            farthest = np.amax(traveled)
+            if farthest < 0.5:
+                return np.zeros(6), 0, True, {'blocked': True}
 
-        # find target waypoint
         targets = closest_aligned_transform(
                 hero_transform, 
                 self.route_waypoints, 
