@@ -71,14 +71,14 @@ class CarlaEnv(gym.Env):
             return obs, reward, done, info
 
         else:
-            return np.zeros(6), 1, True, {'running': False}
+            return np.zeros(6), 0, True, {'running': False}
 
     def _tick(self, timestamp):
         info = {}
 
         self.manager._tick_scenario(timestamp)
         hero_transform = CarlaDataProvider.get_transform(self.hero_actor)
-        obs = transform_to_vector(hero_transform)
+        hero_tvector = transform_to_vector(hero_transform)
 
         # find target waypoint
         targets = closest_aligned_transform(
@@ -89,7 +89,7 @@ class CarlaEnv(gym.Env):
         if len(targets) == 0:
             reward = 0
             done = True
-            return obs, reward, done, info
+            return hero_tvector, reward, done, info
 
         waypoints = [self.route_waypoints[i] for i in targets]
         locations = [wp.transform.location for wp in waypoints]
@@ -97,9 +97,10 @@ class CarlaEnv(gym.Env):
             draw_arrow(self.world, hero_transform.location, arrow_end, color=(0,0,255), z=3, life_time=0.05, size=0.5)
 
         closest = targets[0]
-        reward, done = self._get_reward(hero_transform, self.route_transforms[closest])
 
-        return obs, reward, done, info
+        reward, done = self._get_reward(hero_tvector, self.route_transforms[closest])
+
+        return hero_tvector, reward, done, info
 
     def cleanup(self):
 
@@ -200,9 +201,37 @@ class CarlaEnv(gym.Env):
         if draw:
             draw_waypoints(self.world, self.route_waypoints, life_time=100)
 
-    def _get_reward(self, hero, closest):
+    def _get_reward(self, hero, target):
 
-        pass
+        # distance reward
+        dist = np.linalg.norm(hero[:3] - target[:3])
+        dist_max = 2
+        dist_reward = max(-dist/dist_max, -1)
+
+        # rotation reward
+        rot_diff = (hero[4]-target[4]) % 360
+        rot_diff = rot_diff if rot_diff < 180 else 360 - rot_diff
+        rot_max = 90
+        rot_reward = 1 - min(rot_diff/rot_max, 1)
+        #rot_reward = 1/(rot_diff + 1)
+
+        # speed reward
+        hvel = CarlaDataProvider.get_velocity(self.hero_actor) # m/s
+        hvel = hvel * 3600 / 1000 # km/h
+        tvel = 40 # km/h
+        vel_diff = abs(hvel-tvel)
+        vel_reward = 1 - min(vel_diff/tvel, 1)
+
+        reward = dist_reward + rot_reward + vel_reward
+        done = dist > dist_max
+
+        #print(f'abs({hero[4]} - {target[4]}) = {rot_diff}')
+        #print(f'reward: {dist_reward:.2f} + {rot_reward:.2f} + {vel_reward:.2f} = {reward:.2f}')
+        #print(f'done: {done}')
+        #print()
+
+        return reward, done
+        
 
     def render(self):
         pass
