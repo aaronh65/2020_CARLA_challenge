@@ -31,39 +31,56 @@ def get_route_config(route_indexer, idx=None, empty=False):
 
 
 def train(args, env, agent):
-    
+
+    # move inside of env?
     route_indexer = get_route_indexer(args, agent) 
-    rconfig = get_route_config(route_indexer, idx=0, empty=args.empty)
-    obs = env.reset(rconfig)
+
+    episode_rewards = []
+    total_reward = 0
+
+    # start environment and run
+    obs = env.reset(get_route_config(route_indexer, empty=args.empty))
     for step in range(args.total_timesteps):
 
-        # randomly explore for a bit
-        if step < args.burn_timesteps:
-            # act randomly by sampling from action space
-            pass
-        else:
-            # query policy
-            pass
-
+        # random exploration at the beginning
         burn_in = step < args.burn_timesteps
-        # step environment with action
-        #action = np.zeros(2)
-        action = agent.predict(obs, burn_in = burn_in)
-        obs, reward, done, info = env.step(action)
-        print(reward, done, info)
-        #time.sleep(0.05)
+        action = agent.predict(obs, burn_in=burn_in)
+        new_obs, reward, done, info = env.step(action)
+        total_reward += reward
+        #print(reward, done, info)
 
-        #if done or (step % 100 == 0 and step != 0):
         if done:
+            episode_rewards.append(total_reward)
+            total_reward = 0
+
+            # cleanup and reset
             env.cleanup()
             rconfig = get_route_config(route_indexer, empty=args.empty)
-            state = env.reset(rconfig)
+            obs = env.reset(rconfig)
 
         # store in replay buffer
+        agent.model.replay_buffer.add(obs, action, reward, new_obs, float(done))
 
         # train at this timestep if applicable
+        if step % args.train_frequency == 0 and not burn_in:
+            #print('training')
+            mb_info_vals = []
+            for grad_step in range(args.gradient_steps):
+                frac = 1.0 - step/args.total_timesteps
+                lr = agent.model.learning_rate*frac
+                train_vals = agent.model._train_step(step, None, lr)
+                policy_loss, _, _, value_loss, entropy, _, _ = train_vals
+                #print(policy_loss)
+                #print(value_loss)
+                #print(entropy)
+                if step % args.target_update_interval == 0:
+                    agent.model.sess.run(agent.model.target_update_op)
+                #frac = 1.0 - step/args.total_timesteps
+                #lr = args.model.learning_rate(frac)
 
         # save model if applicable
+
+        obs = new_obs
         
 
     #print('done training')
@@ -98,7 +115,10 @@ def parse_args():
     parser.add_argument('--scenarios', type=str)
     parser.add_argument('--repetitions', type=int)
     parser.add_argument('--total_timesteps', type=int, default=2000)
-    parser.add_argument('--burn_timesteps' , type=int, default=500)
+    parser.add_argument('--burn_timesteps' , type=int, default=100)
+    parser.add_argument('--train_frequency', type=int, default=100)
+    parser.add_argument('--gradient_steps', type=int, default=10)
+    parser.add_argument('--target_update_interval', type=int, default=200)
     parser.add_argument('--empty', type=bool, default=True)
     args = parser.parse_args()
     return args

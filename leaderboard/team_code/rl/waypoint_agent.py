@@ -53,17 +53,17 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
 
         # compute controls
         if burn_in:
-            actions = np.random.uniform(-1, 1, size=3)
+            action = np.random.uniform(-1, 1, size=3)
         else:
-            actions, _states = self.model.predict(state)
-        throttle, steer, brake = actions
+            action, _states = self.model.predict(state)
+        throttle, steer, brake = action
         throttle = float(throttle/2 + 0.5)
         steer = float(steer)
         #brake = float(brake/2 + 0.5)
         brake = False
         self.cached_control = VehicleControl(throttle, steer, brake)
         #print(f'agent predicted {self.cached_control}')
-        return actions
+        return action
 
     def run_step(self, input_data, timestamp):
         if self.config['mode'] == 'train':
