@@ -12,12 +12,14 @@ def closest_aligned_transform(hero_transform, transforms, fvectors, world=None):
 
     # alignment criteria
     hero_fvec = hero_transform.get_forward_vector()
-    hero_fvec = np.array([to_array(hero_fvec)]).T # 3x1
+    hero_fvec = np.array([cvector_to_array(hero_fvec)]).T # 3x1
 
     alignment = np.matmul(hero2pt, hero_fvec).flatten()
     aligned = alignment > 0
-    aligned = aligned[indices] # same order as indices now
+    aligned = aligned[indices] # reorder by distance criteria
     indices = indices[aligned] # slice out valid indices
 
-    return indices[:5]
+    target = None if len(indices) == 0 else indices[0]
+
+    return [target]
     

@@ -3,15 +3,18 @@ import math
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-def to_array(carla_vector):
+# carla 3d vector to np array
+def cvector_to_array(carla_vector):
     v = carla_vector
     return np.array([v.x, v.y, v.z])
-# represent transforms as a vector of length 6
+
+# carla Transform to 6-d vector
 def transform_to_vector(transform):
     loc = transform.location
     rot = transform.rotation
     return np.array([loc.x, loc.y, loc.z, rot.pitch, rot.yaw, rot.roll])
 
+# 6-d vector to carla Transform
 def vector_to_transform(vector):
     x,y,z,pitch,yaw,roll = vector
     loc = carla.Location(x,y,z)

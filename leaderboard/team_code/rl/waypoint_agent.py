@@ -59,5 +59,6 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
         control.steer = 0
         control.throttle = 0.5
         control.brake = False
+
         return control
 
