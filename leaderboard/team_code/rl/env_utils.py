@@ -51,8 +51,8 @@ def draw_waypoints(world, waypoints, color=(255,0,0), z=0.5, life_time=0.05):
     transforms = [wp.transform for wp in waypoints]
     draw_transforms(world, transforms, color, z, life_time=life_time)
 
-def draw_arrow(world, loc1, loc2, color=(255,0,0), z=0.5, life_time=0.05):
+def draw_arrow(world, loc1, loc2, color=(255,0,0), z=0.5, life_time=0.05, size=0.3):
     r,g,b = color
     ccolor = carla.Color(r,g,b)
-    world.debug.draw_arrow(loc1, loc2, arrow_size=0.3, life_time=life_time, color=ccolor)
+    world.debug.draw_arrow(loc1, loc2, arrow_size=size, life_time=life_time, color=ccolor, thickness = size)
 

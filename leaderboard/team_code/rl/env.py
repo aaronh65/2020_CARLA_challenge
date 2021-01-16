@@ -26,10 +26,9 @@ class CarlaEnv(gym.Env):
         self.traffic_manager = self.client.get_trafficmanager(env_config['tm_port'])
         self.traffic_manager.set_random_device_seed(env_config['tm_seed'])
         
-        self.provider = CarlaDataProvider
-        self.provider.set_client(self.client)
-        self.provider.set_world(self.world)
-        self.provider.set_traffic_manager_port(env_config['tm_port'])
+        CarlaDataProvider.set_client(self.client)
+        CarlaDataProvider.set_world(self.world)
+        CarlaDataProvider.set_traffic_manager_port(env_config['tm_port'])
 
         self.scenario = None
         self.manager = ScenarioManager(60, False)
@@ -75,30 +74,30 @@ class CarlaEnv(gym.Env):
             return np.zeros(6), 1, True, {'running': False}
 
     def _tick(self, timestamp):
+        info = {}
+
+        self.manager._tick_scenario(timestamp)
+        hero_transform = CarlaDataProvider.get_transform(self.hero_actor)
+        obs = transform_to_vector(hero_transform)
 
         # find target waypoint
-        #maybe_targets = closest_aligned_transform(
-        #        self.hero_transform, 
-        #        self.route_transforms, 
-        #        self.forward_vectors)
+        targets = closest_aligned_transform(
+                hero_transform, 
+                self.route_transforms, 
+                self.forward_vectors)
 
-        #if maybe_targets is None:
-        #    reward = 1
-        #    done = True
-        #    info = {}
-        #    print('done')
-        #    return reward, done, info
+        if len(targets) == 0:
+            reward = 0
+            done = True
+            return obs, reward, done, info
 
-        #waypoints = [self.route_waypoints[i] for i in maybe_targets]
-        #locations = [wp.transform.location for wp in waypoints]
-        #hero_location = self.hero_transform.location
-        #for arrow_end in locations:
-        #    draw_arrow(self.world, hero_location, arrow_end, color=(0,0,255), z=3, life_time=0.05)
-        self.manager._tick_scenario(timestamp)
-        obs = np.zeros(6)
-        reward = 1
-        done = False
-        info = {}
+        waypoints = [self.route_waypoints[i] for i in targets]
+        locations = [wp.transform.location for wp in waypoints]
+        for arrow_end in locations:
+            draw_arrow(self.world, hero_transform.location, arrow_end, color=(0,0,255), z=3, life_time=0.05, size=0.5)
+
+        closest = targets[0]
+        reward, done = self._get_reward(hero_transform, self.route_transforms[closest])
 
         return obs, reward, done, info
 
@@ -163,8 +162,8 @@ class CarlaEnv(gym.Env):
         self.map = self.world.get_map()
 
         # setup provider and tick to check correctness
-        self.provider.set_world(self.world)
-        if self.provider.is_sync_mode():
+        CarlaDataProvider.set_world(self.world)
+        if CarlaDataProvider.is_sync_mode():
             self.world.tick()
         else:
             self.world.wait_for_tick()
@@ -179,8 +178,8 @@ class CarlaEnv(gym.Env):
                 self.scenario, 
                 config.agent,
                 config.repetition_index)
-        self.hero_actor = self.provider.get_hero_actor()
-        if self.provider.is_sync_mode():
+        self.hero_actor = CarlaDataProvider.get_hero_actor()
+        if CarlaDataProvider.is_sync_mode():
             self.world.tick()
         else:
             self.world.wait_for_tick()
@@ -190,7 +189,7 @@ class CarlaEnv(gym.Env):
     def _get_hero_route(self, draw=False):
         # retrieve new hero route
         self.map = self.world.get_map()
-        self.route = self.provider.get_ego_vehicle_route()
+        self.route = CarlaDataProvider.get_ego_vehicle_route()
         route_locations = [route_elem[0] for route_elem in self.route]
         self.route_waypoints = [self.map.get_waypoint(loc) 
                 for loc in route_locations]
@@ -200,6 +199,10 @@ class CarlaEnv(gym.Env):
         self.forward_vectors = np.array([[v.x, v.y, v.z] for v in forward_vectors])
         if draw:
             draw_waypoints(self.world, self.route_waypoints, life_time=100)
+
+    def _get_reward(self, hero, closest):
+
+        pass
 
     def render(self):
         pass

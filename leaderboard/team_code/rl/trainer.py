@@ -14,7 +14,6 @@ from leaderboard.utils.route_indexer import RouteIndexer
 
 def get_route_indexer(args, agent):
     route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
-    print(agent)
     for ri in range(len(route_indexer._configs_list)):
         route_indexer.get(ri).agent = agent
     return route_indexer
@@ -23,7 +22,6 @@ def get_route_config(route_indexer, idx=None, empty=False):
     num_configs = len(route_indexer._configs_list)
     assert num_configs > 0, 'no configs in route indexer'
     if idx is None:
-        print('not idx')
         config = route_indexer.get(np.random.randint(num_configs))
     else:
         assert 0 <= idx < num_configs, 'route config index out of range'
@@ -36,8 +34,6 @@ def train(args, env, agent):
     
     route_indexer = get_route_indexer(args, agent) 
     rconfig = get_route_config(route_indexer, idx=0, empty=args.empty)
-    print(rconfig['config'].town)
-    #rconfig = route_indexer.get(np.random.randint(num_configs))
     state = env.reset(rconfig)
     for step in range(args.total_timesteps):
 
@@ -54,8 +50,8 @@ def train(args, env, agent):
         obs, reward, done, info = env.step(action)
         #time.sleep(0.05)
 
-        if done or step % 500 == 499:
-        #if done:
+        #if done or (step % 100 == 0 and step != 0):
+        if done:
             print('resetting')
             env.cleanup()
             rconfig = get_route_config(route_indexer, empty=args.empty)
@@ -83,7 +79,6 @@ def main(args):
 
     try:
         env = CarlaEnv(client, agent, env_config)
-        print(env)
         #check_env(env)
         train(args, env, agent)
     except KeyboardInterrupt:
@@ -102,7 +97,8 @@ def parse_args():
     parser.add_argument('--repetitions', type=int)
     #parser.add_argument('--total_timesteps', type=int, default=1000000)
     #parser.add_argument('--burn_timesteps' , type=int, default=2500)
-    parser.add_argument('--total_timesteps', type=int, default=1000)
+    #parser.add_argument('--total_timesteps', type=int, default=400)
+    parser.add_argument('--total_timesteps', type=int, default=10000)
     parser.add_argument('--burn_timesteps' , type=int, default=25)
     parser.add_argument('--empty', type=bool, default=True)
     args = parser.parse_args()

@@ -19,7 +19,6 @@ def closest_aligned_transform(hero_transform, transforms, fvectors, world=None):
     aligned = aligned[indices] # reorder by distance criteria
     indices = indices[aligned] # slice out valid indices
 
-    target = None if len(indices) == 0 else indices[0]
-
-    return [target]
+    targets = indices[:1]
+    return targets
     
