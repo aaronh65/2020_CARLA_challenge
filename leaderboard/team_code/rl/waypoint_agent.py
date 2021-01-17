@@ -10,6 +10,8 @@ from stable_baselines.sac.policies import MlpPolicy
 from stable_baselines import SAC
 
 from carla import VehicleControl
+
+import cv2
 import numpy as np
 
 def get_entry_point():
@@ -29,6 +31,14 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
 
     def sensors(self):
         return [
+                {
+                    'type': 'sensor.camera.rgb',
+                    'x': 0.0, 'y': 0.0, 'z': 30,
+                    'roll': 0.0, 'pitch': -90.0, 'yaw': 0.0,
+                    'width': 256, 'height': 256, 'fov': 90,
+                    'id': 'bev'
+                    },
+
                 {
                     'type': 'sensor.other.imu',
                     'x': 0.0, 'y': 0.0, 'z': 0.0,
@@ -66,6 +76,11 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
         return action
 
     def run_step(self, input_data, timestamp):
+        image = input_data['bev'][1][:, :, :3] # what's the last number?
+        #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        cv2.imshow('debug', image)
+        cv2.waitKey(1)
+
         if self.config['mode'] == 'train':
             # use cached prediction from rl training loop
             if self.cached_control:
@@ -75,7 +90,7 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
         else:
             # predict the action
             pass
-
+        
         control = VehicleControl()
         control.steer = 0
         control.throttle = 0.5
