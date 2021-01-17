@@ -27,8 +27,10 @@ class CarlaEnv(gym.Env):
         self.hero_actor = None
 
         # used for blocking checks
+        self.frame = 0
         self.last_hero_positions = deque()
-        self.max_positions_len = 100
+        self.max_positions_len = 100 # 5 seconds
+        self.blocking_distance = 3.0
 
         # setup client and data provider
         self.client = client
@@ -73,6 +75,7 @@ class CarlaEnv(gym.Env):
         # prepare manager for run
         self.manager._running = True
         self.manager._watchdog.start()
+        self.frame = 0
 
         return start
 
@@ -85,6 +88,7 @@ class CarlaEnv(gym.Env):
                 timestamp = snapshot.timestamp
             if timestamp:
                 obs, reward, done, info = self._tick(timestamp)
+            self.frame += 1
             return obs, reward, done, info
 
         else:
@@ -97,17 +101,17 @@ class CarlaEnv(gym.Env):
         hero_vector = transform_to_vector(hero_transform)
 
         # check if blocked
-        if len(self.last_hero_positions) < self.max_positions_len:
-            self.last_hero_positions.append(hero_vector[:2])
-        else:
-            self.last_hero_positions.popleft()
-            self.last_hero_positions.append(hero_vector[:2])
-            positions = np.array([pos for pos in self.last_hero_positions]) # Nx2
-            mean = np.mean(positions, axis=0) # 1x2
-            traveled = np.linalg.norm(positions-mean, axis=1).flatten()
-            farthest = np.amax(traveled)
-            if farthest < 0.5:
-                return np.zeros(6), 0, True, {'blocked': True}
+        if self.frame > 60: # give agent 3 seconds to move
+            if len(self.last_hero_positions) < self.max_positions_len:
+                self.last_hero_positions.append(hero_vector[:2])
+            else:
+                self.last_hero_positions.popleft()
+                self.last_hero_positions.append(hero_vector[:2])
+                start = self.last_hero_positions[0]
+                end = self.last_hero_positions[-1]
+                traveled = np.linalg.norm(end-start)
+                if traveled < self.blocking_distance:
+                    return np.zeros(6), 0, True, {'blocked': True}
 
         # get target waypoint to compute reward
         targets = closest_aligned_transform(
