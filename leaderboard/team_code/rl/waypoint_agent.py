@@ -1,4 +1,4 @@
-import yaml
+import os, yaml
 
 #from team_code.base_agent import BaseAgent
 from leaderboard.autoagents import autonomous_agent
@@ -6,6 +6,7 @@ from leaderboard.envs.sensor_interface import SensorInterface
 
 from team_code.rl.sac_models import SAC_LB
 from team_code.rl.null_env import NullEnv
+from team_code.common.utils import mkdir_if_not_exists
 from stable_baselines.sac.policies import MlpPolicy
 from stable_baselines import SAC
 
@@ -13,6 +14,8 @@ from carla import VehicleControl
 
 import cv2
 import numpy as np
+
+BASE_SAVE_PATH = os.environ.get('BASE_SAVE_PATH', 0)
 
 def get_entry_point():
     return 'WaypointAgent'
@@ -28,14 +31,17 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
         self.track = autonomous_agent.Track.SENSORS
         self.model = SAC(MlpPolicy, NullEnv(6,3))
         self.cached_control = None
+        self.step = 0
+        self.episode_num = -1 # the first reset changes this to 0
+        self.save_images_path  = f'{BASE_SAVE_PATH}/images/episode_{self.episode_num:06d}'
 
     def sensors(self):
         return [
                 {
                     'type': 'sensor.camera.rgb',
-                    'x': 0.0, 'y': 0.0, 'z': 30,
+                    'x': 0.0, 'y': 0.0, 'z': 25,
                     'roll': 0.0, 'pitch': -90.0, 'yaw': 0.0,
-                    'width': 256, 'height': 256, 'fov': 90,
+                    'width': 256, 'height': 256, 'fov': 75,
                     'id': 'bev'
                     },
 
@@ -56,8 +62,14 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
                 ]
 
     def destroy(self):
-        if 'mode' in self.config.keys() and self.config['mode'] == 'train':
+        if self.config['mode'] == 'train':
             self.sensor_interface = SensorInterface()
+
+    def reset(self):
+        self.step = 0
+        self.episode_num += 1
+        self.save_images_path  = f'{BASE_SAVE_PATH}/images/episode_{self.episode_num:06d}'
+        mkdir_if_not_exists(self.save_images_path)
 
     def predict(self, state, burn_in=False):
 
@@ -77,24 +89,21 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
 
     def run_step(self, input_data, timestamp):
         image = input_data['bev'][1][:, :, :3] # what's the last number?
-        #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         cv2.imshow('debug', image)
         cv2.waitKey(1)
 
-        if self.config['mode'] == 'train':
-            # use cached prediction from rl training loop
+        if self.config['save_images']:
+            frame = self.step // 10
+            save_path = f'{self.save_images_path}/{frame:06d}.png'
+            cv2.imwrite(save_path, image)
+
+        control = VehicleControl()
+        if self.config['mode'] == 'train': # use cached training prediction           
             if self.cached_control:
-                return self.cached_control
-            else:
-                return VehicleControl()
-        else:
+                control = self.cached_control
+        else: 
             # predict the action
             pass
-        
-        control = VehicleControl()
-        control.steer = 0
-        control.throttle = 0.5
-        control.brake = False
-
+        self.step += 1 
         return control
 

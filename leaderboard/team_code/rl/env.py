@@ -56,6 +56,7 @@ class CarlaEnv(gym.Env):
             num_configs = len(self.indexer._configs_list)
             config = self.indexer.get(np.random.randint(num_configs))
 
+        self.agent_instance.reset()
         config.agent = self.agent_instance
 
         # reset world/scenario, get route and start information

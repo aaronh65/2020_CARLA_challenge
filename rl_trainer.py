@@ -6,6 +6,7 @@ from datetime import datetime
 parser = argparse.ArgumentParser()
 parser.add_argument('--split', type=str, default='training', choices=['debug', 'devtest', 'testing', 'training'])
 parser.add_argument('--save_images', action='store_true')
+parser.add_argument('--verbose', action='store_true')
 parser.add_argument('--debug', action='store_true')
 args = parser.parse_args()
 
@@ -20,6 +21,8 @@ rpath = 'leaderboard/results/rl/waypoint_agent'
 suffix = f'debug/{date_str}' if args.debug else f'{date_str}' 
 base_save_path = f'{prefix}/{rpath}/{suffix}'
 mkdir_if_not_exists(f'{base_save_path}/weights')
+if args.save_images:
+    mkdir_if_not_exists(f'{base_save_path}/images')
 
 #os.environ["SAVE_IMAGES"] = args.save_images
 
@@ -34,15 +37,16 @@ env_config = {
 
 sac_config = {
         'mode': 'train',
-        #'total_timesteps': 100000,
-        #'burn_timesteps': 5000,
-        'total_timesteps': 1000,
-        'burn_timesteps': 100,
+        'total_timesteps': 100000,
+        'burn_timesteps': 1000,
+        #'total_timesteps': 1000,
+        #'burn_timesteps': 100,
         'train_frequency': 1,
         'gradient_steps': 1,
         'target_update_interval': 1,
-        'save_frequency': 100,
-        'log_frequency': 10,
+        'save_frequency': 1000,
+        'log_frequency': 1000,
+        'verbose': args.verbose,
         'save_images': args.save_images,
         }
 

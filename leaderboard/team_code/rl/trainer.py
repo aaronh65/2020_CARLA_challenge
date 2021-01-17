@@ -92,7 +92,7 @@ def train(config, env, agent):
                 if step % config['target_update_interval'] == 0:
                     agent.model.sess.run(agent.model.target_update_op)
 
-                if step % config['log_frequency'] == 0:
+                if config['verbose'] and step % config['log_frequency'] == 0:
                     write_str = f'\nstep {step}\npolicy_loss = {policy_loss:.3f}\nvalue_loss = {value_loss:.3f}\nentropy = {entropy:.3f}'
                     tqdm.write(write_str)
 
