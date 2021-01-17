@@ -22,20 +22,17 @@ export PYTHONPATH=$PYTHONPATH:$PROJECT_ROOT/scenario_runner
 
 # leaderboard and agent config
 #export ROUTES=$PROJECT_ROOT/leaderboard/data/routes_devtest.xml
-export ROUTES=$PROJECT_ROOT/leaderboard/data/routes_training.xml
+export ROUTES=$PROJECT_ROOT/leaderboard/data/routes_$ROUTE_SPLIT.xml
 export SCENARIOS=$PROJECT_ROOT/leaderboard/data/no_traffic_scenarios.json
-#export SCENARIOS=$PROJECT_ROOT/leaderboard/data/all_towns_traffic_scenarios_public.json
 export REPETITIONS=1
+#export SCENARIOS=$PROJECT_ROOT/leaderboard/data/all_towns_traffic_scenarios_public.json
 
-#export TEAM_CONFIG=$PROJECT_ROOT/leaderboard/config/${CONFIG}
-CHECKPOINT_ENDPOINT="$BASE_SAVE_PATH/logs/${ROUTE_NAME}.txt"
-
-#python $PROJECT_ROOT/leaderboard/team_code/rl/generate_dense_waypoints.py
 
 python $PROJECT_ROOT/leaderboard/team_code/rl/trainer.py \
 	--routes=$ROUTES \
 	--scenarios=$SCENARIOS \
-	--repetitions=$REPETITIONS
+	--repetitions=$REPETITIONS \
+	--config_path=$CONFIG_PATH
 
-echo "Done. See $CHECKPOINT_ENDPOINT for detailed results."
+echo "Done. See $BASE_SAVE_PATH for detailed results."
 

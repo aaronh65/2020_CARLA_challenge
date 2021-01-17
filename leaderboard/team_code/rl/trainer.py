@@ -1,5 +1,5 @@
 import signal
-import os, time
+import os, time, yaml
 import argparse
 import traceback
 from datetime import datetime
@@ -14,10 +14,7 @@ from stable_baselines.common.env_checker import check_env
 from waypoint_agent import WaypointAgent
 from leaderboard.utils.route_indexer import RouteIndexer
 
-def mkdir_if_not_exists(_dir):
-    if not os.path.exists(_dir):
-        print(f"Creating a directory at {_dir}")
-        os.makedirs(_dir)
+BASE_SAVE_PATH = os.environ.get('BASE_SAVE_PATH', 0)
 
 def get_route_indexer(args, agent):
     route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
@@ -25,9 +22,7 @@ def get_route_indexer(args, agent):
         route_indexer.get(ri).agent = agent
     return route_indexer
 
-def train(args, env, agent):
-
-    # move inside of env?
+def train(config, env, agent):
 
     episode_rewards = []
     episode_policy_losses = []
@@ -35,10 +30,11 @@ def train(args, env, agent):
     episode_entropies = []
 
     save_dict = {
-            'rewards' : episode_rewards, 
-            'policy_losses' : episode_policy_losses,
-            'value_losses' : episode_value_losses,
-            'entropies' : episode_entropies}
+        'rewards' : episode_rewards, 
+        'policy_losses' : episode_policy_losses,
+        'value_losses' : episode_value_losses,
+        'entropies' : episode_entropies
+        }
 
     total_reward = 0
     total_policy_loss = 0
@@ -46,22 +42,12 @@ def train(args, env, agent):
     total_entropy = 0
     episode_steps = 0
 
-    date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-    project_root = os.environ.get('PROJECT_ROOT', 0)
-    if args.debug:
-        base_save_path = f'leaderboard/results/rl/waypoint_agent/debug/{date_str}'
-    else:
-        base_save_path = f'leaderboard/results/rl/waypoint_agent/{date_str}'
-    base_save_path = f'{project_root}/{base_save_path}'
-    os.makedirs(base_save_path)
-    os.makedirs(f'{base_save_path}/weights')
-
     # start environment and run
     obs = env.reset()
-    for step in tqdm(range(args.total_timesteps)):
+    for step in tqdm(range(config['total_timesteps'])):
 
         # random exploration at the beginning
-        burn_in = step < args.burn_timesteps
+        burn_in = step < config['burn_timesteps']
         action = agent.predict(obs, burn_in=burn_in)
         new_obs, reward, done, info = env.step(action)
         total_reward += reward
@@ -88,12 +74,12 @@ def train(args, env, agent):
             obs = env.reset()
         
         # train at this timestep if applicable
-        if step % args.train_frequency == 0 and not burn_in:
+        if step % config['train_frequency'] == 0 and not burn_in:
             mb_info_vals = []
-            for grad_step in range(args.gradient_steps):
+            for grad_step in range(config['gradient_steps']):
 
                 # policy and value network update
-                frac = 1.0 - step/args.total_timesteps
+                frac = 1.0 - step/config['total_timesteps']
                 lr = agent.model.learning_rate*frac
                 train_vals = agent.model._train_step(step, None, lr)
                 policy_loss, _, _, value_loss, entropy, _, _ = train_vals
@@ -103,20 +89,20 @@ def train(args, env, agent):
                 total_entropy += entropy
 
                 # target network update
-                if step % args.target_update_interval == 0:
+                if step % config['target_update_interval'] == 0:
                     agent.model.sess.run(agent.model.target_update_op)
 
-                if step % args.log_frequency == 0:
+                if step % config['log_frequency'] == 0:
                     write_str = f'\nstep {step}\npolicy_loss = {policy_loss:.3f}\nvalue_loss = {value_loss:.3f}\nentropy = {entropy:.3f}'
                     tqdm.write(write_str)
 
         # save model if applicable
-        if step % args.save_frequency == 0 and not burn_in:
-            weights_path = f'{base_save_path}/weights/{step:07d}'
+        if step % config['save_frequency'] == 0 and not burn_in:
+            weights_path = f'{BASE_SAVE_PATH}/weights/{step:07d}'
             agent.model.save(weights_path)
 
             for name, arr in save_dict.items():
-                save_path = f'{base_save_path}/{name}.npy'
+                save_path = f'{BASE_SAVE_PATH}/{name}.npy'
                 with open(save_path, 'wb') as f:
                     np.save(f, arr)
 
@@ -126,28 +112,24 @@ def train(args, env, agent):
 
 def main(args):
     client = Client('localhost', 2000)
-            
-    env_config = {}
-    env_config['world_port'] = 2000
-    env_config['tm_port'] = 8000
-    env_config['tm_seed'] = 0
 
-    agent_config = {}
-    agent_config['mode'] = 'train'
-    agent = WaypointAgent(agent_config)
+    # get configs
+    with open(args.config_path, 'r') as f:
+        config = yaml.load(f, Loader=yaml.Loader)
+    env_config = config['env_config']
+    sac_config = config['sac_config']
 
+    agent = WaypointAgent(sac_config)
     route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
-    for ri in range(len(route_indexer._configs_list)):
-        route_indexer.get(ri).agent = agent
-
-    extra_args = {'empty': args.empty}
+    #for ri in range(len(route_indexer._configs_list)):
+    #    route_indexer.get(ri).agent = agent
 
     try:
-        env = CarlaEnv(client, env_config, agent, route_indexer, extra_args)
+        env = CarlaEnv(env_config, client, agent, route_indexer)
         #check_env(env)
-        train(args, env, agent)
+        train(sac_config, env, agent)
     except KeyboardInterrupt:
-        print('caught Ctrl-C')
+        print('caught KeyboardInterrupt')
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
     finally:
@@ -158,12 +140,16 @@ def main(args):
 def parse_args():
     parser = argparse.ArgumentParser()
 
+    # yaml config path if available
+    parser.add_argument('--config_path', type=str)
+
     # Leaderboard args
-    parser.add_argument('--debug', action='store_true')
     parser.add_argument('--routes', type=str)
     parser.add_argument('--scenarios', type=str)
     parser.add_argument('--repetitions', type=int)
-    parser.add_argument('--empty', type=bool, default=True)
+
+    # env args
+    parser.add_argument('--empty', action='store_true')
 
     # SAC args
     parser.add_argument('--load_from', type=str)
@@ -174,6 +160,10 @@ def parse_args():
     parser.add_argument('--target_update_interval', type=int, default=1)
     parser.add_argument('--save_frequency', type=int, default=500)
     parser.add_argument('--log_frequency', type=int, default=500)
+
+    # other args
+    parser.add_argument('--save_images', action='store_true')
+
     args = parser.parse_args()
     return args
 

@@ -13,33 +13,35 @@ from reward_utils import *
 
 class CarlaEnv(gym.Env):
 
-    def __init__(self, client, env_config, agent, route_indexer, extra_args):
+    def __init__(self, env_config, client, agent, route_indexer):
         super(CarlaEnv, self).__init__()
 
-        self.route_indexer = route_indexer
-        self.extra_args = extra_args
-
-        # state space is carla.Transform represented as a six vector
-        # action space is steering angle/throttle
         self.observation_space = gym.spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32)
         self.action_space = gym.spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32)
+
+        self.env_config = env_config
+        self.agent_instance = agent
+        self.indexer = route_indexer
+        self.manager = ScenarioManager(60, False)
+        self.scenario = None
+        self.hero_actor = None
+
+        # used for blocking checks
+        self.last_hero_positions = deque()
+        self.max_positions_len = 100
 
         # setup client and data provider
         self.client = client
         self.world = self.client.get_world()
-        self.traffic_manager = self.client.get_trafficmanager(env_config['tm_port'])
-        self.traffic_manager.set_random_device_seed(env_config['tm_seed'])
+        self.traffic_manager = self.client.get_trafficmanager(
+                env_config['trafficmanager_port'])
+        self.traffic_manager.set_random_device_seed(
+                env_config['trafficmanager_seed'])
         
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(self.world)
-        CarlaDataProvider.set_traffic_manager_port(env_config['tm_port'])
-
-        self.scenario = None
-        self.manager = ScenarioManager(60, False)
-        self.agent_instance = agent
-        self.hero_actor = None
-        self.last_hero_positions = deque()
-        self.max_positions_len = 100
+        CarlaDataProvider.set_traffic_manager_port(
+                env_config['trafficmanager_port'])
 
         signal.signal(signal.SIGINT, self._signal_handler)
 
@@ -51,8 +53,10 @@ class CarlaEnv(gym.Env):
 
     def reset(self, config=None):
         if config is None:
-            num_configs = len(self.route_indexer._configs_list)
-            config = self.route_indexer.get(np.random.randint(num_configs))
+            num_configs = len(self.indexer._configs_list)
+            config = self.indexer.get(np.random.randint(num_configs))
+
+        config.agent = self.agent_instance
 
         # reset world/scenario, get route and start information
         self._load_world_and_scenario(config)
@@ -90,6 +94,8 @@ class CarlaEnv(gym.Env):
         self.manager._tick_scenario(timestamp)
         hero_transform = CarlaDataProvider.get_transform(self.hero_actor)
         hero_vector = transform_to_vector(hero_transform)
+
+        # check if blocked
         if len(self.last_hero_positions) < self.max_positions_len:
             self.last_hero_positions.append(hero_vector[:2])
         else:
@@ -102,24 +108,28 @@ class CarlaEnv(gym.Env):
             if farthest < 0.5:
                 return np.zeros(6), 0, True, {'blocked': True}
 
+        # get target waypoint to compute reward
         targets = closest_aligned_transform(
                 hero_transform, 
                 self.route_waypoints, 
                 self.forward_vectors)
         if len(targets) == 0:
             return np.zeros(6), 0, True, {'no_targets': True}
+        target_waypoint = self.route_waypoints[targets[0]]
 
-        closest_waypoint = self.route_waypoints[targets[0]]
-        draw_waypoints(self.world, [closest_waypoint], color=(0,255,0), size=0.5)
+        draw_waypoints(self.world, 
+                [target_waypoint], 
+                color=(0,255,0), 
+                size=0.5)
         draw_arrow(
                 self.world, 
                 hero_transform.location, 
-                closest_waypoint.transform.location, 
+                target_waypoint.transform.location, 
                 color=(255,0,0),
                 size=0.5)
 
-        obs = self._get_observation(hero_transform, closest_waypoint)
-        reward, done = self._get_reward(hero_transform, closest_waypoint)
+        obs = self._get_observation(hero_transform, target_waypoint)
+        reward, done = self._get_reward(hero_transform, target_waypoint)
         return obs, reward, done, {}
 
     def cleanup(self):
@@ -133,6 +143,7 @@ class CarlaEnv(gym.Env):
             if self.manager.get_running_status():
                 if self.manager.scenario:
                     self.manager.scenario.terminate()
+                    self.manager.scenario = None
 
                 if self.manager._agent:
                     self.manager._agent.cleanup()
@@ -192,7 +203,7 @@ class CarlaEnv(gym.Env):
                 self.world, 
                 config, 
                 criteria_enable=False, 
-                extra_args=self.extra_args)
+                env_config=self.env_config)
         self.manager.load_scenario(
                 self.scenario, 
                 config.agent,

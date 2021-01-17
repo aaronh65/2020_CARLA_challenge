@@ -178,12 +178,12 @@ class RouteScenario(BasicScenario):
 
     category = "RouteScenario"
 
-    def __init__(self, world, config, debug_mode=0, criteria_enable=True, extra_args=None):
+    def __init__(self, world, config, debug_mode=0, criteria_enable=True, env_config=None):
         """
         Setup all relevant parameters and create scenarios along route
         """
         self.config = config
-        self.extra_args = extra_args
+        self.env_config = env_config
         self.route = None
         self.sampled_scenarios_definitions = None
         self.route_var_name_class_lookup = {}
@@ -449,7 +449,7 @@ class RouteScenario(BasicScenario):
         Set other_actors to the superset of all scenario actors
         """
 
-        if self.extra_args and self.extra_args['empty']:
+        if self.env_config and self.env_config['empty']:
             return
 
         # Create the background activity of the route
