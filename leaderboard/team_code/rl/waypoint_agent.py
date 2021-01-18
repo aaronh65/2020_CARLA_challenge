@@ -4,7 +4,6 @@ import os, yaml
 from leaderboard.autoagents import autonomous_agent
 from leaderboard.envs.sensor_interface import SensorInterface
 
-from team_code.rl.sac_models import SAC_LB
 from team_code.rl.null_env import NullEnv
 from team_code.common.utils import mkdir_if_not_exists
 from stable_baselines.sac.policies import MlpPolicy
@@ -44,7 +43,7 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
                     'width': 256, 'height': 256, 'fov': 75,
                     'id': 'bev'
                     },
-
+                 
                 {
                     'type': 'sensor.other.imu',
                     'x': 0.0, 'y': 0.0, 'z': 0.0,
@@ -69,8 +68,10 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
         self.step = 0
         self.episode_num += 1
         self.save_images_path  = f'{BASE_SAVE_PATH}/images/episode_{self.episode_num:06d}'
-        mkdir_if_not_exists(self.save_images_path)
+        if self.config['save_images']:
+            mkdir_if_not_exists(self.save_images_path)
 
+    #def predict(self, state, model, burn_in=False):
     def predict(self, state, burn_in=False):
 
         # compute controls
@@ -78,6 +79,7 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
             action = np.random.uniform(-1, 1, size=3)
         else:
             action, _states = self.model.predict(state)
+
         throttle, steer, brake = action
         throttle = float(throttle/2 + 0.5)
         steer = float(steer)
@@ -88,11 +90,12 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
         return action
 
     def run_step(self, input_data, timestamp):
-        image = input_data['bev'][1][:, :, :3] # what's the last number?
-        cv2.imshow('debug', image)
-        cv2.waitKey(1)
-
+        
         if self.config['save_images']:
+            image = input_data['bev'][1][:, :, :3] # what's the last number?
+            cv2.imshow('debug', image)
+            cv2.waitKey(1)
+
             frame = self.step // 10
             save_path = f'{self.save_images_path}/{frame:06d}.png'
             cv2.imwrite(save_path, image)

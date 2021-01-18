@@ -9,11 +9,14 @@ from leaderboard.scenarios.scenario_manager import ScenarioManager
 from leaderboard.scenarios.route_scenario import RouteScenario
 from env_utils import *
 from reward_utils import *
+from carla import Client
 #from agents.tools.misc import *
 
 class CarlaEnv(gym.Env):
 
     def __init__(self, env_config, client, agent, route_indexer):
+    #def __init__(self, env_config, client, route_indexer):
+    #def __init__(self, env_config, route_indexer):
         super(CarlaEnv, self).__init__()
 
         self.observation_space = gym.spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32)
@@ -33,7 +36,7 @@ class CarlaEnv(gym.Env):
         self.blocking_distance = 3.0
 
         # setup client and data provider
-        self.client = client
+        self.client = Client('localhost', 2000)
         self.world = self.client.get_world()
         self.traffic_manager = self.client.get_trafficmanager(
                 env_config['trafficmanager_port'])
@@ -52,31 +55,22 @@ class CarlaEnv(gym.Env):
             self.manager.signal_handler(signum, frame)
         raise KeyboardInterrupt
 
-
-    def reset(self, config=None):
-        if config is None:
-            num_configs = len(self.indexer._configs_list)
-            config = self.indexer.get(np.random.randint(num_configs))
-
-        self.agent_instance.reset()
+    def reset(self):
+        
+        # 
+        num_configs = len(self.indexer._configs_list)
+        config = self.indexer.get(np.random.randint(num_configs))
         config.agent = self.agent_instance
-
-        # reset world/scenario, get route and start information
         self._load_world_and_scenario(config)
+        
         self._get_hero_route(draw=True)
-
-        # should be equivalent to np.zeros(6) if there's no noise
-        #start_transform = CarlaDataProvider.get_transform(self.hero_actor)
-        #start_waypoint = self.route_waypoints[3]
-        #start = self._get_observation(start_transform, start_waypoint)
-        #print(start)
-        start = np.zeros(6)
 
         # prepare manager for run
         self.manager._running = True
         self.manager._watchdog.start()
         self.frame = 0
 
+        start = np.zeros(6)
         return start
 
     # convert action to vehicle control and tick scenario
@@ -166,6 +160,9 @@ class CarlaEnv(gym.Env):
             settings.fixed_delta_seconds = None
             self.world.apply_settings(settings)
             self.traffic_manager.set_synchronous_mode(False)
+
+        #if self.manager:
+        #    self.manager = ScenarioManager(60, False)
 
         CarlaDataProvider.cleanup()
         self.hero_actor = None

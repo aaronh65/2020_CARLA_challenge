@@ -28,7 +28,7 @@ export REPETITIONS=1
 #export SCENARIOS=$PROJECT_ROOT/leaderboard/data/all_towns_traffic_scenarios_public.json
 
 
-python $PROJECT_ROOT/leaderboard/team_code/rl/trainer.py \
+fil-profile run $PROJECT_ROOT/leaderboard/team_code/rl/trainer.py \
 	--routes=$ROUTES \
 	--scenarios=$SCENARIOS \
 	--repetitions=$REPETITIONS \

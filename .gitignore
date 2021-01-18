@@ -3,5 +3,6 @@
 *.png
 *.ckpt
 *.bkup
+fil-result
 __pycache__
 p2.py

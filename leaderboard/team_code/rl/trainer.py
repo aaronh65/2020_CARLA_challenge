@@ -1,5 +1,5 @@
 import signal
-import os, time, yaml
+import os, sys, time, yaml
 import argparse
 import traceback
 from datetime import datetime
@@ -10,19 +10,18 @@ np.set_printoptions(precision=3, suppress=True)
 
 from carla import Client
 from env import CarlaEnv
-from stable_baselines.common.env_checker import check_env
+
+#from stable_baselines import SAC
+#from stable_baselines.sac.policies import MlpPolicy
+#from null_env import NullEnv
+#from stable_baselines.common.env_checker import check_env
+
 from waypoint_agent import WaypointAgent
 from leaderboard.utils.route_indexer import RouteIndexer
 
 BASE_SAVE_PATH = os.environ.get('BASE_SAVE_PATH', 0)
 
-def get_route_indexer(args, agent):
-    route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
-    for ri in range(len(route_indexer._configs_list)):
-        route_indexer.get(ri).agent = agent
-    return route_indexer
-
-def train(config, env, agent):
+def train(config, agent, env):
 
     episode_rewards = []
     episode_policy_losses = []
@@ -36,6 +35,7 @@ def train(config, env, agent):
         'entropies' : episode_entropies
         }
 
+
     total_reward = 0
     total_policy_loss = 0
     total_value_loss = 0
@@ -44,6 +44,7 @@ def train(config, env, agent):
 
     # start environment and run
     obs = env.reset()
+    agent.reset()
     for step in tqdm(range(config['total_timesteps'])):
 
         # random exploration at the beginning
@@ -72,6 +73,8 @@ def train(config, env, agent):
             # cleanup and reset
             env.cleanup()
             obs = env.reset()
+            agent.reset()
+            #print(sys.getrefcount(agent))
         
         # train at this timestep if applicable
         if step % config['train_frequency'] == 0 and not burn_in:
@@ -120,14 +123,14 @@ def main(args):
     sac_config = config['sac_config']
 
     agent = WaypointAgent(sac_config)
+
     route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
     #for ri in range(len(route_indexer._configs_list)):
     #    route_indexer.get(ri).agent = agent
 
     try:
         env = CarlaEnv(env_config, client, agent, route_indexer)
-        #check_env(env)
-        train(sac_config, env, agent)
+        train(sac_config, agent, env)
     except KeyboardInterrupt:
         print('caught KeyboardInterrupt')
     except Exception as e:
