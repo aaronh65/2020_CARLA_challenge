@@ -46,19 +46,28 @@ def train(config, agent, env):
     obs = env.reset()
     agent.reset()
     for step in tqdm(range(config['total_timesteps'])):
-
-        # random exploration at the beginning
+        
+        # perform random exploration at the beginning
         burn_in = step < config['burn_timesteps']
+
+        # get SAC prediction, step the env
         action = agent.predict(obs, burn_in=burn_in)
         new_obs, reward, done, info = env.step(action)
-        total_reward += reward
-        episode_steps += 1
-        #print(reward, done, info)
 
         # store in replay buffer
         agent.model.replay_buffer.add(obs, action, reward, new_obs, float(done))
+        total_reward += reward
+        episode_steps += 1
 
-        if done or episode_steps > 6000:
+
+        if done:
+
+            # cleanup and reset
+            env.cleanup()
+            obs = env.reset()
+            agent.reset()
+
+            # record then reset metrics
             episode_rewards.append(total_reward)
             episode_policy_losses.append(total_policy_loss/episode_steps)
             episode_value_losses.append(total_value_loss/episode_steps)
@@ -70,11 +79,6 @@ def train(config, agent, env):
             total_entropy = 0
             episode_steps = 0
 
-            # cleanup and reset
-            env.cleanup()
-            obs = env.reset()
-            agent.reset()
-            #print(sys.getrefcount(agent))
         
         # train at this timestep if applicable
         if step % config['train_frequency'] == 0 and not burn_in:

@@ -37,10 +37,10 @@ env_config = {
 
 sac_config = {
         'mode': 'train',
-        #'total_timesteps': 500000,
-        #'burn_timesteps': 5000,
-        'total_timesteps': 1000,
-        'burn_timesteps': 100,
+        'total_timesteps': 500000,
+        'burn_timesteps': 2000,
+        #'total_timesteps': 1000,
+        #'burn_timesteps': 100,
         'train_frequency': 1,
         'gradient_steps': 1,
         'target_update_interval': 1,
