@@ -14,6 +14,10 @@ def main(args):
     for ep in episodes:
         input_dir = os.path.join(image_dir, ep)
         impaths = [os.path.join(input_dir, fname) for fname in sorted(os.listdir(input_dir))]
+        if len(os.listdir(input_dir)) <= 1:
+            # avoids crashes when you open a video with one frame in it
+            continue
+
         save_path = os.path.join(video_dir, f'{ep}.mp4')
         if os.path.exists(save_path):
             continue

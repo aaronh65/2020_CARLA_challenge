@@ -13,14 +13,17 @@ def main(args):
     rewards, _, _, _ = metrics
     episodes = np.arange(len(rewards))
     plt.plot(episodes, rewards)
-    plt.show()
+    plt.xlabel('episode #')
+    plt.ylabel('episode reward')
+    plt.title ('training episode rewards')
+    #plt.show()
+    plt.savefig(f'{args.target_dir}/result.png')
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--target_dir', type=str, required=True)
     parser.add_argument('--load_from', type=str)
     args = parser.parse_args()
-    print(args.load_from)
     return args
 
 if __name__ == '__main__':

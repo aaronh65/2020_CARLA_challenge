@@ -4,23 +4,29 @@ import gym
 import numpy as np
 from collections import deque
 
-from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
-from leaderboard.scenarios.scenario_manager import ScenarioManager
-from leaderboard.scenarios.route_scenario import RouteScenario
 from env_utils import *
 from reward_utils import *
 from carla import Client
-#from agents.tools.misc import *
+
+from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
+from leaderboard.scenarios.scenario_manager import ScenarioManager
+from leaderboard.scenarios.route_scenario import RouteScenario
 
 class CarlaEnv(gym.Env):
 
     def __init__(self, env_config, client, agent, route_indexer):
-    #def __init__(self, env_config, client, route_indexer):
-    #def __init__(self, env_config, route_indexer):
         super(CarlaEnv, self).__init__()
 
-        self.observation_space = gym.spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32)
-        self.action_space = gym.spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(
+                low=-1, 
+                high=1, 
+                shape=(6,), 
+                dtype=np.float32)
+        self.action_space = gym.spaces.Box(
+                low=-1, 
+                high=1, 
+                shape=(3,), 
+                dtype=np.float32)
 
         self.env_config = env_config
         self.agent_instance = agent
@@ -219,13 +225,18 @@ class CarlaEnv(gym.Env):
      
 
     def _get_hero_route(self, draw=False):
+
         # retrieve new hero route
         self.map = self.world.get_map()
         self.route = CarlaDataProvider.get_ego_vehicle_route()
+
         route_locations = [route_elem[0] for route_elem in self.route]
-        self.route_waypoints = [self.map.get_waypoint(loc) for loc in route_locations]
+        self.route_waypoints = [
+                self.map.get_waypoint(loc) for loc in route_locations]
         forward_vectors = [wp.transform.get_forward_vector() for wp in self.route_waypoints]
-        self.forward_vectors = np.array([[v.x, v.y, v.z] for v in forward_vectors])
+        self.forward_vectors = np.array(
+                [[v.x, v.y, v.z] for v in forward_vectors])
+
         if draw:
             draw_waypoints(self.world, self.route_waypoints, color=(0,0,255), life_time=9999)
 
@@ -289,7 +300,6 @@ class CarlaEnv(gym.Env):
         yaw_diff = yaw_diff if yaw_diff < 180 else 360 - yaw_diff
         yaw_max = 90
         yaw_reward = 1 - min(yaw_diff/yaw_max, 1)
-        #rot_reward = 1/(yaw_diff + 1)
 
         # speed reward
         hvel = CarlaDataProvider.get_velocity(self.hero_actor) # m/s
