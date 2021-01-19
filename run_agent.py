@@ -6,20 +6,16 @@ import os, sys, time
 import yaml
 import argparse
 from datetime import datetime
+from leaderboard.team_code.common.utils import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--split', type=str, default='devtest', choices=['devtest','testing','training','debug'])
-parser.add_argument('--route', type=int, default=1)
+parser.add_argument('--route', type=int, default=3)
 parser.add_argument('--agent', type=str, default='lbc/image_agent', choices=['lbc/image_agent', 'lbc/auto_pilot', 'lbc/privileged_agent', 'rl/waypoint_agent'])
 parser.add_argument('--repetitions', type=int, default=1)
 parser.add_argument('--save_images', action='store_true')
 parser.add_argument('--debug', action='store_true')
 args = parser.parse_args()
-
-def mkdir_if_not_exists(_dir):
-    if not os.path.exists(_dir):
-        print(f"Creating a directory at {_dir}")
-        os.makedirs(_dir)
 
 # make base save path + log dir
 date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -28,9 +24,9 @@ base_save_path = f'leaderboard/results/{args.agent}/{end_str}'
 mkdir_if_not_exists(f'{base_save_path}/logs')
 
 # route path
-route_prefix = f'leaderboard/data/routes_{args.split}'
+route_path = f'leaderboard/data/routes_{args.split}'
 route_name = f'route_{args.route:02d}'
-route_path = f'{route_prefix}/{route_name}.xml'
+route_path = f'{route_path}/{route_name}.xml'
 
 # make image + performance plot dirs
 if args.save_images:
@@ -42,11 +38,11 @@ mkdir_if_not_exists(save_perf_path)
 
 # agent-specific configurations
 config = {}
-#config['base_save_path'] = base_save_path
-#config['route_name'] = route_name
 config['save_images'] = args.save_images
 conda_env = 'lb'
-if args.agent == 'lbc/auto_pilot':
+if args.agent == 'common/straight_agent':
+    pass
+elif args.agent == 'lbc/auto_pilot':
     config['save_data'] = False
 elif args.agent == 'lbc/image_agent':
     conda_env = 'lblbc'
@@ -72,6 +68,6 @@ os.environ["ROUTE_NAME"] = route_name
 os.environ["WORLD_PORT"] = "2000"
 os.environ["TM_PORT"] = "8000"
  
-cmd = f'bash run_agent.sh {args.agent} {config_path} {route_path} {args.repetitions}'
+cmd = f'bash scripts/run_agent.sh {args.agent} {config_path} {route_path} {args.repetitions}'
 print(f'running {cmd}')
 os.system(cmd)

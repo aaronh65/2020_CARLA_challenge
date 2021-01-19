@@ -34,7 +34,11 @@ export REPETITIONS=$4
 #export TEAM_CONFIG=$PROJECT_ROOT/leaderboard/config/${CONFIG}
 CHECKPOINT_ENDPOINT="$BASE_SAVE_PATH/logs/${ROUTE_NAME}.txt"
 
-python leaderboard/leaderboard/leaderboard_evaluator.py \
+
+
+#python leaderboard/leaderboard/leaderboard_evaluator.py \
+
+fil-profile run leaderboard/leaderboard/leaderboard_evaluator.py \
 --track=SENSORS \
 --scenarios=$PROJECT_ROOT/leaderboard/data/all_towns_traffic_scenarios_public.json  \
 --agent=${TEAM_AGENT} \
@@ -42,8 +46,8 @@ python leaderboard/leaderboard/leaderboard_evaluator.py \
 --routes=${ROUTE_PATH} \
 --checkpoint=${CHECKPOINT_ENDPOINT} \
 --port=${WORLD_PORT} \
---trafficManagerPort=${TM_PORT} \
 --debug=${DEBUG_CHALLENGE} \
+--trafficManagerPort=${TM_PORT} \
 --repetitions=${REPETITIONS}
 
 echo "Done. See $CHECKPOINT_ENDPOINT for detailed results."

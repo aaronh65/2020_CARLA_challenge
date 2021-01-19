@@ -140,7 +140,8 @@ class ImageAgent(BaseAgent):
         points_cam[..., 0] = (points_cam[..., 0] + 1) / 2 * img.shape[-1]
         points_cam[..., 1] = (points_cam[..., 1] + 1) / 2 * img.shape[-2]
         points_cam = points_cam.squeeze()
-        points_world = self.converter.cam_to_world(points_cam).numpy() tick_data['points_world'] = points_world
+        points_world = self.converter.cam_to_world(points_cam).numpy() 
+        tick_data['points_world'] = points_world
 
         # decide on control waypoint
         aim = (points_world[1] + points_world[0]) / 2.0
