@@ -145,24 +145,6 @@ class CarlaEnv(gym.Env):
 
         self.manager.stop_scenario(analyze=False)
 
-        #if self.manager and self.manager.get_running_status():
-        #    self.manager.cleanup()
-        #    if self.manager._watchdog._timer:
-        #        self.manager._watchdog.stop()
-
-        #    if self.manager.get_running_status():
-        #        if self.manager.scenario:
-        #            self.manager.scenario.terminate()
-        #            self.manager.scenario = None
-
-        #        if self.manager._agent:
-        #            self.manager._agent.cleanup()
-        #            self.manager._agent = None
-
-        #if self.scenario:
-        #    self.scenario.remove_all_actors()
-        #    self.scenario = None
-
         # Simulation still running and in synchronous mode?
         if self.manager and self.manager.get_running_status() and self.world:
             # Reset to asynchronous mode
@@ -176,10 +158,6 @@ class CarlaEnv(gym.Env):
             self.manager.cleanup()
 
         CarlaDataProvider.cleanup()
-
-        #if self.manager:
-        #    self.manager = ScenarioManager(60, False)
-
 
         self.hero_actor = None
         if self.agent_instance:
@@ -229,6 +207,7 @@ class CarlaEnv(gym.Env):
                 self.scenario, 
                 config.agent,
                 config.repetition_index)
+
         self.hero_actor = CarlaDataProvider.get_hero_actor()
         if CarlaDataProvider.is_sync_mode():
             self.world.tick()
