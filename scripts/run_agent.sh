@@ -36,9 +36,7 @@ CHECKPOINT_ENDPOINT="$BASE_SAVE_PATH/logs/${ROUTE_NAME}.txt"
 
 
 
-#python leaderboard/leaderboard/leaderboard_evaluator.py \
-
-fil-profile run leaderboard/leaderboard/leaderboard_evaluator.py \
+python leaderboard/leaderboard/leaderboard_evaluator.py \
 --track=SENSORS \
 --scenarios=$PROJECT_ROOT/leaderboard/data/all_towns_traffic_scenarios_public.json  \
 --agent=${TEAM_AGENT} \

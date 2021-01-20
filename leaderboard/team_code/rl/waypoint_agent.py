@@ -86,7 +86,6 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
         #brake = float(brake/2 + 0.5)
         brake = False
         self.cached_control = VehicleControl(throttle, steer, brake)
-        #print(f'agent predicted {self.cached_control}')
         return action
 
     def run_step(self, input_data, timestamp):

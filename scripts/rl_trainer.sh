@@ -29,8 +29,6 @@ export SCENARIOS=$PROJECT_ROOT/leaderboard/data/no_traffic_scenarios.json
 export REPETITIONS=1
 #export SCENARIOS=$PROJECT_ROOT/leaderboard/data/all_towns_traffic_scenarios_public.json
 
-
-#fil-profile run $PROJECT_ROOT/leaderboard/team_code/rl/trainer.py \
 python $PROJECT_ROOT/leaderboard/team_code/rl/trainer.py \
 	--config_path=$CONFIG_PATH
 
