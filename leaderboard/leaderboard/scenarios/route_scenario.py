@@ -449,7 +449,7 @@ class RouteScenario(BasicScenario):
         Set other_actors to the superset of all scenario actors
         """
 
-        if self.env_config and self.env_config['empty']:
+        if self.env_config and self.env_config.empty:
             return
 
         # Create the background activity of the route

@@ -4,8 +4,8 @@ import os, yaml
 from leaderboard.autoagents import autonomous_agent
 from leaderboard.envs.sensor_interface import SensorInterface
 
+from team_code.common.utils import *
 from team_code.rl.null_env import NullEnv
-from team_code.common.utils import mkdir_if_not_exists
 from stable_baselines.sac.policies import MlpPolicy
 from stable_baselines import SAC
 
@@ -25,7 +25,7 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
             if type(path_to_conf_file) == str:
                 with open(self.config_path, 'r') as f:
                     self.config = yaml.load(f, Loader=yaml.Loader)
-            elif type(path_to_conf_file) == dict:
+            elif type(path_to_conf_file) == dict or Bunch:
                 self.config = path_to_conf_file
         self.track = autonomous_agent.Track.SENSORS
         self.model = SAC(MlpPolicy, NullEnv(6,3))
@@ -40,7 +40,7 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
                     'type': 'sensor.camera.rgb',
                     'x': 0.0, 'y': 0.0, 'z': 25,
                     'roll': 0.0, 'pitch': -90.0, 'yaw': 0.0,
-                    'width': 256, 'height': 256, 'fov': 75,
+                    'width': 384, 'height': 384, 'fov': 75,
                     'id': 'bev'
                     },
                  
@@ -61,14 +61,14 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
                 ]
 
     def destroy(self):
-        if self.config['mode'] == 'train':
+        if self.config.mode == 'train':
             self.sensor_interface = SensorInterface()
 
     def reset(self):
         self.step = 0
         self.episode_num += 1
         self.save_images_path  = f'{BASE_SAVE_PATH}/images/episode_{self.episode_num:06d}'
-        if self.config['save_images']:
+        if self.config.save_images:
             mkdir_if_not_exists(self.save_images_path)
 
     #def predict(self, state, model, burn_in=False):
@@ -91,7 +91,7 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
 
     def run_step(self, input_data, timestamp):
         
-        if self.config['save_images']:
+        if self.config.save_images:
             image = input_data['bev'][1][:, :, :3] # what's the last number?
             cv2.imshow('debug', image)
             cv2.waitKey(1)
@@ -101,7 +101,7 @@ class WaypointAgent(autonomous_agent.AutonomousAgent):
             cv2.imwrite(save_path, image)
 
         control = VehicleControl()
-        if self.config['mode'] == 'train': # use cached training prediction           
+        if self.config.mode == 'train': # use cached training prediction           
             if self.cached_control:
                 control = self.cached_control
         else: 

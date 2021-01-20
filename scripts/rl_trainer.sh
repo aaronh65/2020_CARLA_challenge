@@ -7,6 +7,8 @@ source /home/$NAME/anaconda3/etc/profile.d/conda.sh
 conda activate lbrl
 #conda activate ${CONDA_ENV}
 
+export CONFIG_PATH=$1
+
 # Python env variables so the subdirectories can find each other
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$NAME/anaconda3/lib
 export CARLA_ROOT=/home/$NAME/workspace/carla/CARLA_0.9.10.1
@@ -30,9 +32,6 @@ export REPETITIONS=1
 
 #fil-profile run $PROJECT_ROOT/leaderboard/team_code/rl/trainer.py \
 python $PROJECT_ROOT/leaderboard/team_code/rl/trainer.py \
-	--routes=$ROUTES \
-	--scenarios=$SCENARIOS \
-	--repetitions=$REPETITIONS \
 	--config_path=$CONFIG_PATH
 
 echo "Done. See $BASE_SAVE_PATH for detailed results."

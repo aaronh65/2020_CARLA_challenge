@@ -1,5 +1,5 @@
 import signal
-import time
+import time, os
 import gym
 import numpy as np
 from collections import deque
@@ -12,10 +12,11 @@ from srunner.scenariomanager.timer import GameTime
 from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from leaderboard.scenarios.scenario_manager import ScenarioManager
 from leaderboard.scenarios.route_scenario import RouteScenario
+from leaderboard.utils.route_indexer import RouteIndexer
 
 class CarlaEnv(gym.Env):
 
-    def __init__(self, env_config, client, agent, route_indexer):
+    def __init__(self, econfig, client, agent):
         super(CarlaEnv, self).__init__()
 
         self.observation_space = gym.spaces.Box(
@@ -29,31 +30,37 @@ class CarlaEnv(gym.Env):
                 shape=(3,), 
                 dtype=np.float32)
 
-        self.env_config = env_config
+        self.econfig = econfig
         self.agent_instance = agent
-        self.indexer = route_indexer
         self.manager = ScenarioManager(60, False)
         self.scenario = None
         self.hero_actor = None
-
-        # used for blocking checks
         self.frame = 0
+
+        # set up blocking checks
         self.last_hero_positions = deque()
         self.max_positions_len = 100 # 5 seconds
         self.blocking_distance = 3.0
 
+        # route indexer
+        project_root = os.environ.get('PROJECT_ROOT', 0)
+        data_path = f'{project_root}/leaderboard/data'
+        routes = f'{data_path}/{econfig.routes}'
+        scenarios = f'{data_path}/{econfig.scenarios}'
+        self.indexer = RouteIndexer(routes, scenarios, econfig.repetitions)
+        
         # setup client and data provider
         self.client = Client('localhost', 2000)
         self.world = self.client.get_world()
         self.traffic_manager = self.client.get_trafficmanager(
-                env_config['trafficmanager_port'])
+                econfig.trafficmanager_port)
         self.traffic_manager.set_random_device_seed(
-                env_config['trafficmanager_seed'])
+                econfig.trafficmanager_seed)
         
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(self.world)
         CarlaDataProvider.set_traffic_manager_port(
-                env_config['trafficmanager_port'])
+                econfig.trafficmanager_port)
 
         signal.signal(signal.SIGINT, self._signal_handler)
 
@@ -64,11 +71,11 @@ class CarlaEnv(gym.Env):
 
     def reset(self):
         
-        # 
+        # load next RouteScenario
         num_configs = len(self.indexer._configs_list)
-        config = self.indexer.get(np.random.randint(num_configs))
-        config.agent = self.agent_instance
-        self._load_world_and_scenario(config)
+        rconfig = self.indexer.get(np.random.randint(num_configs))
+        rconfig.agent = self.agent_instance
+        self._load_world_and_scenario(rconfig)
         
         self._get_hero_route(draw=True)
 
@@ -78,10 +85,11 @@ class CarlaEnv(gym.Env):
         self.manager._watchdog.start()
         self.manager._running = True
 
+        self.agent_instance.reset()
         self.frame = 0
         self.last_hero_positions = deque()
-        start = np.zeros(6)
-        return start
+
+        return np.zeros(6)
 
     # convert action to vehicle control and tick scenario
     def step(self, action):
@@ -175,10 +183,10 @@ class CarlaEnv(gym.Env):
 
 
 
-    def _load_world_and_scenario(self, config):
+    def _load_world_and_scenario(self, rconfig):
 
         # setup world and retrieve map
-        self.world = self.client.load_world(config.town)
+        self.world = self.client.load_world(rconfig.town)
         settings = self.world.get_settings()
         settings.fixed_delta_seconds = 1.0 / 20.0
         settings.synchronous_mode = True
@@ -191,7 +199,7 @@ class CarlaEnv(gym.Env):
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(self.world)
         CarlaDataProvider.set_traffic_manager_port(
-                self.env_config['trafficmanager_port'])
+                self.econfig.trafficmanager_port)
         if CarlaDataProvider.is_sync_mode():
             self.world.tick()
         else:
@@ -200,13 +208,13 @@ class CarlaEnv(gym.Env):
         # setup scenario and scenario manager
         self.scenario = RouteScenario(
                 self.world, 
-                config, 
+                rconfig, 
                 criteria_enable=False, 
-                env_config=self.env_config)
+                env_config=self.econfig)
         self.manager.load_scenario(
                 self.scenario, 
-                config.agent,
-                config.repetition_index)
+                rconfig.agent,
+                rconfig.repetition_index)
 
         self.hero_actor = CarlaDataProvider.get_hero_actor()
         if CarlaDataProvider.is_sync_mode():
