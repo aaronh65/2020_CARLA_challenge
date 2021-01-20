@@ -187,7 +187,7 @@ class ScenarioManager(object):
         """
         return self._watchdog.get_status()
 
-    def stop_scenario(self):
+    def stop_scenario(self, analyze=True):
         """
         This function triggers a proper termination of a scenario
         """
@@ -207,6 +207,7 @@ class ScenarioManager(object):
                 self._agent.cleanup()
                 self._agent = None
 
+        if analyze:
             self.analyze_scenario()
 
     def analyze_scenario(self):

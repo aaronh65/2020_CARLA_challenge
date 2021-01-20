@@ -8,6 +8,7 @@ from env_utils import *
 from reward_utils import *
 from carla import Client
 
+from srunner.scenariomanager.timer import GameTime
 from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from leaderboard.scenarios.scenario_manager import ScenarioManager
 from leaderboard.scenarios.route_scenario import RouteScenario
@@ -72,10 +73,13 @@ class CarlaEnv(gym.Env):
         self._get_hero_route(draw=True)
 
         # prepare manager for run
-        self.manager._running = True
+        self.manager.start_system_time = time.time()
+        self.manager.start_game_time = GameTime.get_time()
         self.manager._watchdog.start()
-        self.frame = 0
+        self.manager._running = True
 
+        self.frame = 0
+        self.last_hero_positions = deque()
         start = np.zeros(6)
         return start
 
@@ -96,7 +100,7 @@ class CarlaEnv(gym.Env):
 
     def _tick(self, timestamp):
 
-        self.manager._tick_scenario(timestamp)
+        self.manager._tick_scenario(timestamp) # ticks
         hero_transform = CarlaDataProvider.get_transform(self.hero_actor)
         hero_vector = transform_to_vector(hero_transform)
 
@@ -139,24 +143,25 @@ class CarlaEnv(gym.Env):
 
     def cleanup(self):
 
+        self.manager.stop_scenario(analyze=False)
+
         #if self.manager and self.manager.get_running_status():
-        if self.manager:
-            self.manager.cleanup()
-            if self.manager._watchdog._timer:
-                self.manager._watchdog.stop()
+        #    self.manager.cleanup()
+        #    if self.manager._watchdog._timer:
+        #        self.manager._watchdog.stop()
 
-            if self.manager.get_running_status():
-                if self.manager.scenario:
-                    self.manager.scenario.terminate()
-                    self.manager.scenario = None
+        #    if self.manager.get_running_status():
+        #        if self.manager.scenario:
+        #            self.manager.scenario.terminate()
+        #            self.manager.scenario = None
 
-                if self.manager._agent:
-                    self.manager._agent.cleanup()
-                    self.manager._agent = None
+        #        if self.manager._agent:
+        #            self.manager._agent.cleanup()
+        #            self.manager._agent = None
 
-        if self.scenario:
-            self.scenario.remove_all_actors()
-            self.scenario = None
+        #if self.scenario:
+        #    self.scenario.remove_all_actors()
+        #    self.scenario = None
 
         # Simulation still running and in synchronous mode?
         if self.manager and self.manager.get_running_status() and self.world:
@@ -167,12 +172,16 @@ class CarlaEnv(gym.Env):
             self.world.apply_settings(settings)
             self.traffic_manager.set_synchronous_mode(False)
 
+        if self.manager:
+            self.manager.cleanup()
+
+        CarlaDataProvider.cleanup()
+
         #if self.manager:
         #    self.manager = ScenarioManager(60, False)
 
-        CarlaDataProvider.cleanup()
-        self.hero_actor = None
 
+        self.hero_actor = None
         if self.agent_instance:
             # just clears sensor interface for resetting
             self.agent_instance.destroy() 
@@ -198,9 +207,13 @@ class CarlaEnv(gym.Env):
         self.world.apply_settings(settings)
         self.world.reset_all_traffic_lights()
         self.map = self.world.get_map()
+        self.traffic_manager.set_synchronous_mode(True)
 
         # setup provider and tick to check correctness
+        CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(self.world)
+        CarlaDataProvider.set_traffic_manager_port(
+                self.env_config['trafficmanager_port'])
         if CarlaDataProvider.is_sync_mode():
             self.world.tick()
         else:
@@ -221,8 +234,6 @@ class CarlaEnv(gym.Env):
             self.world.tick()
         else:
             self.world.wait_for_tick()
-
-     
 
     def _get_hero_route(self, draw=False):
 
