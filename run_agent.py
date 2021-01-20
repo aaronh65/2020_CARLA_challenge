@@ -20,7 +20,7 @@ args = parser.parse_args()
 # make base save path + log dir
 date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
 end_str = f'debug/{date_str}/{args.split}' if args.debug else f'{date_str}/{args.split}' 
-base_save_path = f'leaderboard/results/{args.agent}/{end_str}'
+base_save_path = f'/data/leaderboard/results/{args.agent}/{end_str}'
 mkdir_if_not_exists(f'{base_save_path}/logs')
 
 # route path
